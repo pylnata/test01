@@ -84,46 +84,6 @@ CREATE TABLE FunctionChecks (
   DEFERRABLE INITIALLY DEFERRED
 );
 
-CREATE TABLE FunctionFields (
-  createdAt TIMESTAMP_TEXT,
-  createdBy NVARCHAR(255),
-  modifiedAt TIMESTAMP_TEXT,
-  modifiedBy NVARCHAR(255),
-  ID NVARCHAR(36) NOT NULL,
-  formula NVARCHAR(5000),
-  group_ NVARCHAR(5000),
-  aggregation NVARCHAR(5000),
-  Function_ID NVARCHAR(36),
-  Field_ID NVARCHAR(36),
-  PRIMARY KEY(ID),
-  CONSTRAINT c__FunctionFields_Function
-  FOREIGN KEY(Function_ID)
-  REFERENCES Functions(ID)
-  DEFERRABLE INITIALLY DEFERRED,
-  CONSTRAINT c__FunctionFields_Field
-  FOREIGN KEY(Field_ID)
-  REFERENCES Fields(ID)
-  DEFERRABLE INITIALLY DEFERRED
-);
-
-CREATE TABLE FunctionFieldSelections (
-  createdAt TIMESTAMP_TEXT,
-  createdBy NVARCHAR(255),
-  modifiedAt TIMESTAMP_TEXT,
-  modifiedBy NVARCHAR(255),
-  ID NVARCHAR(36) NOT NULL,
-  sign NVARCHAR(5000),
-  opt NVARCHAR(5000),
-  low NVARCHAR(5000),
-  high NVARCHAR(5000),
-  FunctionField_ID NVARCHAR(36),
-  PRIMARY KEY(ID),
-  CONSTRAINT c__FunctionFieldSelections_FunctionField
-  FOREIGN KEY(FunctionField_ID)
-  REFERENCES FunctionFields(ID)
-  DEFERRABLE INITIALLY DEFERRED
-);
-
 CREATE TABLE ModelTables (
   createdAt TIMESTAMP_TEXT,
   createdBy NVARCHAR(255),
@@ -150,17 +110,27 @@ CREATE TABLE ModelTableFields (
   modifiedAt TIMESTAMP_TEXT,
   modifiedBy NVARCHAR(255),
   ID NVARCHAR(36) NOT NULL,
-  field_ID NVARCHAR(36),
+  Environment_ID NVARCHAR(36),
+  Function_ID NVARCHAR(36),
   ModelTable_ID NVARCHAR(36),
+  Field_ID NVARCHAR(36),
   PRIMARY KEY(ID),
-  CONSTRAINT c__ModelTableFields_field
-  FOREIGN KEY(field_ID)
-  REFERENCES Fields(ID)
+  CONSTRAINT c__ModelTableFields_Environment
+  FOREIGN KEY(Environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__ModelTableFields_Function
+  FOREIGN KEY(Function_ID)
+  REFERENCES Functions(ID)
   DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__ModelTableFields_ModelTable
   FOREIGN KEY(ModelTable_ID)
   REFERENCES ModelTables(ID)
   ON DELETE CASCADE
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__ModelTableFields_Field
+  FOREIGN KEY(Field_ID)
+  REFERENCES Fields(ID)
   DEFERRABLE INITIALLY DEFERRED
 );
 
@@ -171,18 +141,202 @@ CREATE TABLE Allocations (
   modifiedBy NVARCHAR(255),
   ID NVARCHAR(36) NOT NULL,
   type NVARCHAR(5000),
+  Environment_ID NVARCHAR(36),
   Function_ID NVARCHAR(36),
   SenderFunction_ID NVARCHAR(36),
   ReceiverFunction_ID NVARCHAR(36),
-  DriverField_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__Allocations_Environment
+  FOREIGN KEY(Environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__Allocations_Function
   FOREIGN KEY(Function_ID)
   REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE AllocationSenderSelectionFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  ID NVARCHAR(36) NOT NULL,
+  Allocation_ID NVARCHAR(36),
+  Field_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationSenderSelectionFields_Allocation
+  FOREIGN KEY(Allocation_ID)
+  REFERENCES Allocations(ID)
+  ON DELETE CASCADE
   DEFERRABLE INITIALLY DEFERRED,
-  CONSTRAINT c__Allocations_DriverField
+  CONSTRAINT c__AllocationSenderSelectionFields_Field
+  FOREIGN KEY(Field_ID)
+  REFERENCES Fields(ID)
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE AllocationSenderActionFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  ID NVARCHAR(36) NOT NULL,
+  Allocation_ID NVARCHAR(36),
+  Field_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationSenderActionFields_Allocation
+  FOREIGN KEY(Allocation_ID)
+  REFERENCES Allocations(ID)
+  ON DELETE CASCADE
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationSenderActionFields_Field
+  FOREIGN KEY(Field_ID)
+  REFERENCES Fields(ID)
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE AllocationReceiverSelectionFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  ID NVARCHAR(36) NOT NULL,
+  Allocation_ID NVARCHAR(36),
+  Field_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationReceiverSelectionFields_Allocation
+  FOREIGN KEY(Allocation_ID)
+  REFERENCES Allocations(ID)
+  ON DELETE CASCADE
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationReceiverSelectionFields_Field
+  FOREIGN KEY(Field_ID)
+  REFERENCES Fields(ID)
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE AllocationReceiverActionFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  ID NVARCHAR(36) NOT NULL,
+  Allocation_ID NVARCHAR(36),
+  Field_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationReceiverActionFields_Allocation
+  FOREIGN KEY(Allocation_ID)
+  REFERENCES Allocations(ID)
+  ON DELETE CASCADE
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationReceiverActionFields_Field
+  FOREIGN KEY(Field_ID)
+  REFERENCES Fields(ID)
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE AllocationRules (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  ID NVARCHAR(36) NOT NULL,
+  type NVARCHAR(5000),
+  Allocation_ID NVARCHAR(36),
+  DriverField_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRules_Allocation
+  FOREIGN KEY(Allocation_ID)
+  REFERENCES Allocations(ID)
+  ON DELETE CASCADE
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationRules_DriverField
   FOREIGN KEY(DriverField_ID)
   REFERENCES Fields(ID)
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE AllocationRuleSenderFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  ID NVARCHAR(36) NOT NULL,
+  formula NVARCHAR(5000),
+  group_ NVARCHAR(5000),
+  aggregation NVARCHAR(5000),
+  Rule_ID NVARCHAR(36),
+  Field_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRuleSenderFields_Rule
+  FOREIGN KEY(Rule_ID)
+  REFERENCES AllocationRules(ID)
+  ON DELETE CASCADE
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationRuleSenderFields_Field
+  FOREIGN KEY(Field_ID)
+  REFERENCES Fields(ID)
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE AllocationRuleSenderFieldSelections (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  ID NVARCHAR(36) NOT NULL,
+  sign NVARCHAR(5000),
+  opt NVARCHAR(5000),
+  low NVARCHAR(5000),
+  high NVARCHAR(5000),
+  Field_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRuleSenderFieldSelections_Field
+  FOREIGN KEY(Field_ID)
+  REFERENCES AllocationRuleSenderFields(ID)
+  ON DELETE CASCADE
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE AllocationRuleReceiverFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  ID NVARCHAR(36) NOT NULL,
+  formula NVARCHAR(5000),
+  group_ NVARCHAR(5000),
+  aggregation NVARCHAR(5000),
+  Rule_ID NVARCHAR(36),
+  Field_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRuleReceiverFields_Rule
+  FOREIGN KEY(Rule_ID)
+  REFERENCES AllocationRules(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationRuleReceiverFields_Field
+  FOREIGN KEY(Field_ID)
+  REFERENCES Fields(ID)
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE AllocationRuleReceiverFieldSelections (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  ID NVARCHAR(36) NOT NULL,
+  sign NVARCHAR(5000),
+  opt NVARCHAR(5000),
+  low NVARCHAR(5000),
+  high NVARCHAR(5000),
+  Field_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRuleReceiverFieldSelections_Field
+  FOREIGN KEY(Field_ID)
+  REFERENCES AllocationRuleReceiverFields(ID)
+  ON DELETE CASCADE
   DEFERRABLE INITIALLY DEFERRED
 );
 
@@ -265,7 +419,7 @@ CREATE TABLE ModelingService_Functions_drafts (
   PRIMARY KEY(ID)
 );
 
-CREATE TABLE ModelingService_ModelTables_drafts (
+CREATE TABLE ModelingService_Allocations_drafts (
   createdAt TIMESTAMP_TEXT NULL,
   createdBy NVARCHAR(255) NULL,
   modifiedAt TIMESTAMP_TEXT NULL,
@@ -274,6 +428,8 @@ CREATE TABLE ModelingService_ModelTables_drafts (
   type NVARCHAR(5000) NULL,
   Environment_ID NVARCHAR(36) NULL,
   Function_ID NVARCHAR(36) NULL,
+  SenderFunction_ID NVARCHAR(36) NULL,
+  ReceiverFunction_ID NVARCHAR(36) NULL,
   IsActiveEntity BOOLEAN,
   HasActiveEntity BOOLEAN,
   HasDraftEntity BOOLEAN,
@@ -281,14 +437,14 @@ CREATE TABLE ModelingService_ModelTables_drafts (
   PRIMARY KEY(ID)
 );
 
-CREATE TABLE ModelingService_ModelTableFields_drafts (
+CREATE TABLE ModelingService_AllocationSenderSelectionFields_drafts (
   createdAt TIMESTAMP_TEXT NULL,
   createdBy NVARCHAR(255) NULL,
   modifiedAt TIMESTAMP_TEXT NULL,
   modifiedBy NVARCHAR(255) NULL,
   ID NVARCHAR(36) NOT NULL,
-  field_ID NVARCHAR(36) NULL,
-  ModelTable_ID NVARCHAR(36) NULL,
+  Allocation_ID NVARCHAR(36) NULL,
+  Field_ID NVARCHAR(36) NULL,
   IsActiveEntity BOOLEAN,
   HasActiveEntity BOOLEAN,
   HasDraftEntity BOOLEAN,
@@ -296,17 +452,111 @@ CREATE TABLE ModelingService_ModelTableFields_drafts (
   PRIMARY KEY(ID)
 );
 
-CREATE TABLE ModelingService_Allocations_drafts (
+CREATE TABLE ModelingService_AllocationSenderActionFields_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  ID NVARCHAR(36) NOT NULL,
+  Allocation_ID NVARCHAR(36) NULL,
+  Field_ID NVARCHAR(36) NULL,
+  IsActiveEntity BOOLEAN,
+  HasActiveEntity BOOLEAN,
+  HasDraftEntity BOOLEAN,
+  DraftAdministrativeData_DraftUUID NVARCHAR(36) NOT NULL,
+  PRIMARY KEY(ID)
+);
+
+CREATE TABLE ModelingService_AllocationReceiverSelectionFields_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  ID NVARCHAR(36) NOT NULL,
+  Allocation_ID NVARCHAR(36) NULL,
+  Field_ID NVARCHAR(36) NULL,
+  IsActiveEntity BOOLEAN,
+  HasActiveEntity BOOLEAN,
+  HasDraftEntity BOOLEAN,
+  DraftAdministrativeData_DraftUUID NVARCHAR(36) NOT NULL,
+  PRIMARY KEY(ID)
+);
+
+CREATE TABLE ModelingService_AllocationReceiverActionFields_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  ID NVARCHAR(36) NOT NULL,
+  Allocation_ID NVARCHAR(36) NULL,
+  Field_ID NVARCHAR(36) NULL,
+  IsActiveEntity BOOLEAN,
+  HasActiveEntity BOOLEAN,
+  HasDraftEntity BOOLEAN,
+  DraftAdministrativeData_DraftUUID NVARCHAR(36) NOT NULL,
+  PRIMARY KEY(ID)
+);
+
+CREATE TABLE ModelingService_AllocationRules_drafts (
   createdAt TIMESTAMP_TEXT NULL,
   createdBy NVARCHAR(255) NULL,
   modifiedAt TIMESTAMP_TEXT NULL,
   modifiedBy NVARCHAR(255) NULL,
   ID NVARCHAR(36) NOT NULL,
   type NVARCHAR(5000) NULL,
-  Function_ID NVARCHAR(36) NULL,
-  SenderFunction_ID NVARCHAR(36) NULL,
-  ReceiverFunction_ID NVARCHAR(36) NULL,
+  Allocation_ID NVARCHAR(36) NULL,
   DriverField_ID NVARCHAR(36) NULL,
+  IsActiveEntity BOOLEAN,
+  HasActiveEntity BOOLEAN,
+  HasDraftEntity BOOLEAN,
+  DraftAdministrativeData_DraftUUID NVARCHAR(36) NOT NULL,
+  PRIMARY KEY(ID)
+);
+
+CREATE TABLE ModelingService_AllocationRuleSenderFields_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  ID NVARCHAR(36) NOT NULL,
+  formula NVARCHAR(5000) NULL,
+  group_ NVARCHAR(5000) NULL,
+  aggregation NVARCHAR(5000) NULL,
+  Rule_ID NVARCHAR(36) NULL,
+  Field_ID NVARCHAR(36) NULL,
+  IsActiveEntity BOOLEAN,
+  HasActiveEntity BOOLEAN,
+  HasDraftEntity BOOLEAN,
+  DraftAdministrativeData_DraftUUID NVARCHAR(36) NOT NULL,
+  PRIMARY KEY(ID)
+);
+
+CREATE TABLE ModelingService_AllocationRuleSenderFieldSelections_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  ID NVARCHAR(36) NOT NULL,
+  sign NVARCHAR(5000) NULL,
+  opt NVARCHAR(5000) NULL,
+  low NVARCHAR(5000) NULL,
+  high NVARCHAR(5000) NULL,
+  Field_ID NVARCHAR(36) NULL,
+  IsActiveEntity BOOLEAN,
+  HasActiveEntity BOOLEAN,
+  HasDraftEntity BOOLEAN,
+  DraftAdministrativeData_DraftUUID NVARCHAR(36) NOT NULL,
+  PRIMARY KEY(ID)
+);
+
+CREATE TABLE ModelingService_FunctionChecks_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  ID NVARCHAR(36) NOT NULL,
+  Function_ID NVARCHAR(36) NULL,
+  Field_ID NVARCHAR(36) NULL,
   IsActiveEntity BOOLEAN,
   HasActiveEntity BOOLEAN,
   HasDraftEntity BOOLEAN,
@@ -367,10 +617,10 @@ CREATE VIEW ModelingService_Allocations AS SELECT
   allocations_0.modifiedBy,
   allocations_0.ID,
   allocations_0.type,
+  allocations_0.Environment_ID,
   allocations_0.Function_ID,
   allocations_0.SenderFunction_ID,
-  allocations_0.ReceiverFunction_ID,
-  allocations_0.DriverField_ID
+  allocations_0.ReceiverFunction_ID
 FROM Allocations AS allocations_0;
 
 CREATE VIEW InputFunctions AS SELECT
@@ -404,9 +654,98 @@ CREATE VIEW ModelingService_ModelTableFields AS SELECT
   ModelTableFields_0.modifiedAt,
   ModelTableFields_0.modifiedBy,
   ModelTableFields_0.ID,
-  ModelTableFields_0.field_ID,
-  ModelTableFields_0.ModelTable_ID
+  ModelTableFields_0.Environment_ID,
+  ModelTableFields_0.Function_ID,
+  ModelTableFields_0.ModelTable_ID,
+  ModelTableFields_0.Field_ID
 FROM ModelTableFields AS ModelTableFields_0;
+
+CREATE VIEW ModelingService_AllocationSenderSelectionFields AS SELECT
+  AllocationSenderSelectionFields_0.createdAt,
+  AllocationSenderSelectionFields_0.createdBy,
+  AllocationSenderSelectionFields_0.modifiedAt,
+  AllocationSenderSelectionFields_0.modifiedBy,
+  AllocationSenderSelectionFields_0.ID,
+  AllocationSenderSelectionFields_0.Allocation_ID,
+  AllocationSenderSelectionFields_0.Field_ID
+FROM AllocationSenderSelectionFields AS AllocationSenderSelectionFields_0;
+
+CREATE VIEW ModelingService_AllocationSenderActionFields AS SELECT
+  AllocationSenderActionFields_0.createdAt,
+  AllocationSenderActionFields_0.createdBy,
+  AllocationSenderActionFields_0.modifiedAt,
+  AllocationSenderActionFields_0.modifiedBy,
+  AllocationSenderActionFields_0.ID,
+  AllocationSenderActionFields_0.Allocation_ID,
+  AllocationSenderActionFields_0.Field_ID
+FROM AllocationSenderActionFields AS AllocationSenderActionFields_0;
+
+CREATE VIEW ModelingService_AllocationReceiverSelectionFields AS SELECT
+  AllocationReceiverSelectionFields_0.createdAt,
+  AllocationReceiverSelectionFields_0.createdBy,
+  AllocationReceiverSelectionFields_0.modifiedAt,
+  AllocationReceiverSelectionFields_0.modifiedBy,
+  AllocationReceiverSelectionFields_0.ID,
+  AllocationReceiverSelectionFields_0.Allocation_ID,
+  AllocationReceiverSelectionFields_0.Field_ID
+FROM AllocationReceiverSelectionFields AS AllocationReceiverSelectionFields_0;
+
+CREATE VIEW ModelingService_AllocationReceiverActionFields AS SELECT
+  AllocationReceiverActionFields_0.createdAt,
+  AllocationReceiverActionFields_0.createdBy,
+  AllocationReceiverActionFields_0.modifiedAt,
+  AllocationReceiverActionFields_0.modifiedBy,
+  AllocationReceiverActionFields_0.ID,
+  AllocationReceiverActionFields_0.Allocation_ID,
+  AllocationReceiverActionFields_0.Field_ID
+FROM AllocationReceiverActionFields AS AllocationReceiverActionFields_0;
+
+CREATE VIEW ModelingService_AllocationRules AS SELECT
+  AllocationRules_0.createdAt,
+  AllocationRules_0.createdBy,
+  AllocationRules_0.modifiedAt,
+  AllocationRules_0.modifiedBy,
+  AllocationRules_0.ID,
+  AllocationRules_0.type,
+  AllocationRules_0.Allocation_ID,
+  AllocationRules_0.DriverField_ID
+FROM AllocationRules AS AllocationRules_0;
+
+CREATE VIEW ModelingService_FunctionChecks AS SELECT
+  FunctionChecks_0.createdAt,
+  FunctionChecks_0.createdBy,
+  FunctionChecks_0.modifiedAt,
+  FunctionChecks_0.modifiedBy,
+  FunctionChecks_0.ID,
+  FunctionChecks_0.Function_ID,
+  FunctionChecks_0.Field_ID
+FROM FunctionChecks AS FunctionChecks_0;
+
+CREATE VIEW ModelingService_AllocationRuleSenderFields AS SELECT
+  AllocationRuleSenderFields_0.createdAt,
+  AllocationRuleSenderFields_0.createdBy,
+  AllocationRuleSenderFields_0.modifiedAt,
+  AllocationRuleSenderFields_0.modifiedBy,
+  AllocationRuleSenderFields_0.ID,
+  AllocationRuleSenderFields_0.formula,
+  AllocationRuleSenderFields_0.group_,
+  AllocationRuleSenderFields_0.aggregation,
+  AllocationRuleSenderFields_0.Rule_ID,
+  AllocationRuleSenderFields_0.Field_ID
+FROM AllocationRuleSenderFields AS AllocationRuleSenderFields_0;
+
+CREATE VIEW ModelingService_AllocationRuleSenderFieldSelections AS SELECT
+  AllocationRuleSenderFieldSelections_0.createdAt,
+  AllocationRuleSenderFieldSelections_0.createdBy,
+  AllocationRuleSenderFieldSelections_0.modifiedAt,
+  AllocationRuleSenderFieldSelections_0.modifiedBy,
+  AllocationRuleSenderFieldSelections_0.ID,
+  AllocationRuleSenderFieldSelections_0.sign,
+  AllocationRuleSenderFieldSelections_0.opt,
+  AllocationRuleSenderFieldSelections_0.low,
+  AllocationRuleSenderFieldSelections_0.high,
+  AllocationRuleSenderFieldSelections_0.Field_ID
+FROM AllocationRuleSenderFieldSelections AS AllocationRuleSenderFieldSelections_0;
 
 CREATE VIEW ModelingService_DraftAdministrativeData AS SELECT
   DraftAdministrativeData.DraftUUID,

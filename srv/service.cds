@@ -13,6 +13,7 @@ service ModelingService {
     entity Environments as projection on environments;
     entity Fields       as projection on fields;
     entity Functions    as projection on functions;
+    
     @odata.draft.enabled
     entity ModelTables  as projection on modelTables;
     @odata.draft.enabled

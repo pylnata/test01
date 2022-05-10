@@ -19,7 +19,8 @@
   },
   "scripts": {
     "start": "cds run",
-    "watch-environments": "cds watch --open environments/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4"
+    "watch-environments": "cds watch --open environments/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4",
+    "watch-allocations": "cds watch --open allocations/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
@@ -98,6 +99,7 @@
     }
   },
   "sapux": [
-    "app/environments"
+    "app/environments",
+    "app/allocations"
   ]
 }
