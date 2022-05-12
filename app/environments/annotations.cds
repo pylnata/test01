@@ -17,6 +17,11 @@ annotate service.Environments with @(
             Label : 'description',
             Value : description,
         },
+        {
+            $Type : 'UI.DataFieldForAction',
+            Action : 'ModelingService.updateEnvironments',
+            Label : 'Update',
+        },
     ]
 );
 annotate service.Environments with @(
@@ -178,4 +183,13 @@ annotate service.Functions with @(
             Value : type,
             Label : 'type',
         },]
+);
+annotate service.Environments with @(
+    UI.Identification : [
+        {
+            $Type : 'UI.DataFieldForAction',
+            Action : 'ModelingService.updateEnvironments',
+            Label : 'Update',
+        },
+    ]
 );

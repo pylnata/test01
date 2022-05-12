@@ -11,7 +11,7 @@ using {
 @cds.odata.valuelist
 entity Environments : managed {
     key ID          : UUID @UI.Hidden  @odata.Type : 'Edm.String';
-        environment : String ;
+        environment : String;
         version     : String;
         description : String;
         Checks      : Composition of many Checks
