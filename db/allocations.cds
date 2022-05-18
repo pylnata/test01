@@ -21,99 +21,109 @@ using {
     ParentRule,
 } from './commonTypes';
 using {
-    function,
-    functionField,
+    keyFunction,
+    field,
+    formulaOrder,
     selection,
-    formulaOrderAggregation,
+    formulaGroupOrder,
     myCodeList
 } from './commonAspects';
 using {
     Functions,
-    FunctionFields,
     FunctionChecks
 } from './functions';
 using {Fields} from './fields';
 using {Checks} from './checks';
 
-
-entity Allocations : managed, function {
-    key ID                         : GUID;
-        type                       : Association to one AllocationTypes               @title : 'Type';
-        valueAdjustment            : Association to one AllocationValueAdjustments    @title : 'Value Adjustment';
-        includeInputData           : IncludeInputData default false;
-        resultHandling             : Association to one ResultHandlings               @title : 'Result Handling';
-        includeInitialResult       : IncludeInitialResult default false;
-        cycleFlag                  : CycleFlag default false;
-        cycleMaximum               : CycleMaximum default 0;
-        cycleIterationField        : Association to one Fields                        @title : 'Cycle Iteration Field';
-        cycleAggregation           : Association to one AllocationCycleAggregations   @title : 'Cycle Aggregation';
-        termFlag                   : TermFlag default false;
-        termIterationField         : Association to one AllocationTermIterationFields @title : 'Term Iteration Field';
-        termYearField              : Association to one AllocationTermYearFields      @title : 'Term Year Field';
-        termField                  : Association to one AllocationTermFields          @title : 'Term Field';
-        termProcessing             : Association to one AllocationTermProcessings     @title : 'Term Processing';
-        termYear                   : TermYear;
-        termMinimum                : TermMinimum;
-        termMaximum                : TermMaximum;
-        senderInputFunction        : Association to one SenderInputFunctions          @title : 'Sender Input Function';
-        receiverInputFunction      : Association to one ReceiverInputFunctions        @title : 'Receiver Input Function';
-        ResultFunction             : Association to one ResultFunctions               @title : 'Result Model Table';
-        earlyExitCheck             : Association to one EarlyExitChecks               @title : 'Early Exit Check';
-        senderFunctionSelections   : Composition of many FunctionFields;
-        receiverFunctionSelections : Composition of many FunctionFields;
-        selectionFields            : Composition of many FunctionFields;
-        actionFields               : Composition of many FunctionFields;
-        rSelectionFields           : Composition of many FunctionFields;
-        rActionFields              : Composition of many FunctionFields;
-        rules                      : Composition of many AllocationRules;
-        offsets                    : Composition of many AllocationOffsets;
-        debitCredits               : Composition of many AllocationDebitCredits;
-        checks                     : Composition of many FunctionChecks;
+aspect allocation {
+    
 }
 
-entity AllocationRules : managed, function {
-    key ID               : GUID;
-        rule             : Rule;
-        sequence         : Sequence;
-        type             : Association to one AllocationRuleTypes;
-        alMethod         : Association to one AllocationRuleMethods;
-        ruleState        : RuleState default true;
-        parentRule       : Association to one ParentAllocationRules;
-        senderRule       : Association to one AllocationSenderRules;
-        receiverRule     : Association to one AllocationReceiverRules;
-        distributionBase : DistributionBase;
-        scale            : Association to one AllocationRuleScales;
-        senderShare      : SenderShare default 100;
-        driverField      : Association to one DriverFields;
-        allocation       : Association to one Allocations;
-        fields           : Association to many AllocationRuleFields;
+entity Allocations : managed, keyFunction {
+    type                    : Association to one AllocationTypes               @title : 'Type';
+    valueAdjustment         : Association to one AllocationValueAdjustments    @title : 'Value Adjustment';
+    includeInputData        : IncludeInputData default false;
+    resultHandling          : Association to one ResultHandlings               @title : 'Result Handling';
+    includeInitialResult    : IncludeInitialResult default false;
+    cycleFlag               : CycleFlag default false;
+    cycleMaximum            : CycleMaximum default 0;
+    cycleIterationField     : Association to one Fields                        @title : 'Cycle Iteration Field';
+    cycleAggregation        : Association to one AllocationCycleAggregations   @title : 'Cycle Aggregation';
+    termFlag                : TermFlag default false;
+    termIterationField      : Association to one AllocationTermIterationFields @title : 'Term Iteration Field';
+    termYearField           : Association to one AllocationTermYearFields      @title : 'Term Year Field';
+    termField               : Association to one AllocationTermFields          @title : 'Term Field';
+    termProcessing          : Association to one AllocationTermProcessings     @title : 'Term Processing';
+    termYear                : TermYear;
+    termMinimum             : TermMinimum;
+    termMaximum             : TermMaximum;
+    senderInput             : Association to one FunctionInputs                @title : 'Sender Input';
+    receiverInput           : Association to one FunctionReceiverInputs        @title : 'Receiver Input';
+    resultFunction          : Association to one FunctionResultFunctions       @title : 'Result Model Table';
+    earlyExitCheck          : Association to one EarlyExitChecks               @title : 'Early Exit Check';
+    selectionFields         : Composition of many AllocationSelectionFields
+                                  on selectionFields.allocation = $self;
+    actionFields            : Composition of many AllocationActionFields
+                                  on actionFields.allocation = $self;
+    receiverSelectionFields : Composition of many AllocationReceiverSelectionFields
+                                  on receiverSelectionFields.allocation = $self;
+    receiverActionFields    : Composition of many AllocationReceiverActionFields
+                                  on receiverActionFields.allocation = $self;
+    rules                   : Composition of many AllocationRules
+                                  on rules.allocation = $self;
+    offsets                 : Composition of many AllocationOffsets
+                                  on offsets.allocation = $self;
+    debitCredits            : Composition of many AllocationDebitCredits
+                                  on debitCredits.allocation = $self;
+    checks                  : Composition of many AllocationChecks
+                                  on checks.allocation = $self;
 }
 
-entity AllocationRuleFields : managed, functionField, formulaOrderAggregation {
-    key ID         : GUID;
-        rule       : Association to one AllocationRules @mandatory;
-        Selections : Association to many AllocationRuleFieldSelections;
+entity FunctionInputs : managed, keyFunction {
+    inputFunction : Association to one Functions @mandatory;
+    fields        : Composition of many FunctionInputFields
+                        on fields.function = $self;
+};
+
+entity FunctionInputFields : managed, keyFunction, formulaOrder, selection {
+    key ID       : GUID;
+        function : Association to one FunctionInputs @mandatory;
+
 }
 
-entity AllocationRuleFieldSelections : managed, functionField, selection {
-    key ID    : GUID;
-        field : Association to AllocationRuleFields @mandatory;
+entity FunctionReceiverInputs : managed, keyFunction {
+    inputFunction : Association to one Functions @mandatory;
+    fields        : Composition of many FunctionReceiverInputFields
+                        on fields.function = $self;
+};
+
+entity FunctionReceiverInputFields : managed, keyFunction, formulaOrder, selection {
+    function : Association to one FunctionReceiverInputs @mandatory;
 }
 
-entity AllocationOffsets : managed, function {
+entity FunctionResultFunctions       as projection on Functions;
+
+entity AllocationOffsets : managed {
     key ID          : GUID;
-        field       : Association to one Fields;
-        offsetField : Association to one Fields;
+        allocation  : Association to one Allocations @mandatory;
+        field       : Association to one Fields      @mandatory;
+        offsetField : Association to one Fields      @mandatory;
 }
 
-entity AllocationDebitCredits : managed, function {
+entity AllocationDebitCredits : managed {
     key ID         : GUID;
-        field      : Association to one Fields;
+        allocation : Association to one Allocations @mandatory;
+        field      : Association to one Fields      @mandatory;
         debitSign  : DebitSign;
         creditSign : CreditSign;
         sequence   : Sequence;
 }
 
+entity AllocationChecks : managed {
+    key ID         : GUID;
+        allocation : Association to one Allocations @mandatory;
+        check      : Association to one Checks      @mandatory;
+}
 
 type AllocationType @(assert.range) : String(10) @title : 'Type' enum {
     Allocation                          = 'ALLOC';
@@ -156,6 +166,99 @@ entity AllocationCycleAggregations : myCodeList {
     key code : AllocationCycleAggregation default '';
 }
 
+entity AllocationSelectionFields {
+    key ID         : GUID;
+        allocation : Association to one Allocations @mandatory;
+        field      : Association to one Fields      @mandatory;
+}
+
+entity AllocationActionFields {
+    key ID         : GUID;
+        allocation : Association to one Allocations @mandatory;
+        field      : Association to one Fields      @mandatory;
+}
+
+entity AllocationReceiverSelectionFields {
+    key ID         : GUID;
+        allocation : Association to one Allocations @mandatory;
+        field      : Association to one Fields      @mandatory;
+}
+
+entity AllocationReceiverActionFields {
+    key ID         : GUID;
+        allocation : Association to one Allocations @mandatory;
+        field      : Association to one Fields      @mandatory;
+}
+
+type OffsetField : Field @title : 'Offset Field';
+type DistributionBase : String @title : 'Distribution Base';
+
+type SenderShare : Decimal @title : 'Sender Share'  @assert.range : [
+    0,
+    100
+];
+
+type DriverField : Field @title : 'Driver Result Field';
+type DebitSign : String @title : 'Debit Sign';
+type CreditSign : String @title : 'Credit Sign';
+type CycleFlag : Boolean @title : 'Is Cycle';
+type CycleMaximum : String @title : 'Cycle Maximum';
+type CycleIterationField : Field @title : 'Cycle Iteration Field';
+type TermFlag : Boolean @title : 'Is Term';
+
+entity AllocationTermIterationFields as projection on Fields where(
+        class.code = ''
+    and type.code  = 'KYF'
+);
+
+entity AllocationTermYearFields      as projection on Fields where(
+        class.code =  ''
+    and type.code  =  'CHA'
+    and dataLength >= 4
+);
+
+entity AllocationTermFields          as projection on Fields where(
+        class.code =  ''
+    and type.code  =  'CHA'
+    and dataLength >= 4
+);
+
+type TermField : Field @title : 'Term Field';
+type TermYear : String @title : 'Term Year';
+type TermMinimum : String @title : 'Term Minimum';
+type TermMaximum : String @title : 'Term Maximum';
+entity EarlyExitChecks               as projection on Checks;
+
+entity AllocationRules : managed {
+    key ID               : GUID;
+        allocation       : Association to one Allocations;
+        rule             : Rule;
+        sequence         : Sequence;
+        type             : Association to one AllocationRuleTypes;
+        alMethod         : Association to one AllocationRuleMethods;
+        ruleState        : RuleState default true;
+        parentRule       : Association to one AllocationRules            @title : 'Parent';
+        senderRule       : Association to one AllocationSenderRules      @title : 'Sender Rule';
+        receiverRule     : Association to one AllocationReceiverRules    @title : 'Receiver Rule';
+        distributionBase : DistributionBase;
+        scale            : Association to one AllocationRuleScales       @title : 'Scale';
+        senderShare      : SenderShare default 100;
+        driverField      : Association to one AllocationRuleDriverFields @title : 'Driver Field';
+        fields           : Association to many AllocationRuleFields
+                               on fields.rule = $self;
+}
+
+entity AllocationRuleFields : managed, formulaGroupOrder {
+    key ID         : GUID;
+        rule       : Association to one AllocationRules @mandatory;
+        selections : Composition of many AllocationRuleFieldSelections
+                         on selections.field = $self;
+}
+
+entity AllocationRuleFieldSelections : managed, selection {
+    key ID    : GUID;
+        field : Association to AllocationRuleFields @mandatory;
+}
 
 type AllocationRuleType @(assert.range) : String(10) @title : 'Rule Type' enum {
     Direct           = 'DIRECT';
@@ -211,46 +314,4 @@ entity AllocationRuleScales : myCodeList {
     key code : AllocationRuleScale default '';
 }
 
-entity SenderInputFunctions          as projection on Functions;
-entity ReceiverInputFunctions        as projection on Functions;
-entity ResultFunctions               as projection on Functions;
-type OffsetField : Field @title : 'Offset Field';
-type DistributionBase : String @title : 'Distribution Base';
-
-type SenderShare : Decimal @title : 'Sender Share'  @assert.range : [
-    0,
-    100
-];
-
-type DriverField : Field @title : 'Driver Result Field';
-type DebitSign : String @title : 'Debit Sign';
-type CreditSign : String @title : 'Credit Sign';
-type CycleFlag : Boolean @title : 'Is Cycle';
-type CycleMaximum : String @title : 'Cycle Maximum';
-type CycleIterationField : Field @title : 'Cycle Iteration Field';
-type TermFlag : Boolean @title : 'Is Term';
-
-entity AllocationTermIterationFields as projection on Fields where(
-        class.code = ''
-    and type.code  = 'KYF'
-);
-
-entity AllocationTermYearFields      as projection on Fields where(
-        class.code =  ''
-    and type.code  =  'CHA'
-    and dataLength >= 4
-);
-
-entity AllocationTermFields          as projection on Fields where(
-        class.code =  ''
-    and type.code  =  'CHA'
-    and dataLength >= 4
-);
-
-type TermField : Field @title : 'Term Field';
-type TermYear : String @title : 'Term Year';
-type TermMinimum : String @title : 'Term Minimum';
-type TermMaximum : String @title : 'Term Maximum';
-entity EarlyExitChecks               as projection on Checks;
-entity ParentAllocationRules         as projection on AllocationRules;
-entity DriverFields                  as projection on Fields;
+entity AllocationRuleDriverFields    as projection on Fields;

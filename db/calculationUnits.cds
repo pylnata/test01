@@ -9,8 +9,8 @@ using {
     sap.common.CodeList
 } from '@sap/cds/common';
 
-using { function } from './commonAspects';
+using { keyFunction } from './commonAspects';
 
-entity CalculationUnits : managed, function {
+entity CalculationUnits : managed, keyFunction {
 }
 

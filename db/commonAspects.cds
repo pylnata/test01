@@ -37,18 +37,34 @@ aspect environment : {
 }
 
 aspect function : environment {
-  Function : Association to one Functions @mandatory;
+  function : Association to one Functions @mandatory;
+}
+
+aspect keyFunction : environment {
+  key function : Association to one Functions @mandatory;
 }
 
 aspect field : environment {
   field : Association to one Fields @mandatory;
 }
 
-aspect functionField : function {
-  field : Association to one Fields @mandatory;
+aspect check : environment {
+  check : Association to one Checks @mandatory;
 }
 
-aspect formulaOrderAggregation {
+aspect formula {
+  formula : String;
+}
+
+aspect formulaGroup : formula {
+  group_ : Association to one Groups @mandatory;
+}
+
+aspect formulaOrder : formula {
+  order_ : Association to one Orders @mandatory;
+}
+
+aspect formulaGroupOrder : formulaGroup {
   formula : String;
   group_  : Association to one Groups @mandatory;
   order_  : Association to one Orders @mandatory;

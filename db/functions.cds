@@ -20,16 +20,14 @@ using {
     environment,
     field,
     function,
-    functionField,
     myCodeList
 } from './commonAspects';
 using {Fields} from './fields';
 using {Checks} from './checks';
 using {Partitions} from './partitions';
-// using {Allocations} from './allocations';
-// using {CalculationUnits} from './calculationUnits';
-// using {Descriptions} from './descriptions';
-// using {ModelTables} from './modelTables';
+using {Allocations} from './allocations';
+using {CalculationUnits} from './calculationUnits';
+using {ModelTables} from './modelTables';
 
 
 // @assert.unique : {
@@ -62,11 +60,6 @@ entity Functions : managed, environment {
 aspect FunctionChecks : managed, function {
     key ID : GUID;
     check  : Association to one Checks;
-}
-
-aspect FunctionFields : managed, functionField {
-    key ID : GUID;
-    sfield : Sfield;
 }
 
 @cds.autoexpose  @readonly
