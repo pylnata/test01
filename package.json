@@ -1,103 +1,99 @@
 {
-  "name": "test01",
-  "version": "1.0.0",
-  "description": "A simple CAP project.",
-  "repository": "<Add your repository here>",
-  "license": "UNLICENSED",
-  "private": true,
-  "dependencies": {
-    "@sap/cds": "^5",
-    "express": "^4",
-    "hdb": "^0.19.0"
-  },
-  "devDependencies": {
-    "@sap/eslint-plugin-ui5-jsdocs": "^2.0.5",
-    "@sap/ux-specification": "^1.100.1",
-    "@sapui5/ts-types": "^1.92.2",
-    "eslint": "^7.32.0",
-    "sqlite3": "^5.0.2"
-  },
-  "scripts": {
-    "start": "cds run",
-    "watch-environments": "cds watch --open environments/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4"
-  },
-  "eslintConfig": {
-    "extends": "eslint:recommended",
-    "env": {
-      "es2020": true,
-      "node": true,
-      "jest": true,
-      "mocha": true
+    "name": "test01",
+    "version": "1.0.0",
+    "description": "A simple CAP project.",
+    "repository": "<Add your repository here>",
+    "license": "UNLICENSED",
+    "private": true,
+    "dependencies": {
+        "@sap/cds": "^5",
+        "express": "^4",
+        "hdb": "^0.19.0"
     },
-    "globals": {
-      "SELECT": true,
-      "INSERT": true,
-      "UPDATE": true,
-      "DELETE": true,
-      "CREATE": true,
-      "DROP": true,
-      "CDL": true,
-      "CQL": true,
-      "CXL": true,
-      "cds": true
+    "devDependencies": {
+        "@sap/eslint-plugin-ui5-jsdocs": "^2.0.5",
+        "@sap/ux-specification": "^1.100.1",
+        "@sapui5/ts-types": "^1.92.2",
+        "eslint": "^7.32.0",
+        "sqlite3": "^5.0.2"
     },
-    "rules": {
-      "no-console": "off",
-      "require-atomic-updates": "off"
-    }
-  },
-  "cds": {
-    "requires": {
-      "auth": {
-        "kind": "basic-auth",
-        "users": {
-          "alice": {
-            "roles": [
-              "admin"
-            ]
-          },
-          "bob": {
-            "roles": [
-              "Modeler",
-              "builder"
-            ]
-          },
-          "*": false
-        }
-      },
-      "messaging": {
-        "[development]": {
-          "kind": "file-based-messaging",
-          "format": "cloudevents"
+    "scripts": {
+        "start": "cds run"
+    },
+    "eslintConfig": {
+        "extends": "eslint:recommended",
+        "env": {
+            "es2020": true,
+            "node": true,
+            "jest": true,
+            "mocha": true
         },
-        "[xxxhybrid]": {
-          "kind": "enterprise-messaging-shared",
-          "format": "cloudevents"
+        "globals": {
+            "SELECT": true,
+            "INSERT": true,
+            "UPDATE": true,
+            "DELETE": true,
+            "CREATE": true,
+            "DROP": true,
+            "CDL": true,
+            "CQL": true,
+            "CXL": true,
+            "cds": true
         },
-        "[production]": {
-          "kind": "enterprise-messaging",
-          "format": "cloudevents"
+        "rules": {
+            "no-console": "off",
+            "require-atomic-updates": "off"
         }
-      },
-      "xxxdb": {
-        "kind": "hana-cloud"
-      }
     },
-    "cdsc": {
-      "docs": true
-    },
-    "hana": {
-      "journal": {
-        "enable-drop": false,
-        "change-mode": "alter"
-      },
-      "deploy-format": "hdbtable"
-    },
-    "features": {
-      "assert_integrity": "db"
+    "cds": {
+        "requires": {
+            "auth": {
+                "kind": "basic-auth",
+                "users": {
+                    "alice": {
+                        "roles": [
+                            "admin"
+                        ]
+                    },
+                    "bob": {
+                        "roles": [
+                            "Modeler",
+                            "builder"
+                        ]
+                    },
+                    "*": false
+                }
+            },
+            "messaging": {
+                "[development]": {
+                    "kind": "file-based-messaging",
+                    "format": "cloudevents"
+                },
+                "[xxxhybrid]": {
+                    "kind": "enterprise-messaging-shared",
+                    "format": "cloudevents"
+                },
+                "[production]": {
+                    "kind": "enterprise-messaging",
+                    "format": "cloudevents"
+                }
+            },
+            "xxxdb": {
+                "kind": "hana-cloud"
+            }
+        },
+        "cdsc": {
+            "docs": true
+        },
+        "hana": {
+            "journal": {
+                "enable-drop": false,
+                "change-mode": "alter"
+            },
+            "deploy-format": "hdbtable"
+        },
+        "features": {
+            "assert_integrity": "db"
+        }
     }
-  },
-  "sapux": [
-    "app/environments"
-  ]
 }

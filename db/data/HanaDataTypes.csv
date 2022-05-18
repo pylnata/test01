@@ -1,0 +1,11 @@
+CODE;NAME;DESCR
+DATE;Local Date;Local Date
+TIME;Local Time;Local Time
+TIMESTAMP;UTC Timestamp;UTC Timestamp
+INTEGER;Integer;Integer
+BIGINT;Big Integer;Big Integer
+DECIMAL;Decimal;Decimal
+DOUBLE;Double;Double
+BOOLEAN;Boolean;Boolean
+NVARCHAR;String;String
+NCLOB;Large String;Large String

@@ -1,0 +1,5 @@
+CODE;NAME;DESCR
+ENRICHED;Include Enriched Data;Include Enriched Data
+ALL;Include All Data;Include All Data
+ERROR;Error on not enriched Data;Error on not enriched Data
+ABORT;Abort on not enriched Data;Abort on not enriched Data
