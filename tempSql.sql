@@ -485,6 +485,22 @@ CREATE TABLE AllocationOffsets (
   CONSTRAINT c__AllocationOffsets_field
   FOREIGN KEY(field_ID)
   REFERENCES Fields(ID)
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE AllocationSenderActionFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  ID NVARCHAR(36) NOT NULL,
+  Allocation_ID NVARCHAR(36),
+  Field_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationSenderActionFields_Allocation
+  FOREIGN KEY(Allocation_ID)
+  REFERENCES Allocations(ID)
+  ON DELETE CASCADE
   DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationOffsets_offsetField
   FOREIGN KEY(offsetField_ID)
