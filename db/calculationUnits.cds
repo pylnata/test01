@@ -1,4 +1,3 @@
-
 using {
     managed,
     Currency,
@@ -9,8 +8,9 @@ using {
     sap.common.CodeList
 } from '@sap/cds/common';
 
-using { keyFunction } from './commonAspects';
+using {GUID} from './commonTypes';
+using {function} from './commonAspects';
 
-entity CalculationUnits : managed, keyFunction {
+entity CalculationUnits : managed, function {
+    key ID : GUID;
 }
-

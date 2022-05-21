@@ -28,6 +28,12 @@ using {Functions} from './functions';
 //         version
 //     ]
 // }
+
+@cds.odata.valuelist
+@UI.Identification : [
+    {Value : environment},
+    {Value : version}
+]
 entity Environments : managed {
     key ID          : GUID;
         environment : Environment;
@@ -45,7 +51,10 @@ entity Environments : managed {
 }
 
 @cds.autoexpose  @readonly
-entity EnvironmentFolders as projection on Environments {key ID, description} where type.code = 'NODE';
+entity EnvironmentFolders as projection on Environments {
+    key ID,
+        description
+} where type.code = 'NODE';
 
 type EnvironmentType @mandatory @(assert.range) : String @title : 'Type' enum {
     Folder      = 'NODE';

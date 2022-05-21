@@ -40,6 +40,10 @@ using {ModelTables} from './modelTables';
 //         description,
 //     ]
 // }
+
+@cds.autoexpose
+@cds.odata.valuelist
+@UI.Identification : [{Value : function}]
 entity Functions : managed, environment {
     key ID                    : GUID;
         function              : Function;

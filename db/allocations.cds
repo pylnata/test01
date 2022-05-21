@@ -36,62 +36,86 @@ using {
 using {Fields} from './fields';
 using {Checks} from './checks';
 
-aspect allocation {
+using {
+    EnvironmentFunctions,
+    EnvironmentFields,
+    EnvironmentChecks,
+    EnvironmentPartitions
+} from './commonEntities';
 
+entity Allocations : managed, function {
+    key ID                      : UUID;
+        type                    : Association to one AllocationTypes               @title : 'Type';
+        valueAdjustment         : Association to one AllocationValueAdjustments    @title : 'Value Adjustment';
+        includeInputData        : IncludeInputData default false;
+        resultHandling          : Association to one ResultHandlings               @title : 'Result Handling';
+        includeInitialResult    : IncludeInitialResult default false;
+        cycleFlag               : CycleFlag default false;
+        cycleMaximum            : CycleMaximum default 0;
+        cycleIterationField     : Association to one Fields                        @title : 'Cycle Iteration Field';
+        cycleAggregation        : Association to one AllocationCycleAggregations   @title : 'Cycle Aggregation';
+        termFlag                : TermFlag default false;
+        termIterationField      : Association to one AllocationTermIterationFields @title : 'Term Iteration Field';
+        termYearField           : Association to one AllocationTermYearFields      @title : 'Term Year Field';
+        termField               : Association to one AllocationTermFields          @title : 'Term Field';
+        termProcessing          : Association to one AllocationTermProcessings     @title : 'Term Processing';
+        termYear                : TermYear;
+        termMinimum             : TermMinimum;
+        termMaximum             : TermMaximum;
+        senderInput             : UUID                                         @title : 'Sender Input';
+        _senderInput            : Association to one Functions
+                                      on _senderInput.environment = environment    @title : 'Sender Input';
+        senderFields            : Composition of many SenderFields
+                                      on senderFields.allocation = $self;
+        receiverInput           : Association to one FunctionInputs                @title : 'Receiver Input';
+        resultFunction          : Association to one FunctionResultFunctions       @title : 'Result Model Table';
+        earlyExitCheck          : Association to one EarlyExitChecks               @title : 'Early Exit Check';
+        selectionFields         : Composition of many AllocationSelectionFields
+                                      on selectionFields.allocation = $self;
+        actionFields            : Composition of many AllocationActionFields
+                                      on actionFields.allocation = $self;
+        receiverSelectionFields : Composition of many AllocationReceiverSelectionFields
+                                      on receiverSelectionFields.allocation = $self;
+        receiverActionFields    : Composition of many AllocationReceiverActionFields
+                                      on receiverActionFields.allocation = $self;
+        rules                   : Composition of many AllocationRules
+                                      on rules.allocation = $self;
+        offsets                 : Composition of many AllocationOffsets
+                                      on offsets.allocation = $self;
+        debitCredits            : Composition of many AllocationDebitCredits
+                                      on debitCredits.allocation = $self;
+        checks                  : Composition of many AllocationChecks
+                                      on checks.allocation = $self;
 }
 
-entity Allocations : managed, keyFunction {
-    type                    : Association to one AllocationTypes               @title : 'Type';
-    valueAdjustment         : Association to one AllocationValueAdjustments    @title : 'Value Adjustment';
-    includeInputData        : IncludeInputData default false;
-    resultHandling          : Association to one ResultHandlings               @title : 'Result Handling';
-    includeInitialResult    : IncludeInitialResult default false;
-    cycleFlag               : CycleFlag default false;
-    cycleMaximum            : CycleMaximum default 0;
-    cycleIterationField     : Association to one Fields                        @title : 'Cycle Iteration Field';
-    cycleAggregation        : Association to one AllocationCycleAggregations   @title : 'Cycle Aggregation';
-    termFlag                : TermFlag default false;
-    termIterationField      : Association to one AllocationTermIterationFields @title : 'Term Iteration Field';
-    termYearField           : Association to one AllocationTermYearFields      @title : 'Term Year Field';
-    termField               : Association to one AllocationTermFields          @title : 'Term Field';
-    termProcessing          : Association to one AllocationTermProcessings     @title : 'Term Processing';
-    termYear                : TermYear;
-    termMinimum             : TermMinimum;
-    termMaximum             : TermMaximum;
-    senderInput             : Association to one FunctionInputs                @title : 'Sender Input';
-    receiverInput           : Association to one FunctionInputs                @title : 'Receiver Input';
-    resultFunction          : Association to one FunctionResultFunctions       @title : 'Result Model Table';
-    earlyExitCheck          : Association to one EarlyExitChecks               @title : 'Early Exit Check';
-    selectionFields         : Composition of many AllocationSelectionFields
-                                  on selectionFields.allocation = $self;
-    actionFields            : Composition of many AllocationActionFields
-                                  on actionFields.allocation = $self;
-    receiverSelectionFields : Composition of many AllocationReceiverSelectionFields
-                                  on receiverSelectionFields.allocation = $self;
-    receiverActionFields    : Composition of many AllocationReceiverActionFields
-                                  on receiverActionFields.allocation = $self;
-    rules                   : Composition of many AllocationRules
-                                  on rules.allocation = $self;
-    offsets                 : Composition of many AllocationOffsets
-                                  on offsets.allocation = $self;
-    debitCredits            : Composition of many AllocationDebitCredits
-                                  on debitCredits.allocation = $self;
-    checks                  : Composition of many AllocationChecks
-                                  on checks.allocation = $self;
+entity SenderFields : managed {
+    key ID         : GUID;
+        allocation : Association to one Allocations;
+        field      : Association to one EnvironmentFields @mandatory;
+        selections : Composition of many SenderFieldSelections
+                         on selections.field = $self;
 }
 
+entity SenderFieldSelections : managed, selection {
+    key ID    : GUID;
+        field : Association to one SenderFields;
+}
+
+@cds.autoexpose
+@cds.odata.valuelist
+@UI.Identification : [{Value : function.description}]
 entity FunctionInputs : managed {
     key ID            : GUID;
-        function      : Association to one Functions @mandatory;
-        inputFunction : Association to one Functions @mandatory;
+        function      : Association to one EnvironmentFunctions @mandatory;
+        inputFunction : Association to one EnvironmentFunctions @mandatory;
         fields        : Composition of many FunctionInputFields
                             on fields.input = $self;
 };
 
 entity FunctionInputFields : managed, formulaOrder {
     key ID         : GUID;
-        input      : Association to one FunctionInputs @mandatory;
-        field      : Association to one Fields         @mandatory;
+        input      : Association to one FunctionInputs    @mandatory;
+        field      : Association to one EnvironmentFields @mandatory;
         selections : Composition of many FunctionInputFieldSelections
                          on selections.field = $self;
 }

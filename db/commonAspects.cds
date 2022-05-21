@@ -25,7 +25,9 @@ using {Checks} from './checks';
 
 aspect myCodeList @(
   cds.autoexpose,
-  cds.persistence.skip : 'if-unused'
+  cds.persistence.skip : 'if-unused',
+  cds.odata.valuelist,
+  // UI.Identification    : [{Value : name}],
 ) {
   name  : String(255)  @title : '{i18n>Name}';
   descr : String(1000) @title : '{i18n>Description}';
