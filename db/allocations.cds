@@ -21,6 +21,7 @@ using {
     ParentRule,
 } from './commonTypes';
 using {
+    function,
     keyFunction,
     field,
     formulaOrder,
@@ -36,7 +37,7 @@ using {Fields} from './fields';
 using {Checks} from './checks';
 
 aspect allocation {
-    
+
 }
 
 entity Allocations : managed, keyFunction {
@@ -58,7 +59,7 @@ entity Allocations : managed, keyFunction {
     termMinimum             : TermMinimum;
     termMaximum             : TermMaximum;
     senderInput             : Association to one FunctionInputs                @title : 'Sender Input';
-    receiverInput           : Association to one FunctionReceiverInputs        @title : 'Receiver Input';
+    receiverInput           : Association to one FunctionInputs                @title : 'Receiver Input';
     resultFunction          : Association to one FunctionResultFunctions       @title : 'Result Model Table';
     earlyExitCheck          : Association to one EarlyExitChecks               @title : 'Early Exit Check';
     selectionFields         : Composition of many AllocationSelectionFields
@@ -79,16 +80,25 @@ entity Allocations : managed, keyFunction {
                                   on checks.allocation = $self;
 }
 
-entity FunctionInputs : managed, keyFunction {
-    inputFunction : Association to one Functions @mandatory;
-    fields        : Composition of many FunctionInputFields
-                        on fields.function = $self;
+entity FunctionInputs : managed {
+    key ID            : GUID;
+        function      : Association to one Functions @mandatory;
+        inputFunction : Association to one Functions @mandatory;
+        fields        : Composition of many FunctionInputFields
+                            on fields.input = $self;
 };
 
-entity FunctionInputFields : managed, keyFunction, formulaOrder, selection {
-    key ID       : GUID;
-        function : Association to one FunctionInputs @mandatory;
+entity FunctionInputFields : managed, formulaOrder {
+    key ID         : GUID;
+        input      : Association to one FunctionInputs @mandatory;
+        field      : Association to one Fields         @mandatory;
+        selections : Composition of many FunctionInputFieldSelections
+                         on selections.field = $self;
+}
 
+entity FunctionInputFieldSelections : managed, selection {
+    key ID    : GUID;
+        field : Association to one FunctionInputFields @mandatory;
 }
 
 entity FunctionReceiverInputs : managed, keyFunction {
@@ -101,7 +111,7 @@ entity FunctionReceiverInputFields : managed, keyFunction, formulaOrder, selecti
     function : Association to one FunctionReceiverInputs @mandatory;
 }
 
-entity FunctionResultFunctions       as projection on Functions;
+entity FunctionResultFunctions       as projection on Functions where type.code = 'MT';
 
 entity AllocationOffsets : managed {
     key ID          : GUID;

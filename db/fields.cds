@@ -92,20 +92,20 @@ entity FieldHierarchyStructures : managed, field {
 type FieldClass @(assert.range) : String @title : 'Field Class' enum {
     Field     = '';
     Parameter = 'PARAMETER';
-} default '';
+};
 
 entity FieldClasses : myCodeList {
-    key code : FieldClass;
+    key code : FieldClass default '';
 }
 
 type FieldType @(assert.range) : String @title : 'Field Type' enum {
     Characteristic = 'CHA';
     KeyFigure      = 'KYF';
     Unit           = 'UNI';
-} default 'CHA';
+};
 
 entity FieldTypes : myCodeList {
-    key code : FieldType;
+    key code : FieldType default 'CHA';
 }
 
 // type DdicDataType : String(10) enum {
@@ -239,10 +239,10 @@ type HanaDataType @(assert.range) : String @title : 'Data type' enum {
      */
     LargeAsciiString = 'CLOB';
     LargeString      = 'NCLOB';
-} default 'NVARCHAR';
+};
 
 entity HanaDataTypes : myCodeList {
-    key code : HanaDataType;
+    key code : HanaDataType default 'NVARCHAR';
 }
 
 type DataLength : Integer @title : 'Data Length'  @mandatory  @assert.range : [
