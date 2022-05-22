@@ -64,7 +64,7 @@ type Group @(assert.range) : String(10) @title : 'Grouping' enum {
 };
 
 entity Groups : myCodeList {
-    key code : Group;
+    key code : Group default '';
 }
 
 type Order @(assert.range) : String(10) @title : 'Ordering' enum {
@@ -74,7 +74,7 @@ type Order @(assert.range) : String(10) @title : 'Ordering' enum {
 };
 
 entity Orders : myCodeList {
-    key code : Order;
+    key code : Order default '';
 }
 
 type Sign @(assert.range) : String(1) @title : 'Sign' enum {
@@ -83,7 +83,7 @@ type Sign @(assert.range) : String(1) @title : 'Sign' enum {
 }
 
 entity Signs : myCodeList {
-    key code : Sign;
+    key code : Sign default 'I';
 }
 
 type Option @(assert.range) : String(2) @title : 'Option' enum {
@@ -132,7 +132,7 @@ type Option @(assert.range) : String(2) @title : 'Option' enum {
 }
 
 entity Options : myCodeList {
-    key code : Option;
+    key code : Option default 'EQ';
 }
 
 type ResultHandling @(assert.range) : String(10) @title : 'Result Handling' enum {

@@ -185,7 +185,7 @@
                 <Property Name="termYear" Type="Edm.String"/>
                 <Property Name="termMinimum" Type="Edm.String"/>
                 <Property Name="termMaximum" Type="Edm.String"/>
-                <Property Name="senderInput_ID" Type="Edm.String"/>
+                <Property Name="senderFunction_ID" Type="Edm.String"/>
                 <Property Name="receiverInput_ID" Type="Edm.String"/>
                 <Property Name="resultFunction_ID" Type="Edm.String"/>
                 <Property Name="earlyExitCheck_checkId" Type="Edm.String"/>
@@ -910,7 +910,7 @@
                                                             <Annotations Target="ModelingService.Allocations/termMaximum">
                                                                 <Annotation Term="Common.Label" String="Term Maximum"/>
                                                             </Annotations>
-                                                            <Annotations Target="ModelingService.Allocations/senderInput_ID">
+                                                            <Annotations Target="ModelingService.Allocations/senderFunction_ID">
                                                                 <Annotation Term="Common.Label" String="Sender Input"/>
                                                             </Annotations>
                                                             <Annotations Target="ModelingService.Allocations/receiverInput_ID">

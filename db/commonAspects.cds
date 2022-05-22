@@ -55,27 +55,25 @@ aspect check : environment {
 }
 
 aspect formula {
-  formula : String;
+  formula : String @title : 'Formula';
 }
 
 aspect formulaGroup : formula {
-  group_ : Association to one Groups @mandatory;
+  group_ : Association to one Groups @title: 'Group';
 }
 
 aspect formulaOrder : formula {
-  order_ : Association to one Orders @mandatory;
+  order_ : Association to one Orders @title : 'Order';
 }
 
 aspect formulaGroupOrder : formulaGroup {
-  formula : String;
-  group_  : Association to one Groups @mandatory;
-  order_  : Association to one Orders @mandatory;
+  order_  : Association to one Orders;
 }
 
 aspect selection : {
   step : Integer;
-  sign : Association to one Signs   @mandatory;
-  opt  : Association to one Options @mandatory;
-  low  : String;
-  high : String;
+  sign : Association to one Signs  @title: 'Sign' @mandatory;
+  opt  : Association to one Options @title: 'Option' @mandatory;
+  low  : String @title: 'Value';
+  high : String @title: 'High Value';
 }

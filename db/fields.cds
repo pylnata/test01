@@ -33,6 +33,9 @@ using {Functions} from './functions';
 //         description,
 //     ]
 // }
+@cds.autoexpose
+@cds.odata.valuelist
+@UI.Identification : [{Value : field}]
 entity Fields : managed, environment {
     key ID                   : GUID;
         field                : Field;

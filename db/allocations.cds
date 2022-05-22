@@ -62,13 +62,13 @@ entity Allocations : managed, function {
         termYear                : TermYear;
         termMinimum             : TermMinimum;
         termMaximum             : TermMaximum;
-        senderInput             : UUID                                         @title : 'Sender Input';
-        _senderInput            : Association to one Functions
-                                      on _senderInput.environment = environment    @title : 'Sender Input';
-        senderFields            : Composition of many SenderFields
-                                      on senderFields.allocation = $self;
-        receiverInput           : Association to one FunctionInputs                @title : 'Receiver Input';
-        resultFunction          : Association to one FunctionResultFunctions       @title : 'Result Model Table';
+        senderFunction          : Association to one InputFunctions                @title : 'Sender Input';
+        senderViews             : Composition of many SenderViews
+                                      on senderViews.allocation = $self            @title : 'Sender View';
+        receiverFunction        : Association to one InputFunctions                @title : 'Receiver Input';
+        receiverViews           : Composition of many ReceiverViews
+                                      on receiverViews.allocation = $self          @title : 'Receiver View';
+        resultFunction          : Association to one ResultFunctions               @title : 'Result Model Table';
         earlyExitCheck          : Association to one EarlyExitChecks               @title : 'Early Exit Check';
         selectionFields         : Composition of many AllocationSelectionFields
                                       on selectionFields.allocation = $self;
@@ -88,54 +88,36 @@ entity Allocations : managed, function {
                                       on checks.allocation = $self;
 }
 
-entity SenderFields : managed {
+entity InputFunctions                as projection on Functions where type.code in (
+    'MT', 'AL');
+
+entity SenderViews : managed, function, formulaOrder {
     key ID         : GUID;
         allocation : Association to one Allocations;
-        field      : Association to one EnvironmentFields @mandatory;
-        selections : Composition of many SenderFieldSelections
+        field      : Association to one Fields @title : 'Field';
+        selections : Composition of many SenderViewSelections
                          on selections.field = $self;
 }
 
-entity SenderFieldSelections : managed, selection {
+entity SenderViewSelections : managed, function, selection {
     key ID    : GUID;
-        field : Association to one SenderFields;
+        field : Association to one SenderViews;
 }
 
-@cds.autoexpose
-@cds.odata.valuelist
-@UI.Identification : [{Value : function.description}]
-entity FunctionInputs : managed {
-    key ID            : GUID;
-        function      : Association to one EnvironmentFunctions @mandatory;
-        inputFunction : Association to one EnvironmentFunctions @mandatory;
-        fields        : Composition of many FunctionInputFields
-                            on fields.input = $self;
-};
-
-entity FunctionInputFields : managed, formulaOrder {
+entity ReceiverViews : managed, function, formulaOrder {
     key ID         : GUID;
-        input      : Association to one FunctionInputs    @mandatory;
-        field      : Association to one EnvironmentFields @mandatory;
-        selections : Composition of many FunctionInputFieldSelections
+        allocation : Association to one Allocations;
+        field      : Association to one Fields @title : 'Field';
+        selections : Composition of many ReceiverViewSelections
                          on selections.field = $self;
 }
 
-entity FunctionInputFieldSelections : managed, selection {
+entity ReceiverViewSelections : managed, function, selection {
     key ID    : GUID;
-        field : Association to one FunctionInputFields @mandatory;
+        field : Association to one ReceiverViews;
 }
 
-entity FunctionReceiverInputs : managed, keyFunction {
-    inputFunction : Association to one Functions @mandatory;
-    fields        : Composition of many FunctionReceiverInputFields
-                        on fields.function = $self;
-};
-
-entity FunctionReceiverInputFields : managed, keyFunction, formulaOrder, selection {
-    function : Association to one FunctionReceiverInputs @mandatory;
-}
-
-entity FunctionResultFunctions       as projection on Functions where type.code = 'MT';
+entity ResultFunctions               as projection on Functions where type.code = 'MT';
 
 entity AllocationOffsets : managed {
     key ID          : GUID;
@@ -251,6 +233,9 @@ entity AllocationTermYearFields      as projection on Fields where(
     and dataLength >= 4
 );
 
+@cds.autoexpose
+@cds.odata.valuelist
+@UI.Identification : [{Value : field}]
 entity AllocationTermFields          as projection on Fields where(
         class.code =  ''
     and type.code  =  'CHA'

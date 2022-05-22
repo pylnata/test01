@@ -286,7 +286,7 @@ CREATE TABLE Allocations (
   termYear NVARCHAR(5000),
   termMinimum NVARCHAR(5000),
   termMaximum NVARCHAR(5000),
-  senderInput_ID NVARCHAR(36),
+  senderInput NVARCHAR(36),
   receiverInput_ID NVARCHAR(36),
   resultFunction_ID NVARCHAR(36),
   earlyExitCheck_checkId NVARCHAR(5000),
@@ -323,13 +323,73 @@ CREATE TABLE Allocations (
   FOREIGN KEY(termProcessing_code)
   REFERENCES AllocationTermProcessings(code)
   DEFERRABLE INITIALLY DEFERRED,
-  CONSTRAINT c__Allocations_senderInput
-  FOREIGN KEY(senderInput_ID)
-  REFERENCES FunctionInputs(ID)
-  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__Allocations_receiverInput
   FOREIGN KEY(receiverInput_ID)
   REFERENCES FunctionInputs(ID)
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE SenderViews (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
+  ID NVARCHAR(36) NOT NULL,
+  allocation_ID NVARCHAR(36),
+  field NVARCHAR(5000),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__SenderViews_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__SenderViews_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__SenderViews_allocation
+  FOREIGN KEY(allocation_ID)
+  REFERENCES Allocations(ID)
+  ON DELETE CASCADE
+  DEFERRABLE INITIALLY DEFERRED
+);
+
+CREATE TABLE SenderViewSelections (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
+  step INTEGER,
+  sign_code NVARCHAR(1),
+  opt_code NVARCHAR(2),
+  low NVARCHAR(5000),
+  high NVARCHAR(5000),
+  ID NVARCHAR(36) NOT NULL,
+  field_ID NVARCHAR(36),
+  PRIMARY KEY(ID),
+  CONSTRAINT c__SenderViewSelections_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__SenderViewSelections_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__SenderViewSelections_sign
+  FOREIGN KEY(sign_code)
+  REFERENCES Signs(code)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__SenderViewSelections_opt
+  FOREIGN KEY(opt_code)
+  REFERENCES Options(code)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__SenderViewSelections_field
+  FOREIGN KEY(field_ID)
+  REFERENCES SenderViews(ID)
+  ON DELETE CASCADE
   DEFERRABLE INITIALLY DEFERRED
 );
 
@@ -954,6 +1014,16 @@ CREATE TABLE PartitionRanges (
   DEFERRABLE INITIALLY DEFERRED
 );
 
+CREATE TABLE ConnectionEnvironments (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  connection INTEGER NOT NULL,
+  environment NVARCHAR(36),
+  PRIMARY KEY(connection)
+);
+
 CREATE TABLE EnvironmentTypes_texts (
   locale NVARCHAR(14) NOT NULL,
   name NVARCHAR(255),
@@ -1018,10 +1088,48 @@ CREATE TABLE ModelingService_Allocations_drafts (
   termYear NVARCHAR(5000) NULL,
   termMinimum NVARCHAR(5000) NULL,
   termMaximum NVARCHAR(5000) NULL,
-  senderInput_ID NVARCHAR(36) NULL,
+  senderInput NVARCHAR(36) NULL,
   receiverInput_ID NVARCHAR(36) NULL,
   resultFunction_ID NVARCHAR(36) NULL,
   earlyExitCheck_checkId NVARCHAR(5000) NULL,
+  IsActiveEntity BOOLEAN,
+  HasActiveEntity BOOLEAN,
+  HasDraftEntity BOOLEAN,
+  DraftAdministrativeData_DraftUUID NVARCHAR(36) NOT NULL,
+  PRIMARY KEY(ID)
+);
+
+CREATE TABLE ModelingService_SenderViews_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
+  ID NVARCHAR(36) NOT NULL,
+  allocation_ID NVARCHAR(36) NULL,
+  field NVARCHAR(5000) NULL,
+  IsActiveEntity BOOLEAN,
+  HasActiveEntity BOOLEAN,
+  HasDraftEntity BOOLEAN,
+  DraftAdministrativeData_DraftUUID NVARCHAR(36) NOT NULL,
+  PRIMARY KEY(ID)
+);
+
+CREATE TABLE ModelingService_SenderViewSelections_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
+  step INTEGER NULL,
+  sign_code NVARCHAR(1) NULL,
+  opt_code NVARCHAR(2) NULL,
+  low NVARCHAR(5000) NULL,
+  high NVARCHAR(5000) NULL,
+  ID NVARCHAR(36) NOT NULL,
+  field_ID NVARCHAR(36) NULL,
   IsActiveEntity BOOLEAN,
   HasActiveEntity BOOLEAN,
   HasDraftEntity BOOLEAN,
@@ -1236,7 +1344,7 @@ CREATE VIEW ModelingService_Allocations AS SELECT
   allocations_0.termYear,
   allocations_0.termMinimum,
   allocations_0.termMaximum,
-  allocations_0.senderInput_ID,
+  allocations_0.senderInput,
   allocations_0.receiverInput_ID,
   allocations_0.resultFunction_ID,
   allocations_0.earlyExitCheck_checkId
@@ -1526,7 +1634,10 @@ CREATE VIEW EnvironmentFunctions AS SELECT
   Functions_0.description,
   Functions_0.documentation
 FROM Functions AS Functions_0
-WHERE Functions_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Functions_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW EnvironmentFields AS SELECT
   Fields_0.createdAt,
@@ -1551,7 +1662,10 @@ CREATE VIEW EnvironmentFields AS SELECT
   Fields_0.description,
   Fields_0.documentation
 FROM Fields AS Fields_0
-WHERE Fields_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Fields_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW EnvironmentChecks AS SELECT
   Checks_0.createdAt,
@@ -1565,7 +1679,10 @@ CREATE VIEW EnvironmentChecks AS SELECT
   Checks_0.category_code,
   Checks_0.description
 FROM Checks AS Checks_0
-WHERE Checks_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Checks_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW EnvironmentPartitions AS SELECT
   Partitions_0.createdAt,
@@ -1578,13 +1695,35 @@ CREATE VIEW EnvironmentPartitions AS SELECT
   Partitions_0.description,
   Partitions_0.field_ID
 FROM Partitions AS Partitions_0
-WHERE Partitions_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Partitions_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW ModelingService_EnvironmentTypes AS SELECT
   EnvironmentTypes_0.name,
   EnvironmentTypes_0.descr,
   EnvironmentTypes_0.code
 FROM EnvironmentTypes AS EnvironmentTypes_0;
+
+CREATE VIEW ModelingService_Functions AS SELECT
+  Functions_0.createdAt,
+  Functions_0.createdBy,
+  Functions_0.modifiedAt,
+  Functions_0.modifiedBy,
+  Functions_0.environment_ID,
+  Functions_0.ID,
+  Functions_0.function,
+  Functions_0.sequence,
+  Functions_0.parentFunction_ID,
+  Functions_0.type_code,
+  Functions_0.processingType_code,
+  Functions_0.businessEventType_code,
+  Functions_0.partition_ID,
+  Functions_0.parentCalculationUnit_ID,
+  Functions_0.description,
+  Functions_0.documentation
+FROM Functions AS Functions_0;
 
 CREATE VIEW ModelingService_AllocationTypes AS SELECT
   AllocationTypes_0.name,
@@ -1615,6 +1754,28 @@ CREATE VIEW ModelingService_AllocationTermProcessings AS SELECT
   AllocationTermProcessings_0.descr,
   AllocationTermProcessings_0.code
 FROM AllocationTermProcessings AS AllocationTermProcessings_0;
+
+CREATE VIEW ModelingService_SenderViews AS SELECT
+  SenderViews_0.createdAt,
+  SenderViews_0.createdBy,
+  SenderViews_0.modifiedAt,
+  SenderViews_0.modifiedBy,
+  SenderViews_0.environment_ID,
+  SenderViews_0.function_ID,
+  SenderViews_0.ID,
+  SenderViews_0.allocation_ID,
+  SenderViews_0.field
+FROM SenderViews AS SenderViews_0;
+
+CREATE VIEW ModelingService_FunctionInputs AS SELECT
+  FunctionInputs_0.createdAt,
+  FunctionInputs_0.createdBy,
+  FunctionInputs_0.modifiedAt,
+  FunctionInputs_0.modifiedBy,
+  FunctionInputs_0.ID,
+  FunctionInputs_0.function_ID,
+  FunctionInputs_0.inputFunction_ID
+FROM FunctionInputs AS FunctionInputs_0;
 
 CREATE VIEW ModelingService_AllocationSelectionFields AS SELECT
   AllocationSelectionFields_0.ID,
@@ -1719,6 +1880,52 @@ CREATE VIEW ModelingService_EnvironmentTypes_texts AS SELECT
   texts_0.code
 FROM EnvironmentTypes_texts AS texts_0;
 
+CREATE VIEW ModelingService_FunctionTypes AS SELECT
+  FunctionTypes_0.name,
+  FunctionTypes_0.descr,
+  FunctionTypes_0.code
+FROM FunctionTypes AS FunctionTypes_0;
+
+CREATE VIEW ModelingService_ProcessingTypes AS SELECT
+  ProcessingTypes_0.name,
+  ProcessingTypes_0.descr,
+  ProcessingTypes_0.code
+FROM ProcessingTypes AS ProcessingTypes_0;
+
+CREATE VIEW ModelingService_BusinessEventTypes AS SELECT
+  BusinessEventTypes_0.name,
+  BusinessEventTypes_0.descr,
+  BusinessEventTypes_0.code
+FROM BusinessEventTypes AS BusinessEventTypes_0;
+
+CREATE VIEW ModelingService_SenderViewSelections AS SELECT
+  SenderViewSelections_0.createdAt,
+  SenderViewSelections_0.createdBy,
+  SenderViewSelections_0.modifiedAt,
+  SenderViewSelections_0.modifiedBy,
+  SenderViewSelections_0.environment_ID,
+  SenderViewSelections_0.function_ID,
+  SenderViewSelections_0.step,
+  SenderViewSelections_0.sign_code,
+  SenderViewSelections_0.opt_code,
+  SenderViewSelections_0.low,
+  SenderViewSelections_0.high,
+  SenderViewSelections_0.ID,
+  SenderViewSelections_0.field_ID
+FROM SenderViewSelections AS SenderViewSelections_0;
+
+CREATE VIEW ModelingService_FunctionInputFields AS SELECT
+  FunctionInputFields_0.createdAt,
+  FunctionInputFields_0.createdBy,
+  FunctionInputFields_0.modifiedAt,
+  FunctionInputFields_0.modifiedBy,
+  FunctionInputFields_0.formula,
+  FunctionInputFields_0.order__code,
+  FunctionInputFields_0.ID,
+  FunctionInputFields_0.input_ID,
+  FunctionInputFields_0.field_ID
+FROM FunctionInputFields AS FunctionInputFields_0;
+
 CREATE VIEW ModelingService_AllocationRuleTypes AS SELECT
   AllocationRuleTypes_0.name,
   AllocationRuleTypes_0.descr,
@@ -1748,6 +1955,38 @@ CREATE VIEW ModelingService_AllocationRuleScales AS SELECT
   AllocationRuleScales_0.descr,
   AllocationRuleScales_0.code
 FROM AllocationRuleScales AS AllocationRuleScales_0;
+
+CREATE VIEW ModelingService_Signs AS SELECT
+  Signs_0.name,
+  Signs_0.descr,
+  Signs_0.code
+FROM Signs AS Signs_0;
+
+CREATE VIEW ModelingService_Options AS SELECT
+  Options_0.name,
+  Options_0.descr,
+  Options_0.code
+FROM Options AS Options_0;
+
+CREATE VIEW ModelingService_Orders AS SELECT
+  Orders_0.name,
+  Orders_0.descr,
+  Orders_0.code
+FROM Orders AS Orders_0;
+
+CREATE VIEW ModelingService_FunctionInputFieldSelections AS SELECT
+  FunctionInputFieldSelections_0.createdAt,
+  FunctionInputFieldSelections_0.createdBy,
+  FunctionInputFieldSelections_0.modifiedAt,
+  FunctionInputFieldSelections_0.modifiedBy,
+  FunctionInputFieldSelections_0.step,
+  FunctionInputFieldSelections_0.sign_code,
+  FunctionInputFieldSelections_0.opt_code,
+  FunctionInputFieldSelections_0.low,
+  FunctionInputFieldSelections_0.high,
+  FunctionInputFieldSelections_0.ID,
+  FunctionInputFieldSelections_0.field_ID
+FROM FunctionInputFieldSelections AS FunctionInputFieldSelections_0;
 
 CREATE VIEW localized_EnvironmentTypes AS SELECT
   coalesce(localized_1.name, L_0.name) AS name,
@@ -1890,11 +2129,39 @@ CREATE VIEW localized_Allocations AS SELECT
   L.termYear,
   L.termMinimum,
   L.termMaximum,
-  L.senderInput_ID,
+  L.senderInput,
   L.receiverInput_ID,
   L.resultFunction_ID,
   L.earlyExitCheck_checkId
 FROM Allocations AS L;
+
+CREATE VIEW localized_SenderViews AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field
+FROM SenderViews AS L;
+
+CREATE VIEW localized_SenderViewSelections AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.step,
+  L.sign_code,
+  L.opt_code,
+  L.low,
+  L.high,
+  L.ID,
+  L.field_ID
+FROM SenderViewSelections AS L;
 
 CREATE VIEW localized_FunctionReceiverInputs AS SELECT
   L.createdAt,
@@ -2152,6 +2419,82 @@ CREATE VIEW ModelingService_EnvironmentFolders AS SELECT
   EnvironmentFolders_0.ID,
   EnvironmentFolders_0.description
 FROM EnvironmentFolders AS EnvironmentFolders_0;
+
+CREATE VIEW ModelingService_FunctionResultFunctions AS SELECT
+  FunctionResultFunctions_0.createdAt,
+  FunctionResultFunctions_0.createdBy,
+  FunctionResultFunctions_0.modifiedAt,
+  FunctionResultFunctions_0.modifiedBy,
+  FunctionResultFunctions_0.environment_ID,
+  FunctionResultFunctions_0.ID,
+  FunctionResultFunctions_0.function,
+  FunctionResultFunctions_0.sequence,
+  FunctionResultFunctions_0.parentFunction_ID,
+  FunctionResultFunctions_0.type_code,
+  FunctionResultFunctions_0.processingType_code,
+  FunctionResultFunctions_0.businessEventType_code,
+  FunctionResultFunctions_0.partition_ID,
+  FunctionResultFunctions_0.parentCalculationUnit_ID,
+  FunctionResultFunctions_0.description,
+  FunctionResultFunctions_0.documentation
+FROM FunctionResultFunctions AS FunctionResultFunctions_0;
+
+CREATE VIEW ModelingService_ParentFunctions AS SELECT
+  ParentFunctions_0.createdAt,
+  ParentFunctions_0.createdBy,
+  ParentFunctions_0.modifiedAt,
+  ParentFunctions_0.modifiedBy,
+  ParentFunctions_0.environment_ID,
+  ParentFunctions_0.ID,
+  ParentFunctions_0.function,
+  ParentFunctions_0.sequence,
+  ParentFunctions_0.parentFunction_ID,
+  ParentFunctions_0.type_code,
+  ParentFunctions_0.processingType_code,
+  ParentFunctions_0.businessEventType_code,
+  ParentFunctions_0.partition_ID,
+  ParentFunctions_0.parentCalculationUnit_ID,
+  ParentFunctions_0.description,
+  ParentFunctions_0.documentation
+FROM ParentFunctions AS ParentFunctions_0;
+
+CREATE VIEW ModelingService_ParentCalculationUnits AS SELECT
+  ParentCalculationUnits_0.createdAt,
+  ParentCalculationUnits_0.createdBy,
+  ParentCalculationUnits_0.modifiedAt,
+  ParentCalculationUnits_0.modifiedBy,
+  ParentCalculationUnits_0.environment_ID,
+  ParentCalculationUnits_0.ID,
+  ParentCalculationUnits_0.function,
+  ParentCalculationUnits_0.sequence,
+  ParentCalculationUnits_0.parentFunction_ID,
+  ParentCalculationUnits_0.type_code,
+  ParentCalculationUnits_0.processingType_code,
+  ParentCalculationUnits_0.businessEventType_code,
+  ParentCalculationUnits_0.partition_ID,
+  ParentCalculationUnits_0.parentCalculationUnit_ID,
+  ParentCalculationUnits_0.description,
+  ParentCalculationUnits_0.documentation
+FROM ParentCalculationUnits AS ParentCalculationUnits_0;
+
+CREATE VIEW ModelingService_EnvironmentFunctions AS SELECT
+  EnvironmentFunctions_0.createdAt,
+  EnvironmentFunctions_0.createdBy,
+  EnvironmentFunctions_0.modifiedAt,
+  EnvironmentFunctions_0.modifiedBy,
+  EnvironmentFunctions_0.environment_ID,
+  EnvironmentFunctions_0.ID,
+  EnvironmentFunctions_0.function,
+  EnvironmentFunctions_0.sequence,
+  EnvironmentFunctions_0.parentFunction_ID,
+  EnvironmentFunctions_0.type_code,
+  EnvironmentFunctions_0.processingType_code,
+  EnvironmentFunctions_0.businessEventType_code,
+  EnvironmentFunctions_0.partition_ID,
+  EnvironmentFunctions_0.parentCalculationUnit_ID,
+  EnvironmentFunctions_0.description,
+  EnvironmentFunctions_0.documentation
+FROM EnvironmentFunctions AS EnvironmentFunctions_0;
 
 CREATE VIEW localized_ModelingService_EnvironmentTypes AS SELECT
   EnvironmentTypes_0.name,
@@ -2414,7 +2757,10 @@ CREATE VIEW localized_EnvironmentFunctions AS SELECT
   Functions_0.description,
   Functions_0.documentation
 FROM localized_Functions AS Functions_0
-WHERE Functions_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Functions_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_EnvironmentFields AS SELECT
   Fields_0.createdAt,
@@ -2439,7 +2785,10 @@ CREATE VIEW localized_EnvironmentFields AS SELECT
   Fields_0.description,
   Fields_0.documentation
 FROM localized_Fields AS Fields_0
-WHERE Fields_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Fields_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_EnvironmentChecks AS SELECT
   Checks_0.createdAt,
@@ -2453,7 +2802,10 @@ CREATE VIEW localized_EnvironmentChecks AS SELECT
   Checks_0.category_code,
   Checks_0.description
 FROM localized_Checks AS Checks_0
-WHERE Checks_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Checks_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_EnvironmentPartitions AS SELECT
   Partitions_0.createdAt,
@@ -2466,7 +2818,10 @@ CREATE VIEW localized_EnvironmentPartitions AS SELECT
   Partitions_0.description,
   Partitions_0.field_ID
 FROM localized_Partitions AS Partitions_0
-WHERE Partitions_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Partitions_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_ModelingService_Environment AS SELECT
   environments_0.createdAt,
@@ -2507,11 +2862,23 @@ CREATE VIEW localized_ModelingService_Allocations AS SELECT
   allocations_0.termYear,
   allocations_0.termMinimum,
   allocations_0.termMaximum,
-  allocations_0.senderInput_ID,
+  allocations_0.senderInput,
   allocations_0.receiverInput_ID,
   allocations_0.resultFunction_ID,
   allocations_0.earlyExitCheck_checkId
 FROM localized_Allocations AS allocations_0;
+
+CREATE VIEW localized_ModelingService_SenderViews AS SELECT
+  SenderViews_0.createdAt,
+  SenderViews_0.createdBy,
+  SenderViews_0.modifiedAt,
+  SenderViews_0.modifiedBy,
+  SenderViews_0.environment_ID,
+  SenderViews_0.function_ID,
+  SenderViews_0.ID,
+  SenderViews_0.allocation_ID,
+  SenderViews_0.field
+FROM localized_SenderViews AS SenderViews_0;
 
 CREATE VIEW localized_ModelingService_AllocationSelectionFields AS SELECT
   AllocationSelectionFields_0.ID,
@@ -2572,29 +2939,6 @@ CREATE VIEW localized_ModelingService_ModelTableFields AS SELECT
   ModelTableFields_0.modelTable_ID
 FROM localized_ModelTableFields AS ModelTableFields_0;
 
-CREATE VIEW localized_ModelingService_CalculationUnits AS SELECT
-  calculationUnits_0.createdAt,
-  calculationUnits_0.createdBy,
-  calculationUnits_0.modifiedAt,
-  calculationUnits_0.modifiedBy,
-  calculationUnits_0.environment_ID,
-  calculationUnits_0.function_ID,
-  calculationUnits_0.ID
-FROM localized_CalculationUnits AS calculationUnits_0;
-
-CREATE VIEW localized_ModelingService_ModelTables AS SELECT
-  modelTables_0.createdAt,
-  modelTables_0.createdBy,
-  modelTables_0.modifiedAt,
-  modelTables_0.modifiedBy,
-  modelTables_0.environment_ID,
-  modelTables_0.function_ID,
-  modelTables_0.ID,
-  modelTables_0.type_code,
-  modelTables_0.transportData,
-  modelTables_0.connName
-FROM localized_ModelTables AS modelTables_0;
-
 CREATE VIEW localized_ModelingService_AllocationRules AS SELECT
   AllocationRules_0.createdAt,
   AllocationRules_0.createdBy,
@@ -2625,6 +2969,176 @@ CREATE VIEW localized_ModelingService_AllocationChecks AS SELECT
   AllocationChecks_0.allocation_ID,
   AllocationChecks_0.check_checkId
 FROM localized_AllocationChecks AS AllocationChecks_0;
+
+CREATE VIEW localized_ModelingService_Functions AS SELECT
+  Functions_0.createdAt,
+  Functions_0.createdBy,
+  Functions_0.modifiedAt,
+  Functions_0.modifiedBy,
+  Functions_0.environment_ID,
+  Functions_0.ID,
+  Functions_0.function,
+  Functions_0.sequence,
+  Functions_0.parentFunction_ID,
+  Functions_0.type_code,
+  Functions_0.processingType_code,
+  Functions_0.businessEventType_code,
+  Functions_0.partition_ID,
+  Functions_0.parentCalculationUnit_ID,
+  Functions_0.description,
+  Functions_0.documentation
+FROM localized_Functions AS Functions_0;
+
+CREATE VIEW localized_ModelingService_FunctionInputFields AS SELECT
+  FunctionInputFields_0.createdAt,
+  FunctionInputFields_0.createdBy,
+  FunctionInputFields_0.modifiedAt,
+  FunctionInputFields_0.modifiedBy,
+  FunctionInputFields_0.formula,
+  FunctionInputFields_0.order__code,
+  FunctionInputFields_0.ID,
+  FunctionInputFields_0.input_ID,
+  FunctionInputFields_0.field_ID
+FROM localized_FunctionInputFields AS FunctionInputFields_0;
+
+CREATE VIEW localized_ModelingService_CalculationUnits AS SELECT
+  calculationUnits_0.createdAt,
+  calculationUnits_0.createdBy,
+  calculationUnits_0.modifiedAt,
+  calculationUnits_0.modifiedBy,
+  calculationUnits_0.environment_ID,
+  calculationUnits_0.function_ID,
+  calculationUnits_0.ID
+FROM localized_CalculationUnits AS calculationUnits_0;
+
+CREATE VIEW localized_ModelingService_ModelTables AS SELECT
+  modelTables_0.createdAt,
+  modelTables_0.createdBy,
+  modelTables_0.modifiedAt,
+  modelTables_0.modifiedBy,
+  modelTables_0.environment_ID,
+  modelTables_0.function_ID,
+  modelTables_0.ID,
+  modelTables_0.type_code,
+  modelTables_0.transportData,
+  modelTables_0.connName
+FROM localized_ModelTables AS modelTables_0;
+
+CREATE VIEW localized_ModelingService_SenderViewSelections AS SELECT
+  SenderViewSelections_0.createdAt,
+  SenderViewSelections_0.createdBy,
+  SenderViewSelections_0.modifiedAt,
+  SenderViewSelections_0.modifiedBy,
+  SenderViewSelections_0.environment_ID,
+  SenderViewSelections_0.function_ID,
+  SenderViewSelections_0.step,
+  SenderViewSelections_0.sign_code,
+  SenderViewSelections_0.opt_code,
+  SenderViewSelections_0.low,
+  SenderViewSelections_0.high,
+  SenderViewSelections_0.ID,
+  SenderViewSelections_0.field_ID
+FROM localized_SenderViewSelections AS SenderViewSelections_0;
+
+CREATE VIEW localized_ModelingService_FunctionInputs AS SELECT
+  FunctionInputs_0.createdAt,
+  FunctionInputs_0.createdBy,
+  FunctionInputs_0.modifiedAt,
+  FunctionInputs_0.modifiedBy,
+  FunctionInputs_0.ID,
+  FunctionInputs_0.function_ID,
+  FunctionInputs_0.inputFunction_ID
+FROM localized_FunctionInputs AS FunctionInputs_0;
+
+CREATE VIEW localized_ModelingService_FunctionInputFieldSelections AS SELECT
+  FunctionInputFieldSelections_0.createdAt,
+  FunctionInputFieldSelections_0.createdBy,
+  FunctionInputFieldSelections_0.modifiedAt,
+  FunctionInputFieldSelections_0.modifiedBy,
+  FunctionInputFieldSelections_0.step,
+  FunctionInputFieldSelections_0.sign_code,
+  FunctionInputFieldSelections_0.opt_code,
+  FunctionInputFieldSelections_0.low,
+  FunctionInputFieldSelections_0.high,
+  FunctionInputFieldSelections_0.ID,
+  FunctionInputFieldSelections_0.field_ID
+FROM localized_FunctionInputFieldSelections AS FunctionInputFieldSelections_0;
+
+CREATE VIEW localized_ModelingService_FunctionResultFunctions AS SELECT
+  FunctionResultFunctions_0.createdAt,
+  FunctionResultFunctions_0.createdBy,
+  FunctionResultFunctions_0.modifiedAt,
+  FunctionResultFunctions_0.modifiedBy,
+  FunctionResultFunctions_0.environment_ID,
+  FunctionResultFunctions_0.ID,
+  FunctionResultFunctions_0.function,
+  FunctionResultFunctions_0.sequence,
+  FunctionResultFunctions_0.parentFunction_ID,
+  FunctionResultFunctions_0.type_code,
+  FunctionResultFunctions_0.processingType_code,
+  FunctionResultFunctions_0.businessEventType_code,
+  FunctionResultFunctions_0.partition_ID,
+  FunctionResultFunctions_0.parentCalculationUnit_ID,
+  FunctionResultFunctions_0.description,
+  FunctionResultFunctions_0.documentation
+FROM localized_FunctionResultFunctions AS FunctionResultFunctions_0;
+
+CREATE VIEW localized_ModelingService_ParentFunctions AS SELECT
+  ParentFunctions_0.createdAt,
+  ParentFunctions_0.createdBy,
+  ParentFunctions_0.modifiedAt,
+  ParentFunctions_0.modifiedBy,
+  ParentFunctions_0.environment_ID,
+  ParentFunctions_0.ID,
+  ParentFunctions_0.function,
+  ParentFunctions_0.sequence,
+  ParentFunctions_0.parentFunction_ID,
+  ParentFunctions_0.type_code,
+  ParentFunctions_0.processingType_code,
+  ParentFunctions_0.businessEventType_code,
+  ParentFunctions_0.partition_ID,
+  ParentFunctions_0.parentCalculationUnit_ID,
+  ParentFunctions_0.description,
+  ParentFunctions_0.documentation
+FROM localized_ParentFunctions AS ParentFunctions_0;
+
+CREATE VIEW localized_ModelingService_ParentCalculationUnits AS SELECT
+  ParentCalculationUnits_0.createdAt,
+  ParentCalculationUnits_0.createdBy,
+  ParentCalculationUnits_0.modifiedAt,
+  ParentCalculationUnits_0.modifiedBy,
+  ParentCalculationUnits_0.environment_ID,
+  ParentCalculationUnits_0.ID,
+  ParentCalculationUnits_0.function,
+  ParentCalculationUnits_0.sequence,
+  ParentCalculationUnits_0.parentFunction_ID,
+  ParentCalculationUnits_0.type_code,
+  ParentCalculationUnits_0.processingType_code,
+  ParentCalculationUnits_0.businessEventType_code,
+  ParentCalculationUnits_0.partition_ID,
+  ParentCalculationUnits_0.parentCalculationUnit_ID,
+  ParentCalculationUnits_0.description,
+  ParentCalculationUnits_0.documentation
+FROM localized_ParentCalculationUnits AS ParentCalculationUnits_0;
+
+CREATE VIEW localized_ModelingService_EnvironmentFunctions AS SELECT
+  EnvironmentFunctions_0.createdAt,
+  EnvironmentFunctions_0.createdBy,
+  EnvironmentFunctions_0.modifiedAt,
+  EnvironmentFunctions_0.modifiedBy,
+  EnvironmentFunctions_0.environment_ID,
+  EnvironmentFunctions_0.ID,
+  EnvironmentFunctions_0.function,
+  EnvironmentFunctions_0.sequence,
+  EnvironmentFunctions_0.parentFunction_ID,
+  EnvironmentFunctions_0.type_code,
+  EnvironmentFunctions_0.processingType_code,
+  EnvironmentFunctions_0.businessEventType_code,
+  EnvironmentFunctions_0.partition_ID,
+  EnvironmentFunctions_0.parentCalculationUnit_ID,
+  EnvironmentFunctions_0.description,
+  EnvironmentFunctions_0.documentation
+FROM localized_EnvironmentFunctions AS EnvironmentFunctions_0;
 
 CREATE VIEW localized_de_EnvironmentTypes AS SELECT
   coalesce(localized_de_1.name, L_0.name) AS name,
@@ -2883,7 +3397,7 @@ CREATE VIEW localized_de_Allocations AS SELECT
   L.termYear,
   L.termMinimum,
   L.termMaximum,
-  L.senderInput_ID,
+  L.senderInput,
   L.receiverInput_ID,
   L.resultFunction_ID,
   L.earlyExitCheck_checkId
@@ -2914,11 +3428,67 @@ CREATE VIEW localized_fr_Allocations AS SELECT
   L.termYear,
   L.termMinimum,
   L.termMaximum,
-  L.senderInput_ID,
+  L.senderInput,
   L.receiverInput_ID,
   L.resultFunction_ID,
   L.earlyExitCheck_checkId
 FROM Allocations AS L;
+
+CREATE VIEW localized_de_SenderViews AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field
+FROM SenderViews AS L;
+
+CREATE VIEW localized_fr_SenderViews AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field
+FROM SenderViews AS L;
+
+CREATE VIEW localized_de_SenderViewSelections AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.step,
+  L.sign_code,
+  L.opt_code,
+  L.low,
+  L.high,
+  L.ID,
+  L.field_ID
+FROM SenderViewSelections AS L;
+
+CREATE VIEW localized_fr_SenderViewSelections AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.step,
+  L.sign_code,
+  L.opt_code,
+  L.low,
+  L.high,
+  L.ID,
+  L.field_ID
+FROM SenderViewSelections AS L;
 
 CREATE VIEW localized_de_FunctionReceiverInputs AS SELECT
   L.createdAt,
@@ -3906,7 +4476,10 @@ CREATE VIEW localized_de_EnvironmentFunctions AS SELECT
   Functions_0.description,
   Functions_0.documentation
 FROM localized_de_Functions AS Functions_0
-WHERE Functions_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Functions_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_fr_EnvironmentFunctions AS SELECT
   Functions_0.createdAt,
@@ -3926,7 +4499,10 @@ CREATE VIEW localized_fr_EnvironmentFunctions AS SELECT
   Functions_0.description,
   Functions_0.documentation
 FROM localized_fr_Functions AS Functions_0
-WHERE Functions_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Functions_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_de_EnvironmentFields AS SELECT
   Fields_0.createdAt,
@@ -3951,7 +4527,10 @@ CREATE VIEW localized_de_EnvironmentFields AS SELECT
   Fields_0.description,
   Fields_0.documentation
 FROM localized_de_Fields AS Fields_0
-WHERE Fields_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Fields_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_fr_EnvironmentFields AS SELECT
   Fields_0.createdAt,
@@ -3976,7 +4555,10 @@ CREATE VIEW localized_fr_EnvironmentFields AS SELECT
   Fields_0.description,
   Fields_0.documentation
 FROM localized_fr_Fields AS Fields_0
-WHERE Fields_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Fields_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_de_EnvironmentChecks AS SELECT
   Checks_0.createdAt,
@@ -3990,7 +4572,10 @@ CREATE VIEW localized_de_EnvironmentChecks AS SELECT
   Checks_0.category_code,
   Checks_0.description
 FROM localized_de_Checks AS Checks_0
-WHERE Checks_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Checks_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_fr_EnvironmentChecks AS SELECT
   Checks_0.createdAt,
@@ -4004,7 +4589,10 @@ CREATE VIEW localized_fr_EnvironmentChecks AS SELECT
   Checks_0.category_code,
   Checks_0.description
 FROM localized_fr_Checks AS Checks_0
-WHERE Checks_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Checks_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_de_EnvironmentPartitions AS SELECT
   Partitions_0.createdAt,
@@ -4017,7 +4605,10 @@ CREATE VIEW localized_de_EnvironmentPartitions AS SELECT
   Partitions_0.description,
   Partitions_0.field_ID
 FROM localized_de_Partitions AS Partitions_0
-WHERE Partitions_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Partitions_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_fr_EnvironmentPartitions AS SELECT
   Partitions_0.createdAt,
@@ -4030,7 +4621,10 @@ CREATE VIEW localized_fr_EnvironmentPartitions AS SELECT
   Partitions_0.description,
   Partitions_0.field_ID
 FROM localized_fr_Partitions AS Partitions_0
-WHERE Partitions_0.environment_ID = SESSION_CONTEXT('ENVIRONMENT');
+WHERE Partitions_0.environment_ID IN (SELECT
+    ConnectionEnvironments_1.environment
+  FROM ConnectionEnvironments AS ConnectionEnvironments_1
+  WHERE ConnectionEnvironments_1.connection = 'SXP');
 
 CREATE VIEW localized_de_ModelingService_Environment AS SELECT
   environments_0.createdAt,
@@ -4085,7 +4679,7 @@ CREATE VIEW localized_de_ModelingService_Allocations AS SELECT
   allocations_0.termYear,
   allocations_0.termMinimum,
   allocations_0.termMaximum,
-  allocations_0.senderInput_ID,
+  allocations_0.senderInput,
   allocations_0.receiverInput_ID,
   allocations_0.resultFunction_ID,
   allocations_0.earlyExitCheck_checkId
@@ -4116,11 +4710,35 @@ CREATE VIEW localized_fr_ModelingService_Allocations AS SELECT
   allocations_0.termYear,
   allocations_0.termMinimum,
   allocations_0.termMaximum,
-  allocations_0.senderInput_ID,
+  allocations_0.senderInput,
   allocations_0.receiverInput_ID,
   allocations_0.resultFunction_ID,
   allocations_0.earlyExitCheck_checkId
 FROM localized_fr_Allocations AS allocations_0;
+
+CREATE VIEW localized_de_ModelingService_SenderViews AS SELECT
+  SenderViews_0.createdAt,
+  SenderViews_0.createdBy,
+  SenderViews_0.modifiedAt,
+  SenderViews_0.modifiedBy,
+  SenderViews_0.environment_ID,
+  SenderViews_0.function_ID,
+  SenderViews_0.ID,
+  SenderViews_0.allocation_ID,
+  SenderViews_0.field
+FROM localized_de_SenderViews AS SenderViews_0;
+
+CREATE VIEW localized_fr_ModelingService_SenderViews AS SELECT
+  SenderViews_0.createdAt,
+  SenderViews_0.createdBy,
+  SenderViews_0.modifiedAt,
+  SenderViews_0.modifiedBy,
+  SenderViews_0.environment_ID,
+  SenderViews_0.function_ID,
+  SenderViews_0.ID,
+  SenderViews_0.allocation_ID,
+  SenderViews_0.field
+FROM localized_fr_SenderViews AS SenderViews_0;
 
 CREATE VIEW localized_de_ModelingService_AllocationSelectionFields AS SELECT
   AllocationSelectionFields_0.ID,
@@ -4240,52 +4858,6 @@ CREATE VIEW localized_fr_ModelingService_ModelTableFields AS SELECT
   ModelTableFields_0.modelTable_ID
 FROM localized_fr_ModelTableFields AS ModelTableFields_0;
 
-CREATE VIEW localized_de_ModelingService_CalculationUnits AS SELECT
-  calculationUnits_0.createdAt,
-  calculationUnits_0.createdBy,
-  calculationUnits_0.modifiedAt,
-  calculationUnits_0.modifiedBy,
-  calculationUnits_0.environment_ID,
-  calculationUnits_0.function_ID,
-  calculationUnits_0.ID
-FROM localized_de_CalculationUnits AS calculationUnits_0;
-
-CREATE VIEW localized_fr_ModelingService_CalculationUnits AS SELECT
-  calculationUnits_0.createdAt,
-  calculationUnits_0.createdBy,
-  calculationUnits_0.modifiedAt,
-  calculationUnits_0.modifiedBy,
-  calculationUnits_0.environment_ID,
-  calculationUnits_0.function_ID,
-  calculationUnits_0.ID
-FROM localized_fr_CalculationUnits AS calculationUnits_0;
-
-CREATE VIEW localized_de_ModelingService_ModelTables AS SELECT
-  modelTables_0.createdAt,
-  modelTables_0.createdBy,
-  modelTables_0.modifiedAt,
-  modelTables_0.modifiedBy,
-  modelTables_0.environment_ID,
-  modelTables_0.function_ID,
-  modelTables_0.ID,
-  modelTables_0.type_code,
-  modelTables_0.transportData,
-  modelTables_0.connName
-FROM localized_de_ModelTables AS modelTables_0;
-
-CREATE VIEW localized_fr_ModelingService_ModelTables AS SELECT
-  modelTables_0.createdAt,
-  modelTables_0.createdBy,
-  modelTables_0.modifiedAt,
-  modelTables_0.modifiedBy,
-  modelTables_0.environment_ID,
-  modelTables_0.function_ID,
-  modelTables_0.ID,
-  modelTables_0.type_code,
-  modelTables_0.transportData,
-  modelTables_0.connName
-FROM localized_fr_ModelTables AS modelTables_0;
-
 CREATE VIEW localized_de_ModelingService_AllocationRules AS SELECT
   AllocationRules_0.createdAt,
   AllocationRules_0.createdBy,
@@ -4347,3 +4919,343 @@ CREATE VIEW localized_fr_ModelingService_AllocationChecks AS SELECT
   AllocationChecks_0.allocation_ID,
   AllocationChecks_0.check_checkId
 FROM localized_fr_AllocationChecks AS AllocationChecks_0;
+
+CREATE VIEW localized_de_ModelingService_Functions AS SELECT
+  Functions_0.createdAt,
+  Functions_0.createdBy,
+  Functions_0.modifiedAt,
+  Functions_0.modifiedBy,
+  Functions_0.environment_ID,
+  Functions_0.ID,
+  Functions_0.function,
+  Functions_0.sequence,
+  Functions_0.parentFunction_ID,
+  Functions_0.type_code,
+  Functions_0.processingType_code,
+  Functions_0.businessEventType_code,
+  Functions_0.partition_ID,
+  Functions_0.parentCalculationUnit_ID,
+  Functions_0.description,
+  Functions_0.documentation
+FROM localized_de_Functions AS Functions_0;
+
+CREATE VIEW localized_fr_ModelingService_Functions AS SELECT
+  Functions_0.createdAt,
+  Functions_0.createdBy,
+  Functions_0.modifiedAt,
+  Functions_0.modifiedBy,
+  Functions_0.environment_ID,
+  Functions_0.ID,
+  Functions_0.function,
+  Functions_0.sequence,
+  Functions_0.parentFunction_ID,
+  Functions_0.type_code,
+  Functions_0.processingType_code,
+  Functions_0.businessEventType_code,
+  Functions_0.partition_ID,
+  Functions_0.parentCalculationUnit_ID,
+  Functions_0.description,
+  Functions_0.documentation
+FROM localized_fr_Functions AS Functions_0;
+
+CREATE VIEW localized_de_ModelingService_FunctionInputFields AS SELECT
+  FunctionInputFields_0.createdAt,
+  FunctionInputFields_0.createdBy,
+  FunctionInputFields_0.modifiedAt,
+  FunctionInputFields_0.modifiedBy,
+  FunctionInputFields_0.formula,
+  FunctionInputFields_0.order__code,
+  FunctionInputFields_0.ID,
+  FunctionInputFields_0.input_ID,
+  FunctionInputFields_0.field_ID
+FROM localized_de_FunctionInputFields AS FunctionInputFields_0;
+
+CREATE VIEW localized_fr_ModelingService_FunctionInputFields AS SELECT
+  FunctionInputFields_0.createdAt,
+  FunctionInputFields_0.createdBy,
+  FunctionInputFields_0.modifiedAt,
+  FunctionInputFields_0.modifiedBy,
+  FunctionInputFields_0.formula,
+  FunctionInputFields_0.order__code,
+  FunctionInputFields_0.ID,
+  FunctionInputFields_0.input_ID,
+  FunctionInputFields_0.field_ID
+FROM localized_fr_FunctionInputFields AS FunctionInputFields_0;
+
+CREATE VIEW localized_de_ModelingService_CalculationUnits AS SELECT
+  calculationUnits_0.createdAt,
+  calculationUnits_0.createdBy,
+  calculationUnits_0.modifiedAt,
+  calculationUnits_0.modifiedBy,
+  calculationUnits_0.environment_ID,
+  calculationUnits_0.function_ID,
+  calculationUnits_0.ID
+FROM localized_de_CalculationUnits AS calculationUnits_0;
+
+CREATE VIEW localized_fr_ModelingService_CalculationUnits AS SELECT
+  calculationUnits_0.createdAt,
+  calculationUnits_0.createdBy,
+  calculationUnits_0.modifiedAt,
+  calculationUnits_0.modifiedBy,
+  calculationUnits_0.environment_ID,
+  calculationUnits_0.function_ID,
+  calculationUnits_0.ID
+FROM localized_fr_CalculationUnits AS calculationUnits_0;
+
+CREATE VIEW localized_de_ModelingService_ModelTables AS SELECT
+  modelTables_0.createdAt,
+  modelTables_0.createdBy,
+  modelTables_0.modifiedAt,
+  modelTables_0.modifiedBy,
+  modelTables_0.environment_ID,
+  modelTables_0.function_ID,
+  modelTables_0.ID,
+  modelTables_0.type_code,
+  modelTables_0.transportData,
+  modelTables_0.connName
+FROM localized_de_ModelTables AS modelTables_0;
+
+CREATE VIEW localized_fr_ModelingService_ModelTables AS SELECT
+  modelTables_0.createdAt,
+  modelTables_0.createdBy,
+  modelTables_0.modifiedAt,
+  modelTables_0.modifiedBy,
+  modelTables_0.environment_ID,
+  modelTables_0.function_ID,
+  modelTables_0.ID,
+  modelTables_0.type_code,
+  modelTables_0.transportData,
+  modelTables_0.connName
+FROM localized_fr_ModelTables AS modelTables_0;
+
+CREATE VIEW localized_de_ModelingService_SenderViewSelections AS SELECT
+  SenderViewSelections_0.createdAt,
+  SenderViewSelections_0.createdBy,
+  SenderViewSelections_0.modifiedAt,
+  SenderViewSelections_0.modifiedBy,
+  SenderViewSelections_0.environment_ID,
+  SenderViewSelections_0.function_ID,
+  SenderViewSelections_0.step,
+  SenderViewSelections_0.sign_code,
+  SenderViewSelections_0.opt_code,
+  SenderViewSelections_0.low,
+  SenderViewSelections_0.high,
+  SenderViewSelections_0.ID,
+  SenderViewSelections_0.field_ID
+FROM localized_de_SenderViewSelections AS SenderViewSelections_0;
+
+CREATE VIEW localized_fr_ModelingService_SenderViewSelections AS SELECT
+  SenderViewSelections_0.createdAt,
+  SenderViewSelections_0.createdBy,
+  SenderViewSelections_0.modifiedAt,
+  SenderViewSelections_0.modifiedBy,
+  SenderViewSelections_0.environment_ID,
+  SenderViewSelections_0.function_ID,
+  SenderViewSelections_0.step,
+  SenderViewSelections_0.sign_code,
+  SenderViewSelections_0.opt_code,
+  SenderViewSelections_0.low,
+  SenderViewSelections_0.high,
+  SenderViewSelections_0.ID,
+  SenderViewSelections_0.field_ID
+FROM localized_fr_SenderViewSelections AS SenderViewSelections_0;
+
+CREATE VIEW localized_de_ModelingService_FunctionInputs AS SELECT
+  FunctionInputs_0.createdAt,
+  FunctionInputs_0.createdBy,
+  FunctionInputs_0.modifiedAt,
+  FunctionInputs_0.modifiedBy,
+  FunctionInputs_0.ID,
+  FunctionInputs_0.function_ID,
+  FunctionInputs_0.inputFunction_ID
+FROM localized_de_FunctionInputs AS FunctionInputs_0;
+
+CREATE VIEW localized_fr_ModelingService_FunctionInputs AS SELECT
+  FunctionInputs_0.createdAt,
+  FunctionInputs_0.createdBy,
+  FunctionInputs_0.modifiedAt,
+  FunctionInputs_0.modifiedBy,
+  FunctionInputs_0.ID,
+  FunctionInputs_0.function_ID,
+  FunctionInputs_0.inputFunction_ID
+FROM localized_fr_FunctionInputs AS FunctionInputs_0;
+
+CREATE VIEW localized_de_ModelingService_FunctionInputFieldSelections AS SELECT
+  FunctionInputFieldSelections_0.createdAt,
+  FunctionInputFieldSelections_0.createdBy,
+  FunctionInputFieldSelections_0.modifiedAt,
+  FunctionInputFieldSelections_0.modifiedBy,
+  FunctionInputFieldSelections_0.step,
+  FunctionInputFieldSelections_0.sign_code,
+  FunctionInputFieldSelections_0.opt_code,
+  FunctionInputFieldSelections_0.low,
+  FunctionInputFieldSelections_0.high,
+  FunctionInputFieldSelections_0.ID,
+  FunctionInputFieldSelections_0.field_ID
+FROM localized_de_FunctionInputFieldSelections AS FunctionInputFieldSelections_0;
+
+CREATE VIEW localized_fr_ModelingService_FunctionInputFieldSelections AS SELECT
+  FunctionInputFieldSelections_0.createdAt,
+  FunctionInputFieldSelections_0.createdBy,
+  FunctionInputFieldSelections_0.modifiedAt,
+  FunctionInputFieldSelections_0.modifiedBy,
+  FunctionInputFieldSelections_0.step,
+  FunctionInputFieldSelections_0.sign_code,
+  FunctionInputFieldSelections_0.opt_code,
+  FunctionInputFieldSelections_0.low,
+  FunctionInputFieldSelections_0.high,
+  FunctionInputFieldSelections_0.ID,
+  FunctionInputFieldSelections_0.field_ID
+FROM localized_fr_FunctionInputFieldSelections AS FunctionInputFieldSelections_0;
+
+CREATE VIEW localized_de_ModelingService_FunctionResultFunctions AS SELECT
+  FunctionResultFunctions_0.createdAt,
+  FunctionResultFunctions_0.createdBy,
+  FunctionResultFunctions_0.modifiedAt,
+  FunctionResultFunctions_0.modifiedBy,
+  FunctionResultFunctions_0.environment_ID,
+  FunctionResultFunctions_0.ID,
+  FunctionResultFunctions_0.function,
+  FunctionResultFunctions_0.sequence,
+  FunctionResultFunctions_0.parentFunction_ID,
+  FunctionResultFunctions_0.type_code,
+  FunctionResultFunctions_0.processingType_code,
+  FunctionResultFunctions_0.businessEventType_code,
+  FunctionResultFunctions_0.partition_ID,
+  FunctionResultFunctions_0.parentCalculationUnit_ID,
+  FunctionResultFunctions_0.description,
+  FunctionResultFunctions_0.documentation
+FROM localized_de_FunctionResultFunctions AS FunctionResultFunctions_0;
+
+CREATE VIEW localized_fr_ModelingService_FunctionResultFunctions AS SELECT
+  FunctionResultFunctions_0.createdAt,
+  FunctionResultFunctions_0.createdBy,
+  FunctionResultFunctions_0.modifiedAt,
+  FunctionResultFunctions_0.modifiedBy,
+  FunctionResultFunctions_0.environment_ID,
+  FunctionResultFunctions_0.ID,
+  FunctionResultFunctions_0.function,
+  FunctionResultFunctions_0.sequence,
+  FunctionResultFunctions_0.parentFunction_ID,
+  FunctionResultFunctions_0.type_code,
+  FunctionResultFunctions_0.processingType_code,
+  FunctionResultFunctions_0.businessEventType_code,
+  FunctionResultFunctions_0.partition_ID,
+  FunctionResultFunctions_0.parentCalculationUnit_ID,
+  FunctionResultFunctions_0.description,
+  FunctionResultFunctions_0.documentation
+FROM localized_fr_FunctionResultFunctions AS FunctionResultFunctions_0;
+
+CREATE VIEW localized_de_ModelingService_ParentFunctions AS SELECT
+  ParentFunctions_0.createdAt,
+  ParentFunctions_0.createdBy,
+  ParentFunctions_0.modifiedAt,
+  ParentFunctions_0.modifiedBy,
+  ParentFunctions_0.environment_ID,
+  ParentFunctions_0.ID,
+  ParentFunctions_0.function,
+  ParentFunctions_0.sequence,
+  ParentFunctions_0.parentFunction_ID,
+  ParentFunctions_0.type_code,
+  ParentFunctions_0.processingType_code,
+  ParentFunctions_0.businessEventType_code,
+  ParentFunctions_0.partition_ID,
+  ParentFunctions_0.parentCalculationUnit_ID,
+  ParentFunctions_0.description,
+  ParentFunctions_0.documentation
+FROM localized_de_ParentFunctions AS ParentFunctions_0;
+
+CREATE VIEW localized_fr_ModelingService_ParentFunctions AS SELECT
+  ParentFunctions_0.createdAt,
+  ParentFunctions_0.createdBy,
+  ParentFunctions_0.modifiedAt,
+  ParentFunctions_0.modifiedBy,
+  ParentFunctions_0.environment_ID,
+  ParentFunctions_0.ID,
+  ParentFunctions_0.function,
+  ParentFunctions_0.sequence,
+  ParentFunctions_0.parentFunction_ID,
+  ParentFunctions_0.type_code,
+  ParentFunctions_0.processingType_code,
+  ParentFunctions_0.businessEventType_code,
+  ParentFunctions_0.partition_ID,
+  ParentFunctions_0.parentCalculationUnit_ID,
+  ParentFunctions_0.description,
+  ParentFunctions_0.documentation
+FROM localized_fr_ParentFunctions AS ParentFunctions_0;
+
+CREATE VIEW localized_de_ModelingService_ParentCalculationUnits AS SELECT
+  ParentCalculationUnits_0.createdAt,
+  ParentCalculationUnits_0.createdBy,
+  ParentCalculationUnits_0.modifiedAt,
+  ParentCalculationUnits_0.modifiedBy,
+  ParentCalculationUnits_0.environment_ID,
+  ParentCalculationUnits_0.ID,
+  ParentCalculationUnits_0.function,
+  ParentCalculationUnits_0.sequence,
+  ParentCalculationUnits_0.parentFunction_ID,
+  ParentCalculationUnits_0.type_code,
+  ParentCalculationUnits_0.processingType_code,
+  ParentCalculationUnits_0.businessEventType_code,
+  ParentCalculationUnits_0.partition_ID,
+  ParentCalculationUnits_0.parentCalculationUnit_ID,
+  ParentCalculationUnits_0.description,
+  ParentCalculationUnits_0.documentation
+FROM localized_de_ParentCalculationUnits AS ParentCalculationUnits_0;
+
+CREATE VIEW localized_fr_ModelingService_ParentCalculationUnits AS SELECT
+  ParentCalculationUnits_0.createdAt,
+  ParentCalculationUnits_0.createdBy,
+  ParentCalculationUnits_0.modifiedAt,
+  ParentCalculationUnits_0.modifiedBy,
+  ParentCalculationUnits_0.environment_ID,
+  ParentCalculationUnits_0.ID,
+  ParentCalculationUnits_0.function,
+  ParentCalculationUnits_0.sequence,
+  ParentCalculationUnits_0.parentFunction_ID,
+  ParentCalculationUnits_0.type_code,
+  ParentCalculationUnits_0.processingType_code,
+  ParentCalculationUnits_0.businessEventType_code,
+  ParentCalculationUnits_0.partition_ID,
+  ParentCalculationUnits_0.parentCalculationUnit_ID,
+  ParentCalculationUnits_0.description,
+  ParentCalculationUnits_0.documentation
+FROM localized_fr_ParentCalculationUnits AS ParentCalculationUnits_0;
+
+CREATE VIEW localized_de_ModelingService_EnvironmentFunctions AS SELECT
+  EnvironmentFunctions_0.createdAt,
+  EnvironmentFunctions_0.createdBy,
+  EnvironmentFunctions_0.modifiedAt,
+  EnvironmentFunctions_0.modifiedBy,
+  EnvironmentFunctions_0.environment_ID,
+  EnvironmentFunctions_0.ID,
+  EnvironmentFunctions_0.function,
+  EnvironmentFunctions_0.sequence,
+  EnvironmentFunctions_0.parentFunction_ID,
+  EnvironmentFunctions_0.type_code,
+  EnvironmentFunctions_0.processingType_code,
+  EnvironmentFunctions_0.businessEventType_code,
+  EnvironmentFunctions_0.partition_ID,
+  EnvironmentFunctions_0.parentCalculationUnit_ID,
+  EnvironmentFunctions_0.description,
+  EnvironmentFunctions_0.documentation
+FROM localized_de_EnvironmentFunctions AS EnvironmentFunctions_0;
+
+CREATE VIEW localized_fr_ModelingService_EnvironmentFunctions AS SELECT
+  EnvironmentFunctions_0.createdAt,
+  EnvironmentFunctions_0.createdBy,
+  EnvironmentFunctions_0.modifiedAt,
+  EnvironmentFunctions_0.modifiedBy,
+  EnvironmentFunctions_0.environment_ID,
+  EnvironmentFunctions_0.ID,
+  EnvironmentFunctions_0.function,
+  EnvironmentFunctions_0.sequence,
+  EnvironmentFunctions_0.parentFunction_ID,
+  EnvironmentFunctions_0.type_code,
+  EnvironmentFunctions_0.processingType_code,
+  EnvironmentFunctions_0.businessEventType_code,
+  EnvironmentFunctions_0.partition_ID,
+  EnvironmentFunctions_0.parentCalculationUnit_ID,
+  EnvironmentFunctions_0.description,
+  EnvironmentFunctions_0.documentation
+FROM localized_fr_EnvironmentFunctions AS EnvironmentFunctions_0;

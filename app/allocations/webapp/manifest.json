@@ -108,6 +108,11 @@
                     "pattern": "Allocations({key})/rules({key2}):?query:",
                     "name": "AllocationRulesObjectPage",
                     "target": "AllocationRulesObjectPage"
+                },
+                {
+                    "pattern": "Allocations({key})/senderViews({key2}):?query:",
+                    "name": "SenderViewsObjectPage",
+                    "target": "SenderViewsObjectPage"
                 }
             ],
             "targets": {
@@ -143,6 +148,11 @@
                                     "detail": {
                                         "route": "AllocationRulesObjectPage"
                                     }
+                                },
+                                "senderViews": {
+                                    "detail": {
+                                        "route": "SenderViewsObjectPage"
+                                    }
                                 }
                             }
                         }
@@ -156,6 +166,17 @@
                         "settings": {
                             "editableHeaderContent": false,
                             "entitySet": "AllocationRules"
+                        }
+                    }
+                },
+                "SenderViewsObjectPage": {
+                    "type": "Component",
+                    "id": "SenderViewsObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "entitySet": "SenderViews",
+                            "navigation": {}
                         }
                     }
                 }

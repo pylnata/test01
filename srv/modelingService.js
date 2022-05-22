@@ -1,6 +1,6 @@
 // const cds = require("@sap/cds");
 module.exports = function () {
-  this.before("NEW", "Allocations", async (req) => {
+  this.before("NEW", "*", async (req) => {
     // const result = await cds.query("SELECT CURRENT_CONNECTION FROM DUMMY");
     // const result = await cds.update("ConnectionEnvironments",result.CURRENT_CONNECTION).with({environment: '1'});
     req.data.environment_ID = "1";
