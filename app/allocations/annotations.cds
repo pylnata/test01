@@ -307,19 +307,26 @@ annotate service.Allocations with {
             $Type : 'Common.ValueListType',
             CollectionPath : 'InputFunctions',
             Parameters : [
-                {
-                    $Type : 'Common.ValueListParameterInOut',
-                    LocalDataProperty : senderFunction_ID,
-                    ValueListProperty : 'ID',
-                },
+                    {
+                        $Type : 'Common.ValueListParameterInOut',
+                        LocalDataProperty : senderFunction_ID,
+                        ValueListProperty : 'ID',
+                    },
+                    {
+                        $Type : 'Common.ValueListParameterDisplayOnly',
+                        ValueListProperty : 'function',
+                    },
                 {
                     $Type : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'description',
                 },
-            ],
+                ],
         },
         Common.ValueListWithFixedValues : false
 )};
 annotate service.InputFunctions with {
-    ID @Common.Text : function
+    ID @Common.Text : description
+};
+annotate service.Allocations with {
+    senderFunction @Common.Text : senderFunction.description
 };
