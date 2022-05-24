@@ -10,7 +10,7 @@ using {
 
 using {myCodeList} from './commonAspects';
 
-type GUID : UUID @odata.Type : 'Edm.String'  @UI.Hidden;
+type GUID : UUID @odata.Type : 'Edm.String'  @UI.Hidden ;
 type Environment : String @title : 'Environment'  @assert.format : '[A-Z,0-9,_]{3}';
 type Version : String @title : 'Version'  @assert.format : '(^$|[A-Z,0-9,_]{4})';
 type Function : String @title : 'Function'  @assert.format : '[A-Z,0-9,_]{1,5}';

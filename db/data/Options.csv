@@ -1,0 +1,11 @@
+CODE;NAME;DESCR
+EQ;Equal;Equal
+NE;Not Equal;Not Equal
+BT;Between;Between
+NB;Not between;Not between
+LE;Less Equal;Less Equal
+GT;Greater than;Greater than
+GE;Greater or Equal;Greater or Equal
+LT;Less than;Less than
+CP;Contains Pattern;Contains Pattern
+NP;Not contains Pattern;Not contains Pattern

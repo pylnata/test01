@@ -30,18 +30,14 @@ using {Functions} from './functions';
 // }
 
 @cds.odata.valuelist
-@UI.Identification : [
-    {Value : environment},
-    {Value : version}
-]
 entity Environments : managed {
     key ID          : GUID;
         environment : Environment;
         version     : Version;
         sequence    : Sequence;
         description : Description;
-        parent      : Association to one EnvironmentFolders @title : 'Parent';
-        type        : Association to one EnvironmentTypes   @title : 'Type';
+        parent      : Association to one EnvironmentFolders @title       : 'Parent';
+        type        : Association to one EnvironmentTypes   @title       : 'Type';
         fields      : Association to many Fields
                           on fields.environment = $self;
         checks      : Association to many Checks
