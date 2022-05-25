@@ -107,6 +107,10 @@ annotate service.Allocations with @(
             Value : function_ID,
             Label : 'function_ID',
         },
+        {
+            $Type : 'UI.DataFieldForAction',
+            Action : 'ModelingService.activate',
+        },
     ]
 );
 

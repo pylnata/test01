@@ -73,10 +73,7 @@ annotate service.Environments with @(
     ]
 );
 annotate service.Environments with {
-    parent @Common.Text : {
-            $value : parent.description,
-            ![@UI.TextArrangement] : #TextOnly,
-        }
+    parent @Common.Text : parent.description
 };
 annotate service.Environments with {
     parent @(Common.ValueList : {

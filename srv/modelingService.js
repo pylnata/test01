@@ -1,5 +1,10 @@
 // const cds = require("@sap/cds");
+const activationService = require("./activationService");
 module.exports = function () {
+  this.on("activate", async (req) => {
+    await activationService.activate(req);
+  });
+
   this.before("NEW", "*", async (req) => {
     // const result = await cds.query("SELECT CURRENT_CONNECTION FROM DUMMY");
     // const result = await cds.update("ConnectionEnvironments",result.CURRENT_CONNECTION).with({environment: '1'});

@@ -29,15 +29,17 @@ using {Functions} from './functions';
 //     ]
 // }
 
+@cds.autoexpose
 @cds.odata.valuelist
+@UI.Identification : [{Value : description}]
 entity Environments : managed {
     key ID          : GUID;
         environment : Environment;
         version     : Version;
         sequence    : Sequence;
         description : Description;
-        parent      : Association to one EnvironmentFolders @title       : 'Parent';
-        type        : Association to one EnvironmentTypes   @title       : 'Type';
+        parent      : Association to one EnvironmentFolders @title : 'Parent';
+        type        : Association to one EnvironmentTypes   @title : 'Type';
         fields      : Association to many Fields
                           on fields.environment = $self;
         checks      : Association to many Checks
@@ -46,11 +48,7 @@ entity Environments : managed {
                           on functions.environment = $self;
 }
 
-@cds.autoexpose  @readonly
-entity EnvironmentFolders as projection on Environments {
-    key ID,
-        description
-} where type.code = 'NODE';
+entity EnvironmentFolders as projection on Environments where type.code = 'NODE';
 
 type EnvironmentType @mandatory @(assert.range) : String @title : 'Type' enum {
     Folder      = 'NODE';

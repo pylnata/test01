@@ -8,15 +8,18 @@ using {CalculationUnits as calculationUnits} from '../db/calculationUnits';
 @path : 'service/modeling'
 service ModelingService {
 
-    @odata.draft.enabled
-    entity Environment     as projection on environments;
+    @odata.draft.enabled  @readonly
+    entity Environment      as projection on environments;
 
     // entity Fields       as projection on fields;
     // entity Functions    as projection on functions;
 
 
     @odata.draft.enabled
-    entity Allocations      as projection on allocations;
+    entity Allocations      as projection on allocations actions {
+        @title : 'Activate'
+        action activate();
+    };
 
     @odata.draft.enabled
     entity CalculationUnits as projection on calculationUnits;
