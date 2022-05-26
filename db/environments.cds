@@ -37,7 +37,7 @@ entity Environments : managed {
         environment : Environment;
         version     : Version;
         sequence    : Sequence;
-        description : Description;
+        description : Description @Common.IsUpperCase;
         parent      : Association to one EnvironmentFolders @title : 'Parent';
         type        : Association to one EnvironmentTypes   @title : 'Type';
         fields      : Association to many Fields

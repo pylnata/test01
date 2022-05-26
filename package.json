@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@sap/eslint-plugin-ui5-jsdocs": "^2.0.5",
-    "@sap/ux-specification": "^1.100.2",
+    "@sap/ux-specification": "^1.100.3",
     "@sapui5/ts-types": "^1.92.2",
     "eslint": "^7.32.0",
     "sqlite3": "^5.0.2"
@@ -21,7 +21,8 @@
   "scripts": {
     "start": "cds run",
     "watch-environments": "cds watch --open environments/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4",
-    "watch-allocations": "cds watch --open allocations/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4"
+    "watch-allocations": "cds watch --open allocations/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4",
+    "watch-functions": "cds watch --open functions/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
@@ -101,12 +102,14 @@
       "deploy-format": "hdbtable"
     },
     "features": {
-      "assert_integrity": "db"
+      "assert_integrity": "db",
+      "xxxkibana_formatter": true
     }
   },
   "sapux": [
     "app/environments",
     "app/allocations",
-    "app/environments"
+    "app/environments",
+    "app/functions"
   ]
 }

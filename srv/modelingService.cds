@@ -12,7 +12,11 @@ service ModelingService {
     entity Environment      as projection on environments;
 
     // entity Fields       as projection on fields;
-    // entity Functions    as projection on functions;
+    @odata.draft.enabled
+    entity Functions        as projection on functions actions {
+        @title : 'Activate'
+        action activate();
+    };
 
 
     @odata.draft.enabled
