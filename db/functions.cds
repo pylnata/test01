@@ -20,7 +20,6 @@ using {
     environment,
     field,
     function,
-    myCodeList
 } from './commonAspects';
 using {Fields} from './fields';
 using {Checks} from './checks';
@@ -41,11 +40,10 @@ using {ModelTables} from './modelTables';
 //     ]
 // }
 
-@cds.autoexpose
 @cds.odata.valuelist
 @UI.Identification : [{Value : function}]
 entity Functions : managed, environment {
-    key ID                    : GUID;
+    key ID                    : GUID @Common.Text : description  @Common.TextArrangement : #TextOnly;
         function              : Function;
         sequence              : Sequence;
         parentFunction        : Association to one ParentFunctions;
@@ -85,7 +83,7 @@ type FunctionType @(assert.range) : String(10) @title : 'Type' enum {
 };
 
 
-entity FunctionTypes : myCodeList {
+entity FunctionTypes : CodeList {
     key code : FunctionType default 'MT';
 };
 
@@ -97,7 +95,7 @@ type ProcessingType @(assert.range) : String(10) @title : 'Processing Type' enum
     Executable  = 'NW';
 };
 
-entity ProcessingTypes : myCodeList {
+entity ProcessingTypes : CodeList {
     key code : ProcessingType default '';
 }
 
@@ -106,6 +104,6 @@ type BusinessEventType @(assert.range) : String(10) @title : 'Business Event Man
     Correction = 'CORRECT';
 };
 
-entity BusinessEventTypes : myCodeList {
+entity BusinessEventTypes : CodeList {
     key code : BusinessEventType default '';
 }

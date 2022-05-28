@@ -111,8 +111,13 @@
                 },
                 {
                     "pattern": "Allocations({key})/senderViews({key2}):?query:",
-                    "name": "SenderViewsObjectPage",
-                    "target": "SenderViewsObjectPage"
+                    "name": "AllocationSenderViewsObjectPage",
+                    "target": "AllocationSenderViewsObjectPage"
+                },
+                {
+                    "pattern": "Allocations({key})/receiverViews({key2}):?query:",
+                    "name": "AllocationReceiverViewsObjectPage",
+                    "target": "AllocationReceiverViewsObjectPage"
                 }
             ],
             "targets": {
@@ -151,7 +156,12 @@
                                 },
                                 "senderViews": {
                                     "detail": {
-                                        "route": "SenderViewsObjectPage"
+                                        "route": "AllocationSenderViewsObjectPage"
+                                    }
+                                },
+                                "receiverViews": {
+                                    "detail": {
+                                        "route": "AllocationReceiverViewsObjectPage"
                                     }
                                 }
                             }
@@ -169,13 +179,24 @@
                         }
                     }
                 },
-                "SenderViewsObjectPage": {
+                "AllocationSenderViewsObjectPage": {
                     "type": "Component",
-                    "id": "SenderViewsObjectPage",
+                    "id": "AllocationSenderViewsObjectPage",
                     "name": "sap.fe.templates.ObjectPage",
                     "options": {
                         "settings": {
-                            "entitySet": "SenderViews",
+                            "entitySet": "AllocationSenderViews",
+                            "navigation": {}
+                        }
+                    }
+                },
+                "AllocationReceiverViewsObjectPage": {
+                    "type": "Component",
+                    "id": "AllocationReceiverViewsObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "entitySet": "AllocationReceiverViews",
                             "navigation": {}
                         }
                     }

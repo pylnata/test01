@@ -8,18 +8,18 @@ using {
     sap.common.CodeList
 } from '@sap/cds/common';
 
-using {myCodeList} from './commonAspects';
-
-type GUID : UUID @odata.Type : 'Edm.String'  @UI.Hidden ;
-type Environment : String @title : 'Environment'  @assert.format : '[A-Z,0-9,_]{3}';
-type Version : String @title : 'Version'  @assert.format : '(^$|[A-Z,0-9,_]{4})';
-type Function : String @title : 'Function'  @assert.format : '[A-Z,0-9,_]{1,5}';
-type Field : String @title : 'Field'  @assert.format : '[A-Z,0-9,_]{1,30}';
-type Partition : String @title : 'Partition'  @assert.format : '[A-Z,0-9,_]{1,20}';
+type GUID : UUID @odata.Type : 'Edm.String'  @UI.Hidden;
+type Environment : String @title : 'Environment'  @assert.format : '[A-Z,0-9,_]{3}' @Common.IsUpperCase;
+type Version : String @title : 'Version'  @assert.format : '(^$|[A-Z,0-9,_]{4})' @Common.IsUpperCase;
+type Function : String @title : 'Function'  @assert.format : '[A-Z,0-9,_]{1,5}' @Common.IsUpperCase;
+type Field : String @title : 'Field'  @assert.format : '[A-Z,0-9,_]{1,30}' @Common.IsUpperCase;
+type Connection: String @title : 'Connection' @assert.format : '[A-Z,0-9,_]{1,30}' @Common.IsUpperCase;
+type Partition : String @title : 'Partition'  @assert.format : '[A-Z,0-9,_]{1,20}' @Common.IsUpperCase;
+type Conversion : String @title : 'Conversion'  @assert.format : '[A-Z,0-9,_]{1,10}' @Common.IsUpperCase;
 type Description : String @title : 'Description'  @mandatory  @assert.notNull; //  @Core.Immutable woud bring it up in creation popup as well
 type Documentation : LargeString @title : 'Documentation';
 type Sequence : Integer @title : 'Sequence'  @mandatory  @assert.notNull;
-type Rule : String @title : 'Rule'  @assert.format : '[A-Z,0-9,_]{1,5}';
+type Rule : String @title : 'Rule'  @assert.format : '[A-Z,0-9,_]{1,5}' @Common.IsUpperCase;
 type ParentRule : Rule @title : 'Parent Rule';
 type IncludeInputData : Boolean @title : 'Include original Input Data';
 type IncludeInitialResult : Boolean @title : 'Include initial Results';
@@ -32,7 +32,7 @@ type MessageType @(assert.range) : String(1) @title : 'Message type' enum {
     Abort   = 'A';
 }
 
-entity MessageTypes : myCodeList {
+entity MessageTypes : CodeList {
     key code : MessageType default 'I';
 }
 
@@ -49,21 +49,17 @@ type Sfield @(assert.range) : String(18) @title : 'Subset' enum {
     SenderRule       = 'SRULE_FIELD_MAP';
 }
 
-entity Sfields : myCodeList {
+entity Sfields : CodeList {
     key code : Sfield;
 }
 
-
-// @cds.autoexpose  @readonly
-// aspect MasterData {};
-
 type Group @(assert.range) : String(10) @title : 'Grouping' enum {
     Field   = '';
-    Group_  = 'GROUP';
+    group  = 'GROUP';
     NotUsed = 'NOT USED';
 };
 
-entity Groups : myCodeList {
+entity Groups : CodeList {
     key code : Group default '';
 }
 
@@ -73,7 +69,7 @@ type Order @(assert.range) : String(10) @title : 'Ordering' enum {
     Descending = 'DESC';
 };
 
-entity Orders : myCodeList {
+entity Orders : CodeList {
     key code : Order default '';
 }
 
@@ -82,7 +78,7 @@ type Sign @(assert.range) : String(1) @title : 'Sign' enum {
     Exclude = 'E';
 }
 
-entity Signs : myCodeList {
+entity Signs : CodeList {
     key code : Sign default 'I';
 }
 
@@ -131,7 +127,7 @@ type Option @(assert.range) : String(2) @title : 'Option' enum {
     NotContainsPattern = 'NP';
 }
 
-entity Options : myCodeList {
+entity Options : CodeList {
     key code : Option default 'EQ';
 }
 
@@ -142,10 +138,10 @@ type ResultHandling @(assert.range) : String(10) @title : 'Result Handling' enum
     AbortOnNotEnrichedData = 'ABORT';
 }
 
-entity ResultHandlings : myCodeList {
+entity ResultHandlings : CodeList {
     key code : ResultHandling default 'ENRICHED';
 }
 
 
-type RuleState : Boolean @title : 'State';
+type IsActive : Boolean @title : 'Active';
 type Value : String @title : 'Value';

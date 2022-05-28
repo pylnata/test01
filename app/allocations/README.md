@@ -11,7 +11,7 @@
 |**Module Name**<br>allocations|
 |**Application Title**<br>Manage Allocations|
 |**Namespace**<br>|
-|**UI5 Theme**<br>sap_fiori_3|
+|**UI5 Theme**<br>sap_horizon|
 |**UI5 Version**<br>1.101.0|
 |**Enable Code Assist Libraries**<br>False|
 |**Add Eslint configuration**<br>False|

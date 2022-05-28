@@ -20,10 +20,6 @@ annotate service.Environments with @(UI.LineItem : [
         $Type : 'UI.DataField',
         Value : type_code,
     },
-    {
-        $Type : 'UI.DataField',
-        Value : sequence,
-    },
 ]);
 
 annotate service.Environments with @(
@@ -50,10 +46,6 @@ annotate service.Environments with @(
                 $Type : 'UI.DataField',
                 Value : parent_ID,
             },
-            {
-                $Type : 'UI.DataField',
-                Value : sequence,
-            },
         ],
     },
     UI.Facets                      : [{
@@ -73,7 +65,10 @@ annotate service.Environments with @(
     ]
 );
 annotate service.Environments with {
-    parent @Common.Text : parent.description
+    parent @Common.Text : {
+            $value : parent.description,
+            ![@UI.TextArrangement] : #TextOnly,
+        }
 };
 annotate service.Environments with {
     parent @(Common.ValueList : {
@@ -85,10 +80,21 @@ annotate service.Environments with {
                     LocalDataProperty : parent_ID,
                     ValueListProperty : 'ID',
                 },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'environment',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'description',
+                },
             ],
         },
         Common.ValueListWithFixedValues : false
 )};
 annotate service.EnvironmentFolders with {
-    ID @Common.Text : description
+    ID @Common.Text : {
+            $value : description,
+            ![@UI.TextArrangement] : #TextOnly,
+        }
 };

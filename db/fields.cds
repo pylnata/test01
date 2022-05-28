@@ -19,27 +19,24 @@ using {
 using {
     environment,
     field,
-    myCodeList
 } from './commonAspects';
 using {Functions} from './functions';
 
-// @assert.unique : {
-//     field       : [
-//         environment,
-//         field
-//     ],
-//     description : [
-//         environment,
-//         description,
-//     ]
-// }
-@cds.autoexpose
+@assert.unique : {
+    field       : [
+        environment,
+        field
+    ],
+    description : [
+        environment,
+        description,
+    ]
+}
 @cds.odata.valuelist
 @UI.Identification : [{Value : field}]
 entity Fields : managed, environment {
-    key ID                   : GUID;
+    key ID                   : GUID @Common.Text : description  @Common.TextArrangement : #TextOnly;
         field                : Field;
-        seq                  : Sequence;
         class                : Association to one FieldClasses  @title : 'Field Class';
         type                 : Association to one FieldTypes    @title : 'Field Type';
         hanaDataType         : Association to one HanaDataTypes @title : 'Data Type';
@@ -97,7 +94,7 @@ type FieldClass @(assert.range) : String @title : 'Field Class' enum {
     Parameter = 'PARAMETER';
 };
 
-entity FieldClasses : myCodeList {
+entity FieldClasses : CodeList {
     key code : FieldClass default '';
 }
 
@@ -107,7 +104,7 @@ type FieldType @(assert.range) : String @title : 'Field Type' enum {
     Unit           = 'UNI';
 };
 
-entity FieldTypes : myCodeList {
+entity FieldTypes : CodeList {
     key code : FieldType default 'CHA';
 }
 
@@ -244,7 +241,7 @@ type HanaDataType @(assert.range) : String @title : 'Data type' enum {
     LargeString      = 'NCLOB';
 };
 
-entity HanaDataTypes : myCodeList {
+entity HanaDataTypes : CodeList {
     key code : HanaDataType default 'NVARCHAR';
 }
 
@@ -260,7 +257,8 @@ type DataDecimals : Integer @title : 'Data Decimals'  @assert.range : [
 
 type UnitField : FieldType @title : 'Unit Field';
 
-@cds.autoexpose  @readonly
+@cds.autoexpose
+@cds.odata.valuelist
 entity UnitFields        as projection on Fields where type.code = 'UNI';
 
 

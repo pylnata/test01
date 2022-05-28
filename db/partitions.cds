@@ -12,7 +12,8 @@ using {
     GUID,
     Value,
     Sequence,
-    Partition
+    Partition,
+    Description
 } from './commonTypes';
 using {environment} from './commonAspects';
 using {Fields} from './fields';
@@ -27,10 +28,12 @@ using {Fields} from './fields';
         description
     ]
 }
+@cds.odata.valuelist
+@UI.Identification : [{Value : partition}]
 entity Partitions : managed, environment {
-    key ID          : GUID;
+    key ID          : GUID @Common.Text : description  @Common.TextArrangement : #TextOnly;
         partition   : Partition;
-        description : String;
+        description : Description;
         field       : Association to one Fields;
         ranges      : Composition of many PartitionRanges
                           on ranges.partition = $self;

@@ -27,7 +27,7 @@ aspect myCodeList @(
   cds.autoexpose,
   cds.persistence.skip : 'if-unused',
   cds.odata.valuelist,
-  // UI.Identification    : [{Value : name}],
+// UI.Identification    : [{Value : name}],
 ) {
   name  : String(255)  @title : '{i18n>Name}';
   descr : String(1000) @title : '{i18n>Description}';
@@ -35,11 +35,11 @@ aspect myCodeList @(
 
 // @cds.persistence.journal // Enable schema evolution for all environment configuration tables
 aspect environment : {
-  environment : Association to one Environments @mandatory;
+  environment : Association to one Environments @title : 'Environment'  @mandatory;
 }
 
 aspect function : environment {
-  function : Association to one Functions @mandatory;
+  function : Association to one Functions @title : 'Function'  @mandatory;
 }
 
 aspect keyFunction : environment {
@@ -59,21 +59,21 @@ aspect formula {
 }
 
 aspect formulaGroup : formula {
-  group_ : Association to one Groups @title: 'Group';
+  ![group] : Association to one Groups @title : 'Group';
 }
 
 aspect formulaOrder : formula {
-  order_ : Association to one Orders @title : 'Order';
+  ![order] : Association to one Orders @title : 'Order';
 }
 
 aspect formulaGroupOrder : formulaGroup {
-  order_  : Association to one Orders;
+  ![order] : Association to one Orders;
 }
 
 aspect selection : {
-  step : Integer;
-  sign : Association to one Signs  @title: 'Sign' @mandatory;
-  opt  : Association to one Options @title: 'Option' @mandatory;
-  low  : String @title: 'Value';
-  high : String @title: 'High Value';
+  seq  : Sequence default 0;
+  sign : Association to one Signs   @title : 'Sign'  @mandatory;
+  opt  : Association to one Options @title : 'Option'  @mandatory;
+  low  : String                     @title : 'Value';
+  high : String                     @title : 'High Value';
 }

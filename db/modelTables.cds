@@ -15,12 +15,11 @@ using {
 using {
     function,
     field,
-    myCodeList
 } from './commonAspects';
 
 
 entity ModelTables : managed, function {
-    key ID            : GUID;
+    key ID            : GUID @Common.Text : function.description  @Common.TextArrangement : #TextOnly;
         type          : Association to one ModelTableTypes;
         transportData : Boolean;
         connName      : String;
@@ -42,6 +41,6 @@ type ModelTableType @(assert.range) : String(10) enum {
     OData       = 'ODATA';
 }
 
-entity ModelTableTypes : myCodeList {
+entity ModelTableTypes : CodeList {
     key code : ModelTableType default 'ENV';
 }

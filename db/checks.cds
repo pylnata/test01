@@ -9,6 +9,7 @@ using {
 } from '@sap/cds/common';
 
 using {
+    GUID,
     Check,
     Sequence,
     MessageTypes,
@@ -16,21 +17,39 @@ using {
 } from './commonTypes';
 using {
     environment,
-    myCodeList
+    selection,
 } from './commonAspects';
 
+using {Fields} from './fields';
 
 @assert.unique : {description : [
     environment,
     description,
 ]}
-@assert.integrity
+@cds.odata.valuelist
+@UI.Identification : [{Value : check}]
 entity Checks : managed, environment {
-    key checkId     : Check;
-        seq         : Sequence;
+    key ID          : GUID @Common.Text : description  @Common.TextArrangement : #TextOnly;
+        check       : Check;
         messageType : Association to one MessageTypes;
         category    : Association to CheckCategories;
         description : Description;
+        fields      : Composition of many CheckFields
+                          on fields.check = $self;
+}
+
+entity CheckFields : managed {
+    key ID         : GUID;
+        check      : Association to one Checks @mandatory;
+        field      : Association to one Fields @mandatory;
+        selections : Composition of many CheckSelections
+                         on selections.field = $self;
+}
+
+entity CheckSelections : managed, selection {
+    key ID    : GUID;
+        field : Association to one CheckFields;
+
 }
 
 type CheckCategory @(assert.range) : String(10) @title : 'Check Category' enum {
@@ -52,6 +71,6 @@ type CheckCategory @(assert.range) : String(10) @title : 'Check Category' enum {
     MasterDataOrInitial = 'MDI';
 }
 
-entity CheckCategories : myCodeList {
+entity CheckCategories : CodeList {
     key code : CheckCategory default '';
 }

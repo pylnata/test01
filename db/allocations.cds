@@ -9,6 +9,7 @@ using {
 
 using {
     GUID,
+    Description,
     Check,
     Field,
     Function,
@@ -17,7 +18,7 @@ using {
     IncludeInitialResult,
     ResultHandlings,
     Rule,
-    RuleState,
+    IsActive,
     ParentRule,
 } from './commonTypes';
 using {
@@ -27,13 +28,15 @@ using {
     formulaOrder,
     selection,
     formulaGroupOrder,
-    myCodeList
 } from './commonAspects';
 using {
     Functions,
     FunctionChecks
 } from './functions';
-using {Fields} from './fields';
+using {
+    Fields,
+    FieldType
+} from './fields';
 using {Checks} from './checks';
 
 using {
@@ -44,32 +47,32 @@ using {
 } from './commonEntities';
 
 entity Allocations : managed, function {
-    key ID                      : UUID;
-        type                    : Association to one AllocationTypes               @title : 'Type';
-        valueAdjustment         : Association to one AllocationValueAdjustments    @title : 'Value Adjustment';
+    key ID                      : UUID                                              @Common.Text : function.description  @Common.TextArrangement : #TextOnly;
+        type                    : Association to one AllocationTypes                @title       : 'Type';
+        valueAdjustment         : Association to one AllocationValueAdjustments     @title       : 'Value Adjustment';
         includeInputData        : IncludeInputData default false;
-        resultHandling          : Association to one ResultHandlings               @title : 'Result Handling';
+        resultHandling          : Association to one ResultHandlings                @title       : 'Result Handling';
         includeInitialResult    : IncludeInitialResult default false;
         cycleFlag               : CycleFlag default false;
         cycleMaximum            : CycleMaximum default 0;
-        cycleIterationField     : Association to one Fields                        @title : 'Cycle Iteration Field';
-        cycleAggregation        : Association to one AllocationCycleAggregations   @title : 'Cycle Aggregation';
+        cycleIterationField     : Association to one AllocationCycleIterationFields @title       : 'Cycle Iteration Field';
+        cycleAggregation        : Association to one AllocationCycleAggregations    @title       : 'Cycle Aggregation';
         termFlag                : TermFlag default false;
-        termIterationField      : Association to one AllocationTermIterationFields @title : 'Term Iteration Field';
-        termYearField           : Association to one AllocationTermYearFields      @title : 'Term Year Field';
-        termField               : Association to one AllocationTermFields          @title : 'Term Field';
-        termProcessing          : Association to one AllocationTermProcessings     @title : 'Term Processing';
+        termIterationField      : Association to one AllocationTermIterationFields  @title       : 'Term Iteration Field';
+        termYearField           : Association to one AllocationTermYearFields       @title       : 'Term Year Field';
+        termField               : Association to one AllocationTermFields           @title       : 'Term Field';
+        termProcessing          : Association to one AllocationTermProcessings      @title       : 'Term Processing';
         termYear                : TermYear;
         termMinimum             : TermMinimum;
         termMaximum             : TermMaximum;
-        senderFunction          : Association to one InputFunctions                @title : 'Sender Input';
-        senderViews             : Composition of many SenderViews
-                                      on senderViews.allocation = $self            @title : 'Sender View';
-        receiverFunction        : Association to one InputFunctions                @title : 'Receiver Input';
-        receiverViews           : Composition of many ReceiverViews
-                                      on receiverViews.allocation = $self          @title : 'Receiver View';
-        resultFunction          : Association to one ResultFunctions               @title : 'Result Model Table';
-        earlyExitCheck          : Association to one EarlyExitChecks               @title : 'Early Exit Check';
+        senderFunction          : Association to one AllocationInputFunctions       @title       : 'Sender Input';
+        senderViews             : Composition of many AllocationSenderViews
+                                      on senderViews.allocation = $self             @title       : 'Sender View';
+        receiverFunction        : Composition of one AllocationInputFunctions       @title       : 'Receiver Input';
+        receiverViews           : Composition of many AllocationReceiverViews
+                                      on receiverViews.allocation = $self           @title       : 'Receiver View';
+        resultFunction          : Composition of one AllocationResultFunctions      @title       : 'Result Model Table';
+        earlyExitCheck          : Association to one AllocationEarlyExitChecks      @title       : 'Early Exit Check';
         selectionFields         : Composition of many AllocationSelectionFields
                                       on selectionFields.allocation = $self;
         actionFields            : Composition of many AllocationActionFields
@@ -88,36 +91,43 @@ entity Allocations : managed, function {
                                       on checks.allocation = $self;
 }
 
-entity InputFunctions                as projection on Functions where type.code in (
+@cds.odata.valuelist
+entity AllocationInputFunctions         as projection on Functions {
+    ID,
+    function,
+    description,
+    type
+} where type.code in (
     'MT', 'AL');
 
-entity SenderViews : managed, function, formulaOrder {
+entity AllocationSenderViews : managed, function, formulaOrder {
     key ID         : GUID;
         allocation : Association to one Allocations;
         field      : Association to one Fields @title : 'Field';
-        selections : Composition of many SenderViewSelections
+        selections : Composition of many AllocationSenderViewSelections
                          on selections.field = $self;
 }
 
-entity SenderViewSelections : managed, function, selection {
+entity AllocationSenderViewSelections : managed, function, selection {
     key ID    : GUID;
-        field : Association to one SenderViews;
+        field : Association to one AllocationSenderViews;
 }
 
-entity ReceiverViews : managed, function, formulaOrder {
+entity AllocationReceiverViews : managed, function, formulaOrder {
     key ID         : GUID;
         allocation : Association to one Allocations;
         field      : Association to one Fields @title : 'Field';
-        selections : Composition of many ReceiverViewSelections
+        selections : Composition of many AllocationReceiverViewSelections
                          on selections.field = $self;
 }
 
-entity ReceiverViewSelections : managed, function, selection {
+entity AllocationReceiverViewSelections : managed, function, selection {
     key ID    : GUID;
-        field : Association to one ReceiverViews;
+        field : Association to one AllocationReceiverViews;
 }
 
-entity ResultFunctions               as projection on Functions where type.code = 'MT';
+@cds.odata.valuelist
+entity AllocationResultFunctions        as projection on Functions where type.code = 'MT';
 
 entity AllocationOffsets : managed {
     key ID          : GUID;
@@ -138,7 +148,7 @@ entity AllocationDebitCredits : managed {
 entity AllocationChecks : managed {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
-        check      : Association to one Checks      @mandatory;
+        check      : Association to one Checks      @title : 'Checks'  @mandatory;
 }
 
 type AllocationType @(assert.range) : String(10) @title : 'Type' enum {
@@ -147,7 +157,7 @@ type AllocationType @(assert.range) : String(10) @title : 'Type' enum {
     AllocationWithDetailedOffsetRecords = 'ALLOCDO';
 }
 
-entity AllocationTypes : myCodeList {
+entity AllocationTypes : CodeList {
     key code : AllocationType default 'ALLOC';
 }
 
@@ -158,7 +168,7 @@ type AllocationValueAdjustment @(assert.range) : String(10) @title : 'Value Adju
     AbsoluteBiggestValueRow = 'AV';
 }
 
-entity AllocationValueAdjustments : myCodeList {
+entity AllocationValueAdjustments : CodeList {
     key code : AllocationValueAdjustment default '';
 }
 
@@ -168,7 +178,7 @@ type AllocationTermProcessing @(assert.range) : String(10) @title : 'Term Proces
     LastPeriod = 'LP';
 }
 
-entity AllocationTermProcessings : myCodeList {
+entity AllocationTermProcessings : CodeList {
     key code : AllocationTermProcessing default '';
 }
 
@@ -178,32 +188,32 @@ type AllocationCycleAggregation @(assert.range) : String(10) @title : 'Cycle Agg
     Aggregation = 'AG';
 }
 
-entity AllocationCycleAggregations : myCodeList {
+entity AllocationCycleAggregations : CodeList {
     key code : AllocationCycleAggregation default '';
 }
 
 entity AllocationSelectionFields {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
-        field      : Association to one Fields      @mandatory;
+        field      : Association to one Fields      @title : 'Field'  @mandatory;
 }
 
 entity AllocationActionFields {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
-        field      : Association to one Fields      @mandatory;
+        field      : Association to one Fields      @title : 'Field'  @mandatory;
 }
 
 entity AllocationReceiverSelectionFields {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
-        field      : Association to one Fields      @mandatory;
+        field      : Association to one Fields      @title : 'Field'  @mandatory;
 }
 
 entity AllocationReceiverActionFields {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
-        field      : Association to one Fields      @mandatory;
+        field      : Association to one Fields      @title : 'Field'  @mandatory;
 }
 
 type OffsetField : Field @title : 'Offset Field';
@@ -222,12 +232,16 @@ type CycleMaximum : String @title : 'Cycle Maximum';
 type CycleIterationField : Field @title : 'Cycle Iteration Field';
 type TermFlag : Boolean @title : 'Is Term';
 
-entity AllocationTermIterationFields as projection on Fields where(
+@cds.autoexpose
+@cds.odata.valuelist
+entity AllocationTermIterationFields    as projection on Fields where(
         class.code = ''
     and type.code  = 'KYF'
 );
 
-entity AllocationTermYearFields      as projection on Fields where(
+@cds.autoexpose
+@cds.odata.valuelist
+entity AllocationTermYearFields         as projection on Fields where(
         class.code =  ''
     and type.code  =  'CHA'
     and dataLength >= 4
@@ -235,8 +249,7 @@ entity AllocationTermYearFields      as projection on Fields where(
 
 @cds.autoexpose
 @cds.odata.valuelist
-@UI.Identification : [{Value : field}]
-entity AllocationTermFields          as projection on Fields where(
+entity AllocationTermFields             as projection on Fields where(
         class.code =  ''
     and type.code  =  'CHA'
     and dataLength >= 4
@@ -246,37 +259,65 @@ type TermField : Field @title : 'Term Field';
 type TermYear : String @title : 'Term Year';
 type TermMinimum : String @title : 'Term Minimum';
 type TermMaximum : String @title : 'Term Maximum';
-entity EarlyExitChecks               as projection on Checks;
 
+@cds.autoexpose
+@cds.odata.valuelist
+entity AllocationEarlyExitChecks        as projection on Checks;
+
+@cds.autoexpose
+@cds.odata.valuelist
 entity AllocationRules : managed {
-    key ID               : GUID;
-        allocation       : Association to one Allocations;
-        rule             : Rule;
-        sequence         : Sequence;
-        type             : Association to one AllocationRuleTypes;
-        alMethod         : Association to one AllocationRuleMethods;
-        ruleState        : RuleState default true;
-        parentRule       : Association to one AllocationRules            @title : 'Parent';
-        senderRule       : Association to one AllocationSenderRules      @title : 'Sender Rule';
-        receiverRule     : Association to one AllocationReceiverRules    @title : 'Receiver Rule';
-        distributionBase : DistributionBase;
-        scale            : Association to one AllocationRuleScales       @title : 'Scale';
-        senderShare      : SenderShare default 100;
-        driverField      : Association to one AllocationRuleDriverFields @title : 'Driver Field';
-        fields           : Association to many AllocationRuleFields
-                               on fields.rule = $self;
+    key ID                : GUID;
+        allocation        : Association to one Allocations;
+        sequence          : Sequence;
+        rule              : Rule;
+        description       : Description;
+        isActive          : IsActive default true;
+        type              : Association to one AllocationRuleTypes;
+        senderRule        : Association to one AllocationSenderRules            @title : 'Sender Rule';
+        senderShare       : SenderShare default 100;
+        senderValueFields : Composition of many AllocationRuleSenderValueFields
+                                on senderValueFields.rule = $self               @mandatory;
+        method            : Association to one AllocationRuleMethods            @title : 'Mapping Method';
+        senderViews       : Composition of many AllocationRuleSenderViews
+                                on senderViews.rule = $self                     @title : 'Sender View';
+        distributionBase  : DistributionBase;
+        parentRule        : Association to one AllocationRules                  @title : 'Parent';
+        receiverRule      : Association to one AllocationReceiverRules          @title : 'Receiver Rule';
+        scale             : Association to one AllocationRuleScales             @title : 'Scale';
+        driverResultField : Association to one AllocationRuleDriverResultFields @title : 'Driver Field';
 }
 
-entity AllocationRuleFields : managed, formulaGroupOrder {
+entity AllocationRuleSenderValueFields : managed {
+    key ID    : GUID;
+        rule  : Association to one AllocationRules;
+        field : Association to one AllocationActionFields @mandatory;
+}
+
+entity AllocationRuleSenderViews : managed, formulaGroupOrder {
     key ID         : GUID;
         rule       : Association to one AllocationRules @mandatory;
-        selections : Composition of many AllocationRuleFieldSelections
+        field      : Association to one Fields          @title : 'Field'  @mandatory;
+        selections : Composition of many AllocationRuleSenderFieldSelections
                          on selections.field = $self;
 }
 
-entity AllocationRuleFieldSelections : managed, selection {
+entity AllocationRuleSenderFieldSelections : managed, selection {
     key ID    : GUID;
-        field : Association to AllocationRuleFields @mandatory;
+        field : Association to AllocationRuleSenderViews @mandatory;
+}
+
+entity AllocationRuleReceiverViews : managed, formulaGroupOrder {
+    key ID         : GUID;
+        rule       : Association to one AllocationRules @mandatory;
+        field      : Association to one Fields          @title : 'Field'  @mandatory;
+        selections : Composition of many AllocationRuleReceiverFieldSelections
+                         on selections.field = $self;
+}
+
+entity AllocationRuleReceiverFieldSelections : managed, selection {
+    key ID    : GUID;
+        field : Association to AllocationRuleReceiverViews @mandatory;
 }
 
 type AllocationRuleType @(assert.range) : String(10) @title : 'Rule Type' enum {
@@ -285,7 +326,7 @@ type AllocationRuleType @(assert.range) : String(10) @title : 'Rule Type' enum {
     IndirectDetailed = 'INDIRECTD';
 }
 
-entity AllocationRuleTypes : myCodeList {
+entity AllocationRuleTypes : CodeList {
     key code : AllocationRuleType default 'DIRECT';
 }
 
@@ -295,7 +336,7 @@ type AllocationRuleMethod @(assert.range) : String(10) @title : 'Mapping' enum {
     Imprecise = 'IM';
 }
 
-entity AllocationRuleMethods : myCodeList {
+entity AllocationRuleMethods : CodeList {
     key code : AllocationRuleMethod default 'PR';
 }
 
@@ -304,7 +345,7 @@ type AllocationSenderRule @(assert.range) : String(10) @title : 'Sender Rule' en
     PostedAmounts = 'POST_AM';
 }
 
-entity AllocationSenderRules : myCodeList {
+entity AllocationSenderRules : CodeList {
     key code : AllocationSenderRule default 'POST_AM';
 }
 
@@ -316,7 +357,7 @@ type AllocationReceiverRule @(assert.range) : String(10) @title : 'Receiver Rule
     VariableEven        = 'VAR_EVEN';
 }
 
-entity AllocationReceiverRules : myCodeList {
+entity AllocationReceiverRules : CodeList {
     key code : AllocationReceiverRule default 'VAR_POR';
 }
 
@@ -329,8 +370,28 @@ type AllocationRuleScale @(assert.range) : String(10) @title : 'Scale' enum {
     SmallestNegativeZeroToZero = 'SNEG_ZEROZ';
 }
 
-entity AllocationRuleScales : myCodeList {
+entity AllocationRuleScales : CodeList {
     key code : AllocationRuleScale default '';
 }
 
-entity AllocationRuleDriverFields    as projection on Fields;
+@cds.autoexpose
+@cds.odata.valuelist
+@UI.Identification : [{Value : field.field}]
+entity AllocationRuleDriverResultFields as projection on AllocationActionFields where(
+        field.class.code = ''
+    and field.type.code  = 'KYF'
+);
+
+// @cds.autoexpose
+@cds.autoexpose
+@cds.odata.valuelist
+@UI.Identification : [{Value : field}]
+entity AllocationCycleIterationFields   as projection on Fields where(
+        class.code =  ''
+    and type.code  =  'KYF'
+    and ID         in (
+            select field.ID from AllocationActionFields
+            where
+                field.environment.ID = allocation.environment.ID
+        )
+    );

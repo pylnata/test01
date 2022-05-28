@@ -12,5 +12,5 @@ using {GUID} from './commonTypes';
 using {function} from './commonAspects';
 
 entity CalculationUnits : managed, function {
-    key ID : GUID;
+    key ID : GUID @Common.Text : function.description  @Common.TextArrangement : #TextOnly;
 }
