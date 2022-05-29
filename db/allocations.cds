@@ -92,13 +92,19 @@ entity Allocations : managed, function {
 }
 
 @cds.odata.valuelist
-entity AllocationInputFunctions         as projection on Functions {
+entity AllocationInputFunctions         as projection on Functions as F{
     ID,
     function,
     description,
     type
-} where type.code in (
-    'MT', 'AL');
+} where (type.code in (
+    'MT', 'AL')
+    // and F.environment =          in (
+    //         select field.ID from AllocationActionFields as L
+    //         where
+    //             F.environment.ID = L.allocation.environment.ID
+    //     )
+);
 
 entity AllocationSenderViews : managed, function, formulaOrder {
     key ID         : GUID;
@@ -129,14 +135,14 @@ entity AllocationReceiverViewSelections : managed, function, selection {
 @cds.odata.valuelist
 entity AllocationResultFunctions        as projection on Functions where type.code = 'MT';
 
-entity AllocationOffsets : managed {
+entity AllocationOffsets : managed, function {
     key ID          : GUID;
         allocation  : Association to one Allocations @mandatory;
         field       : Association to one Fields      @mandatory;
         offsetField : Association to one Fields      @mandatory;
 }
 
-entity AllocationDebitCredits : managed {
+entity AllocationDebitCredits : managed, function {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
         field      : Association to one Fields      @mandatory;
@@ -145,7 +151,7 @@ entity AllocationDebitCredits : managed {
         sequence   : Sequence;
 }
 
-entity AllocationChecks : managed {
+entity AllocationChecks : managed, function {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
         check      : Association to one Checks      @title : 'Checks'  @mandatory;
@@ -192,25 +198,25 @@ entity AllocationCycleAggregations : CodeList {
     key code : AllocationCycleAggregation default '';
 }
 
-entity AllocationSelectionFields {
+entity AllocationSelectionFields : managed, function {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
         field      : Association to one Fields      @title : 'Field'  @mandatory;
 }
 
-entity AllocationActionFields {
+entity AllocationActionFields : managed, function {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
         field      : Association to one Fields      @title : 'Field'  @mandatory;
 }
 
-entity AllocationReceiverSelectionFields {
+entity AllocationReceiverSelectionFields : managed, function {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
         field      : Association to one Fields      @title : 'Field'  @mandatory;
 }
 
-entity AllocationReceiverActionFields {
+entity AllocationReceiverActionFields : managed, function {
     key ID         : GUID;
         allocation : Association to one Allocations @mandatory;
         field      : Association to one Fields      @title : 'Field'  @mandatory;
@@ -266,7 +272,7 @@ entity AllocationEarlyExitChecks        as projection on Checks;
 
 @cds.autoexpose
 @cds.odata.valuelist
-entity AllocationRules : managed {
+entity AllocationRules : managed, function {
     key ID                : GUID;
         allocation        : Association to one Allocations;
         sequence          : Sequence;
@@ -288,13 +294,13 @@ entity AllocationRules : managed {
         driverResultField : Association to one AllocationRuleDriverResultFields @title : 'Driver Field';
 }
 
-entity AllocationRuleSenderValueFields : managed {
+entity AllocationRuleSenderValueFields : managed, function {
     key ID    : GUID;
         rule  : Association to one AllocationRules;
         field : Association to one AllocationActionFields @mandatory;
 }
 
-entity AllocationRuleSenderViews : managed, formulaGroupOrder {
+entity AllocationRuleSenderViews : managed, function, formulaGroupOrder {
     key ID         : GUID;
         rule       : Association to one AllocationRules @mandatory;
         field      : Association to one Fields          @title : 'Field'  @mandatory;
@@ -302,12 +308,12 @@ entity AllocationRuleSenderViews : managed, formulaGroupOrder {
                          on selections.field = $self;
 }
 
-entity AllocationRuleSenderFieldSelections : managed, selection {
+entity AllocationRuleSenderFieldSelections : managed, function, selection {
     key ID    : GUID;
         field : Association to AllocationRuleSenderViews @mandatory;
 }
 
-entity AllocationRuleReceiverViews : managed, formulaGroupOrder {
+entity AllocationRuleReceiverViews : managed, function, formulaGroupOrder {
     key ID         : GUID;
         rule       : Association to one AllocationRules @mandatory;
         field      : Association to one Fields          @title : 'Field'  @mandatory;
@@ -315,7 +321,7 @@ entity AllocationRuleReceiverViews : managed, formulaGroupOrder {
                          on selections.field = $self;
 }
 
-entity AllocationRuleReceiverFieldSelections : managed, selection {
+entity AllocationRuleReceiverFieldSelections : managed, function, selection {
     key ID    : GUID;
         field : Association to AllocationRuleReceiverViews @mandatory;
 }
@@ -376,22 +382,26 @@ entity AllocationRuleScales : CodeList {
 
 @cds.autoexpose
 @cds.odata.valuelist
-@UI.Identification : [{Value : field.field}]
-entity AllocationRuleDriverResultFields as projection on AllocationActionFields where(
-        field.class.code = ''
-    and field.type.code  = 'KYF'
-);
-
-// @cds.autoexpose
-@cds.autoexpose
-@cds.odata.valuelist
 @UI.Identification : [{Value : field}]
-entity AllocationCycleIterationFields   as projection on Fields where(
+entity AllocationRuleDriverResultFields as projection on Fields as F where(
         class.code =  ''
     and type.code  =  'KYF'
     and ID         in (
-            select field.ID from AllocationActionFields
+            select field.ID from AllocationActionFields as L
             where
-                field.environment.ID = allocation.environment.ID
+                F.environment.ID = L.allocation.environment.ID
+        )
+    );
+
+@cds.autoexpose
+@cds.odata.valuelist
+@UI.Identification : [{Value : field}]
+entity AllocationCycleIterationFields   as projection on Fields as F where(
+        class.code =  ''
+    and type.code  =  'KYF'
+    and ID         in (
+            select field.ID from AllocationActionFields as L
+            where
+                F.environment.ID = L.allocation.environment.ID
         )
     );

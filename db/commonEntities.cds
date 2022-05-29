@@ -24,23 +24,23 @@ entity ConnectionEnvironments : managed {
 entity EnvironmentFunctions  as projection on Functions where environment.ID in (
         select environment from ConnectionEnvironments
         where
-            connection = $session.environment
+            connection = $session.environment_ID
     );
 
 entity EnvironmentFields     as projection on Fields where environment.ID in (
         select environment from ConnectionEnvironments
         where
-            connection = $session.environment
+            connection = $session.environment_ID
     );
 
 entity EnvironmentChecks     as projection on Checks where environment.ID in (
         select environment from ConnectionEnvironments
         where
-            connection = $session.environment
+            connection = $session.environment_ID
     );
 
 entity EnvironmentPartitions as projection on Partitions where environment.ID in (
         select environment from ConnectionEnvironments
         where
-            connection = $session.environment
+            connection = $session.environment_ID
     );

@@ -40,10 +40,10 @@ using {Functions} from './functions';
 ]
 entity Environments : managed {
     key ID                  : GUID                                  @Common.Text : description  @Common.TextArrangement : #TextOnly;
-        environment         : Environment @mandatory;
+        environment         : Environment                           @mandatory;
         version             : Version;
         description         : Description;
-        parent              : Association to one EnvironmentFolders @title       : 'Parent';
+        parent              : Association to one EnvironmentFolders @title :       'Parent';
         type                : Association to one EnvironmentTypes   @title       : 'Type';
         fields              : Association to many Fields
                                   on fields.environment = $self;

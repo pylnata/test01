@@ -29,17 +29,16 @@ using {CalculationUnits} from './calculationUnits';
 using {ModelTables} from './modelTables';
 
 
-// @assert.unique : {
-//     function    : [
-//         environment,
-//         function,
-//     ],
-//     description : [
-//         environment,
-//         description,
-//     ]
-// }
-
+@assert.unique : {
+    function    : [
+        environment,
+        function,
+    ],
+    description : [
+        environment,
+        description,
+    ]
+}
 @cds.odata.valuelist
 @UI.Identification : [{Value : function}]
 entity Functions : managed, environment {

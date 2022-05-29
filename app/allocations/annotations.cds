@@ -75,7 +75,7 @@ annotate service.Allocations with @(
                 },
                 {
                     $Type : 'UI.ReferenceFacet',
-                    Label : 'Receiever Action Fields',
+                    Label : 'Receiver Action Fields',
                     ID : 'ReceieverActionFields',
                     Target : 'receiverActionFields/@UI.LineItem#ReceieverActionFields',
                 },],

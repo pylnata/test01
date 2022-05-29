@@ -90,7 +90,8 @@
       "docs": true,
       "variableReplacements": {
         "$session": {
-          "environment": "SXP"
+          "environment_ID": "1",
+          "function_ID": "4"
         }
       }
     },
