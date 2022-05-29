@@ -18,7 +18,16 @@
                     "properties": {
                       "title": "Environments",
                       "info": "Fiori Elements",
-                      "targetURL": "#Environments-manage"                      
+                      "targetURL": "#Environments-manage?HasActiveEntity=false&ID=&IsActiveEntity=true&code=NODE"                      
+                    }
+                  },
+                  {
+                    "id": "Functions",
+                    "tileType": "sap.ushell.ui.tile.StaticTile",
+                    "properties": {
+                      "title": "Functions",
+                      "info": "Fiori Elements",
+                      "targetURL": "#Functions-manage"                      
                     }
                   }
                 ]

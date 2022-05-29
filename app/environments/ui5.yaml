@@ -2,3 +2,13 @@ specVersion: "2.5"
 metadata:
   name: environments
 type: application
+server:
+  customMiddleware:
+    - name: fiori-tools-servestatic
+      afterMiddleware: compression
+      configuration:
+        paths:
+          - path: /resources/functions
+            src: ..\functions\webapp
+          - path: /appconfig
+            src: appconfig
