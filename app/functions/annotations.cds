@@ -83,7 +83,8 @@ annotate service.Functions with @(
 );
 annotate service.Functions with @(
     UI.SelectionFields : [
-        environment_ID,]
+        environment_ID,
+        parent_ID,]
 );
 annotate service.Functions with {
     environment @Common.Text : description
@@ -113,4 +114,30 @@ annotate service.Functions with {
             ],
         },
         Common.ValueListWithFixedValues : false
+)};
+
+annotate service.Functions with {
+    parent @Common.Text : parent.description
+};
+annotate service.Functions with {
+    parent @(Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'FunctionParents',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : parent_ID,
+                    ValueListProperty : 'ID',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'function',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'description',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true
 )};

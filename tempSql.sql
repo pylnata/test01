@@ -211,7 +211,7 @@ CREATE TABLE Functions (
   ID NVARCHAR(36) NOT NULL,
   function NVARCHAR(5000),
   sequence INTEGER,
-  parentFunction_ID NVARCHAR(36),
+  parent_ID NVARCHAR(36),
   type_code NVARCHAR(10) DEFAULT 'MT',
   processingType_code NVARCHAR(10) DEFAULT '',
   businessEventType_code NVARCHAR(10) DEFAULT '',
@@ -230,16 +230,18 @@ CREATE TABLE Functions (
   DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__Functions_processingType
   FOREIGN KEY(processingType_code)
-  REFERENCES ProcessingTypes(code)
+  REFERENCES FunctionProcessingTypes(code)
   DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__Functions_businessEventType
   FOREIGN KEY(businessEventType_code)
-  REFERENCES BusinessEventTypes(code)
+  REFERENCES FunctionBusinessEventTypes(code)
   DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__Functions_partition
   FOREIGN KEY(partition_ID)
   REFERENCES Partitions(ID)
-  DEFERRABLE INITIALLY DEFERRED
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT Functions_function UNIQUE (environment_ID, function),
+  CONSTRAINT Functions_description UNIQUE (environment_ID, description)
 );
 
 CREATE TABLE FunctionTypes (
@@ -249,14 +251,14 @@ CREATE TABLE FunctionTypes (
   PRIMARY KEY(code)
 );
 
-CREATE TABLE ProcessingTypes (
+CREATE TABLE FunctionProcessingTypes (
   name NVARCHAR(255),
   descr NVARCHAR(1000),
   code NVARCHAR(10) NOT NULL DEFAULT '',
   PRIMARY KEY(code)
 );
 
-CREATE TABLE BusinessEventTypes (
+CREATE TABLE FunctionBusinessEventTypes (
   name NVARCHAR(255),
   descr NVARCHAR(1000),
   code NVARCHAR(10) NOT NULL DEFAULT '',
@@ -476,11 +478,21 @@ CREATE TABLE AllocationOffsets (
   createdBy NVARCHAR(255),
   modifiedAt TIMESTAMP_TEXT,
   modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36),
   field_ID NVARCHAR(36),
   offsetField_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationOffsets_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationOffsets_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationOffsets_allocation
   FOREIGN KEY(allocation_ID)
   REFERENCES Allocations(ID)
@@ -501,6 +513,8 @@ CREATE TABLE AllocationDebitCredits (
   createdBy NVARCHAR(255),
   modifiedAt TIMESTAMP_TEXT,
   modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36),
   field_ID NVARCHAR(36),
@@ -508,6 +522,14 @@ CREATE TABLE AllocationDebitCredits (
   creditSign NVARCHAR(5000),
   sequence INTEGER,
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationDebitCredits_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationDebitCredits_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationDebitCredits_allocation
   FOREIGN KEY(allocation_ID)
   REFERENCES Allocations(ID)
@@ -524,10 +546,20 @@ CREATE TABLE AllocationChecks (
   createdBy NVARCHAR(255),
   modifiedAt TIMESTAMP_TEXT,
   modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36),
   check_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationChecks_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationChecks_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationChecks_allocation
   FOREIGN KEY(allocation_ID)
   REFERENCES Allocations(ID)
@@ -568,10 +600,24 @@ CREATE TABLE AllocationCycleAggregations (
 );
 
 CREATE TABLE AllocationSelectionFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36),
   field_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationSelectionFields_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationSelectionFields_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationSelectionFields_allocation
   FOREIGN KEY(allocation_ID)
   REFERENCES Allocations(ID)
@@ -584,10 +630,24 @@ CREATE TABLE AllocationSelectionFields (
 );
 
 CREATE TABLE AllocationActionFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36),
   field_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationActionFields_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationActionFields_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationActionFields_allocation
   FOREIGN KEY(allocation_ID)
   REFERENCES Allocations(ID)
@@ -600,10 +660,24 @@ CREATE TABLE AllocationActionFields (
 );
 
 CREATE TABLE AllocationReceiverSelectionFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36),
   field_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationReceiverSelectionFields_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationReceiverSelectionFields_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationReceiverSelectionFields_allocation
   FOREIGN KEY(allocation_ID)
   REFERENCES Allocations(ID)
@@ -616,10 +690,24 @@ CREATE TABLE AllocationReceiverSelectionFields (
 );
 
 CREATE TABLE AllocationReceiverActionFields (
+  createdAt TIMESTAMP_TEXT,
+  createdBy NVARCHAR(255),
+  modifiedAt TIMESTAMP_TEXT,
+  modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36),
   field_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationReceiverActionFields_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationReceiverActionFields_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationReceiverActionFields_allocation
   FOREIGN KEY(allocation_ID)
   REFERENCES Allocations(ID)
@@ -636,6 +724,8 @@ CREATE TABLE AllocationRules (
   createdBy NVARCHAR(255),
   modifiedAt TIMESTAMP_TEXT,
   modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36),
   sequence INTEGER,
@@ -652,6 +742,14 @@ CREATE TABLE AllocationRules (
   scale_code NVARCHAR(10) DEFAULT '',
   driverResultField_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRules_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationRules_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationRules_allocation
   FOREIGN KEY(allocation_ID)
   REFERENCES Allocations(ID)
@@ -688,10 +786,20 @@ CREATE TABLE AllocationRuleSenderValueFields (
   createdBy NVARCHAR(255),
   modifiedAt TIMESTAMP_TEXT,
   modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   ID NVARCHAR(36) NOT NULL,
   rule_ID NVARCHAR(36),
   field_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRuleSenderValueFields_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationRuleSenderValueFields_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationRuleSenderValueFields_rule
   FOREIGN KEY(rule_ID)
   REFERENCES AllocationRules(ID)
@@ -708,6 +816,8 @@ CREATE TABLE AllocationRuleSenderViews (
   createdBy NVARCHAR(255),
   modifiedAt TIMESTAMP_TEXT,
   modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   formula NVARCHAR(5000),
   group_code NVARCHAR(10) DEFAULT '',
   order_code NVARCHAR(10) DEFAULT '',
@@ -715,6 +825,14 @@ CREATE TABLE AllocationRuleSenderViews (
   rule_ID NVARCHAR(36),
   field_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRuleSenderViews_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationRuleSenderViews_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationRuleSenderViews_group
   FOREIGN KEY(group_code)
   REFERENCES "Groups"(code)
@@ -739,6 +857,8 @@ CREATE TABLE AllocationRuleSenderFieldSelections (
   createdBy NVARCHAR(255),
   modifiedAt TIMESTAMP_TEXT,
   modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   seq INTEGER DEFAULT 0,
   sign_code NVARCHAR(1) DEFAULT 'I',
   opt_code NVARCHAR(2) DEFAULT 'EQ',
@@ -747,6 +867,14 @@ CREATE TABLE AllocationRuleSenderFieldSelections (
   ID NVARCHAR(36) NOT NULL,
   field_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRuleSenderFieldSelections_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationRuleSenderFieldSelections_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationRuleSenderFieldSelections_sign
   FOREIGN KEY(sign_code)
   REFERENCES Signs(code)
@@ -767,6 +895,8 @@ CREATE TABLE AllocationRuleReceiverViews (
   createdBy NVARCHAR(255),
   modifiedAt TIMESTAMP_TEXT,
   modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   formula NVARCHAR(5000),
   group_code NVARCHAR(10) DEFAULT '',
   order_code NVARCHAR(10) DEFAULT '',
@@ -774,6 +904,14 @@ CREATE TABLE AllocationRuleReceiverViews (
   rule_ID NVARCHAR(36),
   field_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRuleReceiverViews_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationRuleReceiverViews_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationRuleReceiverViews_group
   FOREIGN KEY(group_code)
   REFERENCES "Groups"(code)
@@ -797,6 +935,8 @@ CREATE TABLE AllocationRuleReceiverFieldSelections (
   createdBy NVARCHAR(255),
   modifiedAt TIMESTAMP_TEXT,
   modifiedBy NVARCHAR(255),
+  environment_ID NVARCHAR(36),
+  function_ID NVARCHAR(36),
   seq INTEGER DEFAULT 0,
   sign_code NVARCHAR(1) DEFAULT 'I',
   opt_code NVARCHAR(2) DEFAULT 'EQ',
@@ -805,6 +945,14 @@ CREATE TABLE AllocationRuleReceiverFieldSelections (
   ID NVARCHAR(36) NOT NULL,
   field_ID NVARCHAR(36),
   PRIMARY KEY(ID),
+  CONSTRAINT c__AllocationRuleReceiverFieldSelections_environment
+  FOREIGN KEY(environment_ID)
+  REFERENCES Environments(ID)
+  DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT c__AllocationRuleReceiverFieldSelections_function
+  FOREIGN KEY(function_ID)
+  REFERENCES Functions(ID)
+  DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT c__AllocationRuleReceiverFieldSelections_sign
   FOREIGN KEY(sign_code)
   REFERENCES Signs(code)
@@ -1351,7 +1499,7 @@ CREATE TABLE FunctionTypes_texts (
   PRIMARY KEY(locale, code)
 );
 
-CREATE TABLE ProcessingTypes_texts (
+CREATE TABLE FunctionProcessingTypes_texts (
   locale NVARCHAR(14) NOT NULL,
   name NVARCHAR(255),
   descr NVARCHAR(1000),
@@ -1359,7 +1507,7 @@ CREATE TABLE ProcessingTypes_texts (
   PRIMARY KEY(locale, code)
 );
 
-CREATE TABLE BusinessEventTypes_texts (
+CREATE TABLE FunctionBusinessEventTypes_texts (
   locale NVARCHAR(14) NOT NULL,
   name NVARCHAR(255),
   descr NVARCHAR(1000),
@@ -1780,7 +1928,7 @@ CREATE TABLE ModelingService_Functions_drafts (
   ID NVARCHAR(36) NOT NULL,
   function NVARCHAR(5000) NULL,
   sequence INTEGER NULL,
-  parentFunction_ID NVARCHAR(36) NULL,
+  parent_ID NVARCHAR(36) NULL,
   type_code NVARCHAR(10) NULL DEFAULT 'MT',
   processingType_code NVARCHAR(10) NULL DEFAULT '',
   businessEventType_code NVARCHAR(10) NULL DEFAULT '',
@@ -1932,7 +2080,7 @@ CREATE TABLE ModelingService_AllocationResultFunctions_drafts (
   ID NVARCHAR(36) NOT NULL,
   function NVARCHAR(5000) NULL,
   sequence INTEGER NULL,
-  parentFunction_ID NVARCHAR(36) NULL,
+  parent_ID NVARCHAR(36) NULL,
   type_code NVARCHAR(10) NULL DEFAULT 'MT',
   processingType_code NVARCHAR(10) NULL DEFAULT '',
   businessEventType_code NVARCHAR(10) NULL DEFAULT '',
@@ -1948,6 +2096,12 @@ CREATE TABLE ModelingService_AllocationResultFunctions_drafts (
 );
 
 CREATE TABLE ModelingService_AllocationSelectionFields_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36) NULL,
   field_ID NVARCHAR(36) NULL,
@@ -1959,6 +2113,12 @@ CREATE TABLE ModelingService_AllocationSelectionFields_drafts (
 );
 
 CREATE TABLE ModelingService_AllocationActionFields_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36) NULL,
   field_ID NVARCHAR(36) NULL,
@@ -1970,6 +2130,12 @@ CREATE TABLE ModelingService_AllocationActionFields_drafts (
 );
 
 CREATE TABLE ModelingService_AllocationReceiverSelectionFields_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36) NULL,
   field_ID NVARCHAR(36) NULL,
@@ -1981,6 +2147,12 @@ CREATE TABLE ModelingService_AllocationReceiverSelectionFields_drafts (
 );
 
 CREATE TABLE ModelingService_AllocationReceiverActionFields_drafts (
+  createdAt TIMESTAMP_TEXT NULL,
+  createdBy NVARCHAR(255) NULL,
+  modifiedAt TIMESTAMP_TEXT NULL,
+  modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36) NULL,
   field_ID NVARCHAR(36) NULL,
@@ -1996,6 +2168,8 @@ CREATE TABLE ModelingService_AllocationRules_drafts (
   createdBy NVARCHAR(255) NULL,
   modifiedAt TIMESTAMP_TEXT NULL,
   modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36) NULL,
   sequence INTEGER NULL,
@@ -2023,6 +2197,8 @@ CREATE TABLE ModelingService_AllocationRuleSenderValueFields_drafts (
   createdBy NVARCHAR(255) NULL,
   modifiedAt TIMESTAMP_TEXT NULL,
   modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   ID NVARCHAR(36) NOT NULL,
   rule_ID NVARCHAR(36) NULL,
   field_ID NVARCHAR(36) NULL,
@@ -2038,6 +2214,8 @@ CREATE TABLE ModelingService_AllocationRuleSenderViews_drafts (
   createdBy NVARCHAR(255) NULL,
   modifiedAt TIMESTAMP_TEXT NULL,
   modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   formula NVARCHAR(5000) NULL,
   group_code NVARCHAR(10) NULL DEFAULT '',
   order_code NVARCHAR(10) NULL DEFAULT '',
@@ -2056,6 +2234,8 @@ CREATE TABLE ModelingService_AllocationRuleSenderFieldSelections_drafts (
   createdBy NVARCHAR(255) NULL,
   modifiedAt TIMESTAMP_TEXT NULL,
   modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   seq INTEGER NULL DEFAULT 0,
   sign_code NVARCHAR(1) NULL DEFAULT 'I',
   opt_code NVARCHAR(2) NULL DEFAULT 'EQ',
@@ -2075,6 +2255,8 @@ CREATE TABLE ModelingService_AllocationOffsets_drafts (
   createdBy NVARCHAR(255) NULL,
   modifiedAt TIMESTAMP_TEXT NULL,
   modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36) NULL,
   field_ID NVARCHAR(36) NULL,
@@ -2091,6 +2273,8 @@ CREATE TABLE ModelingService_AllocationDebitCredits_drafts (
   createdBy NVARCHAR(255) NULL,
   modifiedAt TIMESTAMP_TEXT NULL,
   modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36) NULL,
   field_ID NVARCHAR(36) NULL,
@@ -2109,6 +2293,8 @@ CREATE TABLE ModelingService_AllocationChecks_drafts (
   createdBy NVARCHAR(255) NULL,
   modifiedAt TIMESTAMP_TEXT NULL,
   modifiedBy NVARCHAR(255) NULL,
+  environment_ID NVARCHAR(36) NULL,
+  function_ID NVARCHAR(36) NULL,
   ID NVARCHAR(36) NOT NULL,
   allocation_ID NVARCHAR(36) NULL,
   check_ID NVARCHAR(36) NULL,
@@ -2276,7 +2462,7 @@ CREATE VIEW ModelingService_Functions AS SELECT
   functions_0.ID,
   functions_0.function,
   functions_0.sequence,
-  functions_0.parentFunction_ID,
+  functions_0.parent_ID,
   functions_0.type_code,
   functions_0.processingType_code,
   functions_0.businessEventType_code,
@@ -2387,7 +2573,7 @@ CREATE VIEW MasterDataQueries AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -2398,7 +2584,7 @@ CREATE VIEW MasterDataQueries AS SELECT
 FROM Functions AS Functions_0
 WHERE Functions_0.type_code = 'MT';
 
-CREATE VIEW ParentFunctions AS SELECT
+CREATE VIEW FunctionParents AS SELECT
   Functions_0.createdAt,
   Functions_0.createdBy,
   Functions_0.modifiedAt,
@@ -2407,7 +2593,7 @@ CREATE VIEW ParentFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -2427,7 +2613,7 @@ CREATE VIEW ResultModelTables AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -2438,7 +2624,7 @@ CREATE VIEW ResultModelTables AS SELECT
 FROM Functions AS Functions_0
 WHERE Functions_0.type_code = 'MT';
 
-CREATE VIEW ParentCalculationUnits AS SELECT
+CREATE VIEW FunctionParentCalculationUnits AS SELECT
   Functions_0.createdAt,
   Functions_0.createdBy,
   Functions_0.modifiedAt,
@@ -2447,7 +2633,7 @@ CREATE VIEW ParentCalculationUnits AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -2459,12 +2645,12 @@ FROM Functions AS Functions_0
 WHERE Functions_0.type_code = 'CU';
 
 CREATE VIEW AllocationInputFunctions AS SELECT
-  Functions_0.ID,
-  Functions_0.function,
-  Functions_0.description,
-  Functions_0.type_code
-FROM Functions AS Functions_0
-WHERE Functions_0.type_code IN ('MT', 'AL');
+  F_0.ID,
+  F_0.function,
+  F_0.description,
+  F_0.type_code
+FROM Functions AS F_0
+WHERE F_0.type_code IN ('MT', 'AL');
 
 CREATE VIEW AllocationResultFunctions AS SELECT
   Functions_0.createdAt,
@@ -2475,7 +2661,7 @@ CREATE VIEW AllocationResultFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -2572,38 +2758,58 @@ CREATE VIEW AllocationEarlyExitChecks AS SELECT
 FROM Checks AS Checks_0;
 
 CREATE VIEW AllocationRuleDriverResultFields AS SELECT
-  AllocationActionFields_0.ID,
-  AllocationActionFields_0.allocation_ID,
-  AllocationActionFields_0.field_ID
-FROM (AllocationActionFields AS AllocationActionFields_0 LEFT JOIN Fields AS field_1 ON AllocationActionFields_0.field_ID = field_1.ID)
-WHERE field_1.class_code = '' AND field_1.type_code = 'KYF';
+  F_0.createdAt,
+  F_0.createdBy,
+  F_0.modifiedAt,
+  F_0.modifiedBy,
+  F_0.environment_ID,
+  F_0.ID,
+  F_0.field,
+  F_0.class_code,
+  F_0.type_code,
+  F_0.hanaDataType_code,
+  F_0.dataLength,
+  F_0.dataDecimals,
+  F_0.unitField_ID,
+  F_0.isLowercase,
+  F_0.hasMasterData,
+  F_0.hasHierarchies,
+  F_0.calculationHierarchy_ID,
+  F_0.masterDataQuery_ID,
+  F_0.description,
+  F_0.documentation
+FROM Fields AS F_0
+WHERE F_0.class_code = '' AND F_0.type_code = 'KYF' AND F_0.ID IN (SELECT
+    L_1.field_ID AS ID
+  FROM (AllocationActionFields AS L_1 LEFT JOIN Allocations AS allocation_2 ON L_1.allocation_ID = allocation_2.ID)
+  WHERE F_0.environment_ID = allocation_2.environment_ID);
 
 CREATE VIEW AllocationCycleIterationFields AS SELECT
-  Fields_0.createdAt,
-  Fields_0.createdBy,
-  Fields_0.modifiedAt,
-  Fields_0.modifiedBy,
-  Fields_0.environment_ID,
-  Fields_0.ID,
-  Fields_0.field,
-  Fields_0.class_code,
-  Fields_0.type_code,
-  Fields_0.hanaDataType_code,
-  Fields_0.dataLength,
-  Fields_0.dataDecimals,
-  Fields_0.unitField_ID,
-  Fields_0.isLowercase,
-  Fields_0.hasMasterData,
-  Fields_0.hasHierarchies,
-  Fields_0.calculationHierarchy_ID,
-  Fields_0.masterDataQuery_ID,
-  Fields_0.description,
-  Fields_0.documentation
-FROM Fields AS Fields_0
-WHERE Fields_0.class_code = '' AND Fields_0.type_code = 'KYF' AND Fields_0.ID IN (SELECT
-    field_2.ID
-  FROM ((AllocationActionFields AS AllocationActionFields_1 LEFT JOIN Fields AS field_2 ON AllocationActionFields_1.field_ID = field_2.ID) LEFT JOIN Allocations AS allocation_3 ON AllocationActionFields_1.allocation_ID = allocation_3.ID)
-  WHERE field_2.environment_ID = allocation_3.environment_ID);
+  F_0.createdAt,
+  F_0.createdBy,
+  F_0.modifiedAt,
+  F_0.modifiedBy,
+  F_0.environment_ID,
+  F_0.ID,
+  F_0.field,
+  F_0.class_code,
+  F_0.type_code,
+  F_0.hanaDataType_code,
+  F_0.dataLength,
+  F_0.dataDecimals,
+  F_0.unitField_ID,
+  F_0.isLowercase,
+  F_0.hasMasterData,
+  F_0.hasHierarchies,
+  F_0.calculationHierarchy_ID,
+  F_0.masterDataQuery_ID,
+  F_0.description,
+  F_0.documentation
+FROM Fields AS F_0
+WHERE F_0.class_code = '' AND F_0.type_code = 'KYF' AND F_0.ID IN (SELECT
+    L_1.field_ID AS ID
+  FROM (AllocationActionFields AS L_1 LEFT JOIN Allocations AS allocation_2 ON L_1.allocation_ID = allocation_2.ID)
+  WHERE F_0.environment_ID = allocation_2.environment_ID);
 
 CREATE VIEW EnvironmentFunctions AS SELECT
   Functions_0.createdAt,
@@ -2614,7 +2820,7 @@ CREATE VIEW EnvironmentFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -2626,7 +2832,7 @@ FROM Functions AS Functions_0
 WHERE Functions_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW EnvironmentFields AS SELECT
   Fields_0.createdAt,
@@ -2653,7 +2859,7 @@ FROM Fields AS Fields_0
 WHERE Fields_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW EnvironmentChecks AS SELECT
   Checks_0.createdAt,
@@ -2670,7 +2876,7 @@ FROM Checks AS Checks_0
 WHERE Checks_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW EnvironmentPartitions AS SELECT
   Partitions_0.createdAt,
@@ -2686,7 +2892,7 @@ FROM Partitions AS Partitions_0
 WHERE Partitions_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW ModelingService_EnvironmentTypes AS SELECT
   EnvironmentTypes_0.name,
@@ -2780,17 +2986,17 @@ CREATE VIEW ModelingService_FunctionTypes AS SELECT
   FunctionTypes_0.code
 FROM FunctionTypes AS FunctionTypes_0;
 
-CREATE VIEW ModelingService_ProcessingTypes AS SELECT
-  ProcessingTypes_0.name,
-  ProcessingTypes_0.descr,
-  ProcessingTypes_0.code
-FROM ProcessingTypes AS ProcessingTypes_0;
+CREATE VIEW ModelingService_FunctionProcessingTypes AS SELECT
+  FunctionProcessingTypes_0.name,
+  FunctionProcessingTypes_0.descr,
+  FunctionProcessingTypes_0.code
+FROM FunctionProcessingTypes AS FunctionProcessingTypes_0;
 
-CREATE VIEW ModelingService_BusinessEventTypes AS SELECT
-  BusinessEventTypes_0.name,
-  BusinessEventTypes_0.descr,
-  BusinessEventTypes_0.code
-FROM BusinessEventTypes AS BusinessEventTypes_0;
+CREATE VIEW ModelingService_FunctionBusinessEventTypes AS SELECT
+  FunctionBusinessEventTypes_0.name,
+  FunctionBusinessEventTypes_0.descr,
+  FunctionBusinessEventTypes_0.code
+FROM FunctionBusinessEventTypes AS FunctionBusinessEventTypes_0;
 
 CREATE VIEW ModelingService_AllocationTypes AS SELECT
   AllocationTypes_0.name,
@@ -2851,24 +3057,48 @@ CREATE VIEW ModelingService_AllocationReceiverViews AS SELECT
 FROM AllocationReceiverViews AS AllocationReceiverViews_0;
 
 CREATE VIEW ModelingService_AllocationSelectionFields AS SELECT
+  AllocationSelectionFields_0.createdAt,
+  AllocationSelectionFields_0.createdBy,
+  AllocationSelectionFields_0.modifiedAt,
+  AllocationSelectionFields_0.modifiedBy,
+  AllocationSelectionFields_0.environment_ID,
+  AllocationSelectionFields_0.function_ID,
   AllocationSelectionFields_0.ID,
   AllocationSelectionFields_0.allocation_ID,
   AllocationSelectionFields_0.field_ID
 FROM AllocationSelectionFields AS AllocationSelectionFields_0;
 
 CREATE VIEW ModelingService_AllocationActionFields AS SELECT
+  AllocationActionFields_0.createdAt,
+  AllocationActionFields_0.createdBy,
+  AllocationActionFields_0.modifiedAt,
+  AllocationActionFields_0.modifiedBy,
+  AllocationActionFields_0.environment_ID,
+  AllocationActionFields_0.function_ID,
   AllocationActionFields_0.ID,
   AllocationActionFields_0.allocation_ID,
   AllocationActionFields_0.field_ID
 FROM AllocationActionFields AS AllocationActionFields_0;
 
 CREATE VIEW ModelingService_AllocationReceiverSelectionFields AS SELECT
+  AllocationReceiverSelectionFields_0.createdAt,
+  AllocationReceiverSelectionFields_0.createdBy,
+  AllocationReceiverSelectionFields_0.modifiedAt,
+  AllocationReceiverSelectionFields_0.modifiedBy,
+  AllocationReceiverSelectionFields_0.environment_ID,
+  AllocationReceiverSelectionFields_0.function_ID,
   AllocationReceiverSelectionFields_0.ID,
   AllocationReceiverSelectionFields_0.allocation_ID,
   AllocationReceiverSelectionFields_0.field_ID
 FROM AllocationReceiverSelectionFields AS AllocationReceiverSelectionFields_0;
 
 CREATE VIEW ModelingService_AllocationReceiverActionFields AS SELECT
+  AllocationReceiverActionFields_0.createdAt,
+  AllocationReceiverActionFields_0.createdBy,
+  AllocationReceiverActionFields_0.modifiedAt,
+  AllocationReceiverActionFields_0.modifiedBy,
+  AllocationReceiverActionFields_0.environment_ID,
+  AllocationReceiverActionFields_0.function_ID,
   AllocationReceiverActionFields_0.ID,
   AllocationReceiverActionFields_0.allocation_ID,
   AllocationReceiverActionFields_0.field_ID
@@ -2879,6 +3109,8 @@ CREATE VIEW ModelingService_AllocationRules AS SELECT
   AllocationRules_0.createdBy,
   AllocationRules_0.modifiedAt,
   AllocationRules_0.modifiedBy,
+  AllocationRules_0.environment_ID,
+  AllocationRules_0.function_ID,
   AllocationRules_0.ID,
   AllocationRules_0.allocation_ID,
   AllocationRules_0.sequence,
@@ -2901,6 +3133,8 @@ CREATE VIEW ModelingService_AllocationOffsets AS SELECT
   AllocationOffsets_0.createdBy,
   AllocationOffsets_0.modifiedAt,
   AllocationOffsets_0.modifiedBy,
+  AllocationOffsets_0.environment_ID,
+  AllocationOffsets_0.function_ID,
   AllocationOffsets_0.ID,
   AllocationOffsets_0.allocation_ID,
   AllocationOffsets_0.field_ID,
@@ -2912,6 +3146,8 @@ CREATE VIEW ModelingService_AllocationDebitCredits AS SELECT
   AllocationDebitCredits_0.createdBy,
   AllocationDebitCredits_0.modifiedAt,
   AllocationDebitCredits_0.modifiedBy,
+  AllocationDebitCredits_0.environment_ID,
+  AllocationDebitCredits_0.function_ID,
   AllocationDebitCredits_0.ID,
   AllocationDebitCredits_0.allocation_ID,
   AllocationDebitCredits_0.field_ID,
@@ -2925,6 +3161,8 @@ CREATE VIEW ModelingService_AllocationChecks AS SELECT
   AllocationChecks_0.createdBy,
   AllocationChecks_0.modifiedAt,
   AllocationChecks_0.modifiedBy,
+  AllocationChecks_0.environment_ID,
+  AllocationChecks_0.function_ID,
   AllocationChecks_0.ID,
   AllocationChecks_0.allocation_ID,
   AllocationChecks_0.check_ID
@@ -3038,19 +3276,19 @@ CREATE VIEW ModelingService_FunctionTypes_texts AS SELECT
   texts_0.code
 FROM FunctionTypes_texts AS texts_0;
 
-CREATE VIEW ModelingService_ProcessingTypes_texts AS SELECT
+CREATE VIEW ModelingService_FunctionProcessingTypes_texts AS SELECT
   texts_0.locale,
   texts_0.name,
   texts_0.descr,
   texts_0.code
-FROM ProcessingTypes_texts AS texts_0;
+FROM FunctionProcessingTypes_texts AS texts_0;
 
-CREATE VIEW ModelingService_BusinessEventTypes_texts AS SELECT
+CREATE VIEW ModelingService_FunctionBusinessEventTypes_texts AS SELECT
   texts_0.locale,
   texts_0.name,
   texts_0.descr,
   texts_0.code
-FROM BusinessEventTypes_texts AS texts_0;
+FROM FunctionBusinessEventTypes_texts AS texts_0;
 
 CREATE VIEW ModelingService_AllocationTypes_texts AS SELECT
   texts_0.locale,
@@ -3142,6 +3380,8 @@ CREATE VIEW ModelingService_AllocationRuleSenderValueFields AS SELECT
   AllocationRuleSenderValueFields_0.createdBy,
   AllocationRuleSenderValueFields_0.modifiedAt,
   AllocationRuleSenderValueFields_0.modifiedBy,
+  AllocationRuleSenderValueFields_0.environment_ID,
+  AllocationRuleSenderValueFields_0.function_ID,
   AllocationRuleSenderValueFields_0.ID,
   AllocationRuleSenderValueFields_0.rule_ID,
   AllocationRuleSenderValueFields_0.field_ID
@@ -3158,6 +3398,8 @@ CREATE VIEW ModelingService_AllocationRuleSenderViews AS SELECT
   AllocationRuleSenderViews_0.createdBy,
   AllocationRuleSenderViews_0.modifiedAt,
   AllocationRuleSenderViews_0.modifiedBy,
+  AllocationRuleSenderViews_0.environment_ID,
+  AllocationRuleSenderViews_0.function_ID,
   AllocationRuleSenderViews_0.formula,
   AllocationRuleSenderViews_0.group_code,
   AllocationRuleSenderViews_0.order_code,
@@ -3236,6 +3478,8 @@ CREATE VIEW ModelingService_AllocationRuleSenderFieldSelections AS SELECT
   AllocationRuleSenderFieldSelections_0.createdBy,
   AllocationRuleSenderFieldSelections_0.modifiedAt,
   AllocationRuleSenderFieldSelections_0.modifiedBy,
+  AllocationRuleSenderFieldSelections_0.environment_ID,
+  AllocationRuleSenderFieldSelections_0.function_ID,
   AllocationRuleSenderFieldSelections_0.seq,
   AllocationRuleSenderFieldSelections_0.sign_code,
   AllocationRuleSenderFieldSelections_0.opt_code,
@@ -3310,17 +3554,17 @@ CREATE VIEW localized_FunctionTypes AS SELECT
   L_0.code
 FROM (FunctionTypes AS L_0 LEFT JOIN FunctionTypes_texts AS localized_1 ON localized_1.code = L_0.code AND localized_1.locale = 'en');
 
-CREATE VIEW localized_ProcessingTypes AS SELECT
+CREATE VIEW localized_FunctionProcessingTypes AS SELECT
   coalesce(localized_1.name, L_0.name) AS name,
   coalesce(localized_1.descr, L_0.descr) AS descr,
   L_0.code
-FROM (ProcessingTypes AS L_0 LEFT JOIN ProcessingTypes_texts AS localized_1 ON localized_1.code = L_0.code AND localized_1.locale = 'en');
+FROM (FunctionProcessingTypes AS L_0 LEFT JOIN FunctionProcessingTypes_texts AS localized_1 ON localized_1.code = L_0.code AND localized_1.locale = 'en');
 
-CREATE VIEW localized_BusinessEventTypes AS SELECT
+CREATE VIEW localized_FunctionBusinessEventTypes AS SELECT
   coalesce(localized_1.name, L_0.name) AS name,
   coalesce(localized_1.descr, L_0.descr) AS descr,
   L_0.code
-FROM (BusinessEventTypes AS L_0 LEFT JOIN BusinessEventTypes_texts AS localized_1 ON localized_1.code = L_0.code AND localized_1.locale = 'en');
+FROM (FunctionBusinessEventTypes AS L_0 LEFT JOIN FunctionBusinessEventTypes_texts AS localized_1 ON localized_1.code = L_0.code AND localized_1.locale = 'en');
 
 CREATE VIEW localized_AllocationTypes AS SELECT
   coalesce(localized_1.name, L_0.name) AS name,
@@ -3469,7 +3713,7 @@ CREATE VIEW localized_Functions AS SELECT
   L.ID,
   L.function,
   L.sequence,
-  L.parentFunction_ID,
+  L.parent_ID,
   L.type_code,
   L.processingType_code,
   L.businessEventType_code,
@@ -3575,6 +3819,8 @@ CREATE VIEW localized_AllocationRules AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.ID,
   L.allocation_ID,
   L.sequence,
@@ -3597,6 +3843,8 @@ CREATE VIEW localized_AllocationRuleSenderViews AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.formula,
   L.group_code,
   L.order_code,
@@ -3610,6 +3858,8 @@ CREATE VIEW localized_AllocationRuleSenderFieldSelections AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.seq,
   L.sign_code,
   L.opt_code,
@@ -3624,6 +3874,8 @@ CREATE VIEW localized_AllocationRuleReceiverViews AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.formula,
   L.group_code,
   L.order_code,
@@ -3637,6 +3889,8 @@ CREATE VIEW localized_AllocationRuleReceiverFieldSelections AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.seq,
   L.sign_code,
   L.opt_code,
@@ -3739,6 +3993,106 @@ CREATE VIEW localized_FieldHierarchyStructures AS SELECT
   L.parentValue_ID
 FROM FieldHierarchyStructures AS L;
 
+CREATE VIEW localized_AllocationOffsets AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID,
+  L.offsetField_ID
+FROM AllocationOffsets AS L;
+
+CREATE VIEW localized_AllocationDebitCredits AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID,
+  L.debitSign,
+  L.creditSign,
+  L.sequence
+FROM AllocationDebitCredits AS L;
+
+CREATE VIEW localized_AllocationChecks AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.check_ID
+FROM AllocationChecks AS L;
+
+CREATE VIEW localized_AllocationSelectionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationSelectionFields AS L;
+
+CREATE VIEW localized_AllocationActionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationActionFields AS L;
+
+CREATE VIEW localized_AllocationReceiverSelectionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationReceiverSelectionFields AS L;
+
+CREATE VIEW localized_AllocationReceiverActionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationReceiverActionFields AS L;
+
+CREATE VIEW localized_AllocationRuleSenderValueFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.rule_ID,
+  L.field_ID
+FROM AllocationRuleSenderValueFields AS L;
+
 CREATE VIEW localized_ModelTableFields AS SELECT
   L.createdAt,
   L.createdBy,
@@ -3836,54 +4190,6 @@ CREATE VIEW localized_Connections AS SELECT
   L.description
 FROM Connections AS L;
 
-CREATE VIEW localized_AllocationOffsets AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.allocation_ID,
-  L.field_ID,
-  L.offsetField_ID
-FROM AllocationOffsets AS L;
-
-CREATE VIEW localized_AllocationDebitCredits AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.allocation_ID,
-  L.field_ID,
-  L.debitSign,
-  L.creditSign,
-  L.sequence
-FROM AllocationDebitCredits AS L;
-
-CREATE VIEW localized_AllocationSelectionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationSelectionFields AS L;
-
-CREATE VIEW localized_AllocationActionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationActionFields AS L;
-
-CREATE VIEW localized_AllocationReceiverSelectionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationReceiverSelectionFields AS L;
-
-CREATE VIEW localized_AllocationReceiverActionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationReceiverActionFields AS L;
-
 CREATE VIEW localized_CheckFields AS SELECT
   L.createdAt,
   L.createdBy,
@@ -3893,26 +4199,6 @@ CREATE VIEW localized_CheckFields AS SELECT
   L.check_ID,
   L.field_ID
 FROM CheckFields AS L;
-
-CREATE VIEW localized_AllocationChecks AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.allocation_ID,
-  L.check_ID
-FROM AllocationChecks AS L;
-
-CREATE VIEW localized_AllocationRuleSenderValueFields AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.rule_ID,
-  L.field_ID
-FROM AllocationRuleSenderValueFields AS L;
 
 CREATE VIEW ModelingService_DraftAdministrativeData AS SELECT
   DraftAdministrativeData.DraftUUID,
@@ -3970,7 +4256,7 @@ CREATE VIEW ModelingService_MasterDataQueries AS SELECT
   MasterDataQueries_0.ID,
   MasterDataQueries_0.function,
   MasterDataQueries_0.sequence,
-  MasterDataQueries_0.parentFunction_ID,
+  MasterDataQueries_0.parent_ID,
   MasterDataQueries_0.type_code,
   MasterDataQueries_0.processingType_code,
   MasterDataQueries_0.businessEventType_code,
@@ -3980,24 +4266,47 @@ CREATE VIEW ModelingService_MasterDataQueries AS SELECT
   MasterDataQueries_0.documentation
 FROM MasterDataQueries AS MasterDataQueries_0;
 
-CREATE VIEW ModelingService_ParentFunctions AS SELECT
-  ParentFunctions_0.createdAt,
-  ParentFunctions_0.createdBy,
-  ParentFunctions_0.modifiedAt,
-  ParentFunctions_0.modifiedBy,
-  ParentFunctions_0.environment_ID,
-  ParentFunctions_0.ID,
-  ParentFunctions_0.function,
-  ParentFunctions_0.sequence,
-  ParentFunctions_0.parentFunction_ID,
-  ParentFunctions_0.type_code,
-  ParentFunctions_0.processingType_code,
-  ParentFunctions_0.businessEventType_code,
-  ParentFunctions_0.partition_ID,
-  ParentFunctions_0.parentCalculationUnit_ID,
-  ParentFunctions_0.description,
-  ParentFunctions_0.documentation
-FROM ParentFunctions AS ParentFunctions_0;
+CREATE VIEW ModelingService_FunctionParents AS SELECT
+  FunctionParents_0.createdAt,
+  FunctionParents_0.createdBy,
+  FunctionParents_0.modifiedAt,
+  FunctionParents_0.modifiedBy,
+  FunctionParents_0.environment_ID,
+  FunctionParents_0.ID,
+  FunctionParents_0.function,
+  FunctionParents_0.sequence,
+  FunctionParents_0.parent_ID,
+  FunctionParents_0.type_code,
+  FunctionParents_0.processingType_code,
+  FunctionParents_0.businessEventType_code,
+  FunctionParents_0.partition_ID,
+  FunctionParents_0.parentCalculationUnit_ID,
+  FunctionParents_0.description,
+  FunctionParents_0.documentation
+FROM FunctionParents AS FunctionParents_0;
+
+CREATE VIEW ModelingService_AllocationCycleIterationFields AS SELECT
+  AllocationCycleIterationFields_0.createdAt,
+  AllocationCycleIterationFields_0.createdBy,
+  AllocationCycleIterationFields_0.modifiedAt,
+  AllocationCycleIterationFields_0.modifiedBy,
+  AllocationCycleIterationFields_0.environment_ID,
+  AllocationCycleIterationFields_0.ID,
+  AllocationCycleIterationFields_0.field,
+  AllocationCycleIterationFields_0.class_code,
+  AllocationCycleIterationFields_0.type_code,
+  AllocationCycleIterationFields_0.hanaDataType_code,
+  AllocationCycleIterationFields_0.dataLength,
+  AllocationCycleIterationFields_0.dataDecimals,
+  AllocationCycleIterationFields_0.unitField_ID,
+  AllocationCycleIterationFields_0.isLowercase,
+  AllocationCycleIterationFields_0.hasMasterData,
+  AllocationCycleIterationFields_0.hasHierarchies,
+  AllocationCycleIterationFields_0.calculationHierarchy_ID,
+  AllocationCycleIterationFields_0.masterDataQuery_ID,
+  AllocationCycleIterationFields_0.description,
+  AllocationCycleIterationFields_0.documentation
+FROM AllocationCycleIterationFields AS AllocationCycleIterationFields_0;
 
 CREATE VIEW ModelingService_AllocationTermIterationFields AS SELECT
   AllocationTermIterationFields_0.createdAt,
@@ -4084,7 +4393,7 @@ CREATE VIEW ModelingService_AllocationResultFunctions AS SELECT
   AllocationResultFunctions_0.ID,
   AllocationResultFunctions_0.function,
   AllocationResultFunctions_0.sequence,
-  AllocationResultFunctions_0.parentFunction_ID,
+  AllocationResultFunctions_0.parent_ID,
   AllocationResultFunctions_0.type_code,
   AllocationResultFunctions_0.processingType_code,
   AllocationResultFunctions_0.businessEventType_code,
@@ -4108,9 +4417,26 @@ CREATE VIEW ModelingService_AllocationEarlyExitChecks AS SELECT
 FROM AllocationEarlyExitChecks AS AllocationEarlyExitChecks_0;
 
 CREATE VIEW ModelingService_AllocationRuleDriverResultFields AS SELECT
+  AllocationRuleDriverResultFields_0.createdAt,
+  AllocationRuleDriverResultFields_0.createdBy,
+  AllocationRuleDriverResultFields_0.modifiedAt,
+  AllocationRuleDriverResultFields_0.modifiedBy,
+  AllocationRuleDriverResultFields_0.environment_ID,
   AllocationRuleDriverResultFields_0.ID,
-  AllocationRuleDriverResultFields_0.allocation_ID,
-  AllocationRuleDriverResultFields_0.field_ID
+  AllocationRuleDriverResultFields_0.field,
+  AllocationRuleDriverResultFields_0.class_code,
+  AllocationRuleDriverResultFields_0.type_code,
+  AllocationRuleDriverResultFields_0.hanaDataType_code,
+  AllocationRuleDriverResultFields_0.dataLength,
+  AllocationRuleDriverResultFields_0.dataDecimals,
+  AllocationRuleDriverResultFields_0.unitField_ID,
+  AllocationRuleDriverResultFields_0.isLowercase,
+  AllocationRuleDriverResultFields_0.hasMasterData,
+  AllocationRuleDriverResultFields_0.hasHierarchies,
+  AllocationRuleDriverResultFields_0.calculationHierarchy_ID,
+  AllocationRuleDriverResultFields_0.masterDataQuery_ID,
+  AllocationRuleDriverResultFields_0.description,
+  AllocationRuleDriverResultFields_0.documentation
 FROM AllocationRuleDriverResultFields AS AllocationRuleDriverResultFields_0;
 
 CREATE VIEW localized_EnvironmentFolders AS SELECT
@@ -4160,7 +4486,7 @@ CREATE VIEW localized_MasterDataQueries AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -4171,7 +4497,7 @@ CREATE VIEW localized_MasterDataQueries AS SELECT
 FROM localized_Functions AS Functions_0
 WHERE Functions_0.type_code = 'MT';
 
-CREATE VIEW localized_ParentFunctions AS SELECT
+CREATE VIEW localized_FunctionParents AS SELECT
   Functions_0.createdAt,
   Functions_0.createdBy,
   Functions_0.modifiedAt,
@@ -4180,7 +4506,7 @@ CREATE VIEW localized_ParentFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -4200,7 +4526,7 @@ CREATE VIEW localized_ResultModelTables AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -4211,7 +4537,7 @@ CREATE VIEW localized_ResultModelTables AS SELECT
 FROM localized_Functions AS Functions_0
 WHERE Functions_0.type_code = 'MT';
 
-CREATE VIEW localized_ParentCalculationUnits AS SELECT
+CREATE VIEW localized_FunctionParentCalculationUnits AS SELECT
   Functions_0.createdAt,
   Functions_0.createdBy,
   Functions_0.modifiedAt,
@@ -4220,7 +4546,7 @@ CREATE VIEW localized_ParentCalculationUnits AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -4232,12 +4558,12 @@ FROM localized_Functions AS Functions_0
 WHERE Functions_0.type_code = 'CU';
 
 CREATE VIEW localized_AllocationInputFunctions AS SELECT
-  Functions_0.ID,
-  Functions_0.function,
-  Functions_0.description,
-  Functions_0.type_code
-FROM localized_Functions AS Functions_0
-WHERE Functions_0.type_code IN ('MT', 'AL');
+  F_0.ID,
+  F_0.function,
+  F_0.description,
+  F_0.type_code
+FROM localized_Functions AS F_0
+WHERE F_0.type_code IN ('MT', 'AL');
 
 CREATE VIEW localized_AllocationResultFunctions AS SELECT
   Functions_0.createdAt,
@@ -4248,7 +4574,7 @@ CREATE VIEW localized_AllocationResultFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -4344,32 +4670,59 @@ CREATE VIEW localized_AllocationEarlyExitChecks AS SELECT
   Checks_0.description
 FROM localized_Checks AS Checks_0;
 
+CREATE VIEW localized_AllocationRuleDriverResultFields AS SELECT
+  F_0.createdAt,
+  F_0.createdBy,
+  F_0.modifiedAt,
+  F_0.modifiedBy,
+  F_0.environment_ID,
+  F_0.ID,
+  F_0.field,
+  F_0.class_code,
+  F_0.type_code,
+  F_0.hanaDataType_code,
+  F_0.dataLength,
+  F_0.dataDecimals,
+  F_0.unitField_ID,
+  F_0.isLowercase,
+  F_0.hasMasterData,
+  F_0.hasHierarchies,
+  F_0.calculationHierarchy_ID,
+  F_0.masterDataQuery_ID,
+  F_0.description,
+  F_0.documentation
+FROM localized_Fields AS F_0
+WHERE F_0.class_code = '' AND F_0.type_code = 'KYF' AND F_0.ID IN (SELECT
+    L_1.field_ID AS ID
+  FROM (localized_AllocationActionFields AS L_1 LEFT JOIN localized_Allocations AS allocation_2 ON L_1.allocation_ID = allocation_2.ID)
+  WHERE F_0.environment_ID = allocation_2.environment_ID);
+
 CREATE VIEW localized_AllocationCycleIterationFields AS SELECT
-  Fields_0.createdAt,
-  Fields_0.createdBy,
-  Fields_0.modifiedAt,
-  Fields_0.modifiedBy,
-  Fields_0.environment_ID,
-  Fields_0.ID,
-  Fields_0.field,
-  Fields_0.class_code,
-  Fields_0.type_code,
-  Fields_0.hanaDataType_code,
-  Fields_0.dataLength,
-  Fields_0.dataDecimals,
-  Fields_0.unitField_ID,
-  Fields_0.isLowercase,
-  Fields_0.hasMasterData,
-  Fields_0.hasHierarchies,
-  Fields_0.calculationHierarchy_ID,
-  Fields_0.masterDataQuery_ID,
-  Fields_0.description,
-  Fields_0.documentation
-FROM localized_Fields AS Fields_0
-WHERE Fields_0.class_code = '' AND Fields_0.type_code = 'KYF' AND Fields_0.ID IN (SELECT
-    field_2.ID
-  FROM ((localized_AllocationActionFields AS AllocationActionFields_1 LEFT JOIN localized_Fields AS field_2 ON AllocationActionFields_1.field_ID = field_2.ID) LEFT JOIN localized_Allocations AS allocation_3 ON AllocationActionFields_1.allocation_ID = allocation_3.ID)
-  WHERE field_2.environment_ID = allocation_3.environment_ID);
+  F_0.createdAt,
+  F_0.createdBy,
+  F_0.modifiedAt,
+  F_0.modifiedBy,
+  F_0.environment_ID,
+  F_0.ID,
+  F_0.field,
+  F_0.class_code,
+  F_0.type_code,
+  F_0.hanaDataType_code,
+  F_0.dataLength,
+  F_0.dataDecimals,
+  F_0.unitField_ID,
+  F_0.isLowercase,
+  F_0.hasMasterData,
+  F_0.hasHierarchies,
+  F_0.calculationHierarchy_ID,
+  F_0.masterDataQuery_ID,
+  F_0.description,
+  F_0.documentation
+FROM localized_Fields AS F_0
+WHERE F_0.class_code = '' AND F_0.type_code = 'KYF' AND F_0.ID IN (SELECT
+    L_1.field_ID AS ID
+  FROM (localized_AllocationActionFields AS L_1 LEFT JOIN localized_Allocations AS allocation_2 ON L_1.allocation_ID = allocation_2.ID)
+  WHERE F_0.environment_ID = allocation_2.environment_ID);
 
 CREATE VIEW localized_EnvironmentFunctions AS SELECT
   Functions_0.createdAt,
@@ -4380,7 +4733,7 @@ CREATE VIEW localized_EnvironmentFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -4392,7 +4745,7 @@ FROM localized_Functions AS Functions_0
 WHERE Functions_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_EnvironmentFields AS SELECT
   Fields_0.createdAt,
@@ -4419,7 +4772,7 @@ FROM localized_Fields AS Fields_0
 WHERE Fields_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_EnvironmentChecks AS SELECT
   Checks_0.createdAt,
@@ -4436,7 +4789,7 @@ FROM localized_Checks AS Checks_0
 WHERE Checks_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_ModelingService_EnvironmentTypes AS SELECT
   EnvironmentTypes_0.name,
@@ -4480,17 +4833,17 @@ CREATE VIEW localized_ModelingService_FunctionTypes AS SELECT
   FunctionTypes_0.code
 FROM localized_FunctionTypes AS FunctionTypes_0;
 
-CREATE VIEW localized_ModelingService_ProcessingTypes AS SELECT
-  ProcessingTypes_0.name,
-  ProcessingTypes_0.descr,
-  ProcessingTypes_0.code
-FROM localized_ProcessingTypes AS ProcessingTypes_0;
+CREATE VIEW localized_ModelingService_FunctionProcessingTypes AS SELECT
+  FunctionProcessingTypes_0.name,
+  FunctionProcessingTypes_0.descr,
+  FunctionProcessingTypes_0.code
+FROM localized_FunctionProcessingTypes AS FunctionProcessingTypes_0;
 
-CREATE VIEW localized_ModelingService_BusinessEventTypes AS SELECT
-  BusinessEventTypes_0.name,
-  BusinessEventTypes_0.descr,
-  BusinessEventTypes_0.code
-FROM localized_BusinessEventTypes AS BusinessEventTypes_0;
+CREATE VIEW localized_ModelingService_FunctionBusinessEventTypes AS SELECT
+  FunctionBusinessEventTypes_0.name,
+  FunctionBusinessEventTypes_0.descr,
+  FunctionBusinessEventTypes_0.code
+FROM localized_FunctionBusinessEventTypes AS FunctionBusinessEventTypes_0;
 
 CREATE VIEW localized_ModelingService_AllocationTypes AS SELECT
   AllocationTypes_0.name,
@@ -4596,14 +4949,7 @@ FROM localized_Partitions AS Partitions_0
 WHERE Partitions_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
-
-CREATE VIEW localized_AllocationRuleDriverResultFields AS SELECT
-  AllocationActionFields_0.ID,
-  AllocationActionFields_0.allocation_ID,
-  AllocationActionFields_0.field_ID
-FROM (localized_AllocationActionFields AS AllocationActionFields_0 LEFT JOIN localized_Fields AS field_1 ON AllocationActionFields_0.field_ID = field_1.ID)
-WHERE field_1.class_code = '' AND field_1.type_code = 'KYF';
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_ModelingService_Functions AS SELECT
   functions_0.createdAt,
@@ -4614,7 +4960,7 @@ CREATE VIEW localized_ModelingService_Functions AS SELECT
   functions_0.ID,
   functions_0.function,
   functions_0.sequence,
-  functions_0.parentFunction_ID,
+  functions_0.parent_ID,
   functions_0.type_code,
   functions_0.processingType_code,
   functions_0.businessEventType_code,
@@ -4623,37 +4969,6 @@ CREATE VIEW localized_ModelingService_Functions AS SELECT
   functions_0.description,
   functions_0.documentation
 FROM localized_Functions AS functions_0;
-
-CREATE VIEW localized_ModelingService_Allocations AS SELECT
-  allocations_0.createdAt,
-  allocations_0.createdBy,
-  allocations_0.modifiedAt,
-  allocations_0.modifiedBy,
-  allocations_0.environment_ID,
-  allocations_0.function_ID,
-  allocations_0.ID,
-  allocations_0.type_code,
-  allocations_0.valueAdjustment_code,
-  allocations_0.includeInputData,
-  allocations_0.resultHandling_code,
-  allocations_0.includeInitialResult,
-  allocations_0.cycleFlag,
-  allocations_0.cycleMaximum,
-  allocations_0.cycleIterationField_ID,
-  allocations_0.cycleAggregation_code,
-  allocations_0.termFlag,
-  allocations_0.termIterationField_ID,
-  allocations_0.termYearField_ID,
-  allocations_0.termField_ID,
-  allocations_0.termProcessing_code,
-  allocations_0.termYear,
-  allocations_0.termMinimum,
-  allocations_0.termMaximum,
-  allocations_0.senderFunction_ID,
-  allocations_0.receiverFunction_ID,
-  allocations_0.resultFunction_ID,
-  allocations_0.earlyExitCheck_ID
-FROM localized_Allocations AS allocations_0;
 
 CREATE VIEW localized_ModelingService_Environments AS SELECT
   environments_0.createdAt,
@@ -4704,6 +5019,37 @@ CREATE VIEW localized_ModelingService_Checks AS SELECT
   checks_0.description
 FROM localized_Checks AS checks_0;
 
+CREATE VIEW localized_ModelingService_Allocations AS SELECT
+  allocations_0.createdAt,
+  allocations_0.createdBy,
+  allocations_0.modifiedAt,
+  allocations_0.modifiedBy,
+  allocations_0.environment_ID,
+  allocations_0.function_ID,
+  allocations_0.ID,
+  allocations_0.type_code,
+  allocations_0.valueAdjustment_code,
+  allocations_0.includeInputData,
+  allocations_0.resultHandling_code,
+  allocations_0.includeInitialResult,
+  allocations_0.cycleFlag,
+  allocations_0.cycleMaximum,
+  allocations_0.cycleIterationField_ID,
+  allocations_0.cycleAggregation_code,
+  allocations_0.termFlag,
+  allocations_0.termIterationField_ID,
+  allocations_0.termYearField_ID,
+  allocations_0.termField_ID,
+  allocations_0.termProcessing_code,
+  allocations_0.termYear,
+  allocations_0.termMinimum,
+  allocations_0.termMaximum,
+  allocations_0.senderFunction_ID,
+  allocations_0.receiverFunction_ID,
+  allocations_0.resultFunction_ID,
+  allocations_0.earlyExitCheck_ID
+FROM localized_Allocations AS allocations_0;
+
 CREATE VIEW localized_ModelingService_ModelTables AS SELECT
   modelTables_0.createdAt,
   modelTables_0.createdBy,
@@ -4750,6 +5096,8 @@ CREATE VIEW localized_ModelingService_AllocationRuleSenderViews AS SELECT
   AllocationRuleSenderViews_0.createdBy,
   AllocationRuleSenderViews_0.modifiedAt,
   AllocationRuleSenderViews_0.modifiedBy,
+  AllocationRuleSenderViews_0.environment_ID,
+  AllocationRuleSenderViews_0.function_ID,
   AllocationRuleSenderViews_0.formula,
   AllocationRuleSenderViews_0.group_code,
   AllocationRuleSenderViews_0.order_code,
@@ -4763,6 +5111,8 @@ CREATE VIEW localized_ModelingService_AllocationRules AS SELECT
   AllocationRules_0.createdBy,
   AllocationRules_0.modifiedAt,
   AllocationRules_0.modifiedBy,
+  AllocationRules_0.environment_ID,
+  AllocationRules_0.function_ID,
   AllocationRules_0.ID,
   AllocationRules_0.allocation_ID,
   AllocationRules_0.sequence,
@@ -4831,6 +5181,8 @@ CREATE VIEW localized_ModelingService_AllocationRuleSenderFieldSelections AS SEL
   AllocationRuleSenderFieldSelections_0.createdBy,
   AllocationRuleSenderFieldSelections_0.modifiedAt,
   AllocationRuleSenderFieldSelections_0.modifiedBy,
+  AllocationRuleSenderFieldSelections_0.environment_ID,
+  AllocationRuleSenderFieldSelections_0.function_ID,
   AllocationRuleSenderFieldSelections_0.seq,
   AllocationRuleSenderFieldSelections_0.sign_code,
   AllocationRuleSenderFieldSelections_0.opt_code,
@@ -4889,24 +5241,48 @@ CREATE VIEW localized_ModelingService_CalculationUnits AS SELECT
 FROM localized_CalculationUnits AS calculationUnits_0;
 
 CREATE VIEW localized_ModelingService_AllocationSelectionFields AS SELECT
+  AllocationSelectionFields_0.createdAt,
+  AllocationSelectionFields_0.createdBy,
+  AllocationSelectionFields_0.modifiedAt,
+  AllocationSelectionFields_0.modifiedBy,
+  AllocationSelectionFields_0.environment_ID,
+  AllocationSelectionFields_0.function_ID,
   AllocationSelectionFields_0.ID,
   AllocationSelectionFields_0.allocation_ID,
   AllocationSelectionFields_0.field_ID
 FROM localized_AllocationSelectionFields AS AllocationSelectionFields_0;
 
 CREATE VIEW localized_ModelingService_AllocationActionFields AS SELECT
+  AllocationActionFields_0.createdAt,
+  AllocationActionFields_0.createdBy,
+  AllocationActionFields_0.modifiedAt,
+  AllocationActionFields_0.modifiedBy,
+  AllocationActionFields_0.environment_ID,
+  AllocationActionFields_0.function_ID,
   AllocationActionFields_0.ID,
   AllocationActionFields_0.allocation_ID,
   AllocationActionFields_0.field_ID
 FROM localized_AllocationActionFields AS AllocationActionFields_0;
 
 CREATE VIEW localized_ModelingService_AllocationReceiverSelectionFields AS SELECT
+  AllocationReceiverSelectionFields_0.createdAt,
+  AllocationReceiverSelectionFields_0.createdBy,
+  AllocationReceiverSelectionFields_0.modifiedAt,
+  AllocationReceiverSelectionFields_0.modifiedBy,
+  AllocationReceiverSelectionFields_0.environment_ID,
+  AllocationReceiverSelectionFields_0.function_ID,
   AllocationReceiverSelectionFields_0.ID,
   AllocationReceiverSelectionFields_0.allocation_ID,
   AllocationReceiverSelectionFields_0.field_ID
 FROM localized_AllocationReceiverSelectionFields AS AllocationReceiverSelectionFields_0;
 
 CREATE VIEW localized_ModelingService_AllocationReceiverActionFields AS SELECT
+  AllocationReceiverActionFields_0.createdAt,
+  AllocationReceiverActionFields_0.createdBy,
+  AllocationReceiverActionFields_0.modifiedAt,
+  AllocationReceiverActionFields_0.modifiedBy,
+  AllocationReceiverActionFields_0.environment_ID,
+  AllocationReceiverActionFields_0.function_ID,
   AllocationReceiverActionFields_0.ID,
   AllocationReceiverActionFields_0.allocation_ID,
   AllocationReceiverActionFields_0.field_ID
@@ -4917,6 +5293,8 @@ CREATE VIEW localized_ModelingService_AllocationOffsets AS SELECT
   AllocationOffsets_0.createdBy,
   AllocationOffsets_0.modifiedAt,
   AllocationOffsets_0.modifiedBy,
+  AllocationOffsets_0.environment_ID,
+  AllocationOffsets_0.function_ID,
   AllocationOffsets_0.ID,
   AllocationOffsets_0.allocation_ID,
   AllocationOffsets_0.field_ID,
@@ -4928,6 +5306,8 @@ CREATE VIEW localized_ModelingService_AllocationDebitCredits AS SELECT
   AllocationDebitCredits_0.createdBy,
   AllocationDebitCredits_0.modifiedAt,
   AllocationDebitCredits_0.modifiedBy,
+  AllocationDebitCredits_0.environment_ID,
+  AllocationDebitCredits_0.function_ID,
   AllocationDebitCredits_0.ID,
   AllocationDebitCredits_0.allocation_ID,
   AllocationDebitCredits_0.field_ID,
@@ -4941,10 +5321,24 @@ CREATE VIEW localized_ModelingService_AllocationChecks AS SELECT
   AllocationChecks_0.createdBy,
   AllocationChecks_0.modifiedAt,
   AllocationChecks_0.modifiedBy,
+  AllocationChecks_0.environment_ID,
+  AllocationChecks_0.function_ID,
   AllocationChecks_0.ID,
   AllocationChecks_0.allocation_ID,
   AllocationChecks_0.check_ID
 FROM localized_AllocationChecks AS AllocationChecks_0;
+
+CREATE VIEW localized_ModelingService_AllocationRuleSenderValueFields AS SELECT
+  AllocationRuleSenderValueFields_0.createdAt,
+  AllocationRuleSenderValueFields_0.createdBy,
+  AllocationRuleSenderValueFields_0.modifiedAt,
+  AllocationRuleSenderValueFields_0.modifiedBy,
+  AllocationRuleSenderValueFields_0.environment_ID,
+  AllocationRuleSenderValueFields_0.function_ID,
+  AllocationRuleSenderValueFields_0.ID,
+  AllocationRuleSenderValueFields_0.rule_ID,
+  AllocationRuleSenderValueFields_0.field_ID
+FROM localized_AllocationRuleSenderValueFields AS AllocationRuleSenderValueFields_0;
 
 CREATE VIEW localized_ModelingService_Partitions AS SELECT
   partitions_0.createdAt,
@@ -5047,16 +5441,6 @@ CREATE VIEW localized_ModelingService_CheckFields AS SELECT
   CheckFields_0.field_ID
 FROM localized_CheckFields AS CheckFields_0;
 
-CREATE VIEW localized_ModelingService_AllocationRuleSenderValueFields AS SELECT
-  AllocationRuleSenderValueFields_0.createdAt,
-  AllocationRuleSenderValueFields_0.createdBy,
-  AllocationRuleSenderValueFields_0.modifiedAt,
-  AllocationRuleSenderValueFields_0.modifiedBy,
-  AllocationRuleSenderValueFields_0.ID,
-  AllocationRuleSenderValueFields_0.rule_ID,
-  AllocationRuleSenderValueFields_0.field_ID
-FROM localized_AllocationRuleSenderValueFields AS AllocationRuleSenderValueFields_0;
-
 CREATE VIEW localized_ModelingService_MasterDataQueries AS SELECT
   MasterDataQueries_0.createdAt,
   MasterDataQueries_0.createdBy,
@@ -5066,7 +5450,7 @@ CREATE VIEW localized_ModelingService_MasterDataQueries AS SELECT
   MasterDataQueries_0.ID,
   MasterDataQueries_0.function,
   MasterDataQueries_0.sequence,
-  MasterDataQueries_0.parentFunction_ID,
+  MasterDataQueries_0.parent_ID,
   MasterDataQueries_0.type_code,
   MasterDataQueries_0.processingType_code,
   MasterDataQueries_0.businessEventType_code,
@@ -5076,24 +5460,24 @@ CREATE VIEW localized_ModelingService_MasterDataQueries AS SELECT
   MasterDataQueries_0.documentation
 FROM localized_MasterDataQueries AS MasterDataQueries_0;
 
-CREATE VIEW localized_ModelingService_ParentFunctions AS SELECT
-  ParentFunctions_0.createdAt,
-  ParentFunctions_0.createdBy,
-  ParentFunctions_0.modifiedAt,
-  ParentFunctions_0.modifiedBy,
-  ParentFunctions_0.environment_ID,
-  ParentFunctions_0.ID,
-  ParentFunctions_0.function,
-  ParentFunctions_0.sequence,
-  ParentFunctions_0.parentFunction_ID,
-  ParentFunctions_0.type_code,
-  ParentFunctions_0.processingType_code,
-  ParentFunctions_0.businessEventType_code,
-  ParentFunctions_0.partition_ID,
-  ParentFunctions_0.parentCalculationUnit_ID,
-  ParentFunctions_0.description,
-  ParentFunctions_0.documentation
-FROM localized_ParentFunctions AS ParentFunctions_0;
+CREATE VIEW localized_ModelingService_FunctionParents AS SELECT
+  FunctionParents_0.createdAt,
+  FunctionParents_0.createdBy,
+  FunctionParents_0.modifiedAt,
+  FunctionParents_0.modifiedBy,
+  FunctionParents_0.environment_ID,
+  FunctionParents_0.ID,
+  FunctionParents_0.function,
+  FunctionParents_0.sequence,
+  FunctionParents_0.parent_ID,
+  FunctionParents_0.type_code,
+  FunctionParents_0.processingType_code,
+  FunctionParents_0.businessEventType_code,
+  FunctionParents_0.partition_ID,
+  FunctionParents_0.parentCalculationUnit_ID,
+  FunctionParents_0.description,
+  FunctionParents_0.documentation
+FROM localized_FunctionParents AS FunctionParents_0;
 
 CREATE VIEW localized_ModelingService_AllocationResultFunctions AS SELECT
   AllocationResultFunctions_0.createdAt,
@@ -5104,7 +5488,7 @@ CREATE VIEW localized_ModelingService_AllocationResultFunctions AS SELECT
   AllocationResultFunctions_0.ID,
   AllocationResultFunctions_0.function,
   AllocationResultFunctions_0.sequence,
-  AllocationResultFunctions_0.parentFunction_ID,
+  AllocationResultFunctions_0.parent_ID,
   AllocationResultFunctions_0.type_code,
   AllocationResultFunctions_0.processingType_code,
   AllocationResultFunctions_0.businessEventType_code,
@@ -5149,6 +5533,29 @@ CREATE VIEW localized_ModelingService_UnitFields AS SELECT
   UnitFields_0.description,
   UnitFields_0.documentation
 FROM localized_UnitFields AS UnitFields_0;
+
+CREATE VIEW localized_ModelingService_AllocationCycleIterationFields AS SELECT
+  AllocationCycleIterationFields_0.createdAt,
+  AllocationCycleIterationFields_0.createdBy,
+  AllocationCycleIterationFields_0.modifiedAt,
+  AllocationCycleIterationFields_0.modifiedBy,
+  AllocationCycleIterationFields_0.environment_ID,
+  AllocationCycleIterationFields_0.ID,
+  AllocationCycleIterationFields_0.field,
+  AllocationCycleIterationFields_0.class_code,
+  AllocationCycleIterationFields_0.type_code,
+  AllocationCycleIterationFields_0.hanaDataType_code,
+  AllocationCycleIterationFields_0.dataLength,
+  AllocationCycleIterationFields_0.dataDecimals,
+  AllocationCycleIterationFields_0.unitField_ID,
+  AllocationCycleIterationFields_0.isLowercase,
+  AllocationCycleIterationFields_0.hasMasterData,
+  AllocationCycleIterationFields_0.hasHierarchies,
+  AllocationCycleIterationFields_0.calculationHierarchy_ID,
+  AllocationCycleIterationFields_0.masterDataQuery_ID,
+  AllocationCycleIterationFields_0.description,
+  AllocationCycleIterationFields_0.documentation
+FROM localized_AllocationCycleIterationFields AS AllocationCycleIterationFields_0;
 
 CREATE VIEW localized_ModelingService_AllocationTermIterationFields AS SELECT
   AllocationTermIterationFields_0.createdAt,
@@ -5219,6 +5626,29 @@ CREATE VIEW localized_ModelingService_AllocationTermFields AS SELECT
   AllocationTermFields_0.documentation
 FROM localized_AllocationTermFields AS AllocationTermFields_0;
 
+CREATE VIEW localized_ModelingService_AllocationRuleDriverResultFields AS SELECT
+  AllocationRuleDriverResultFields_0.createdAt,
+  AllocationRuleDriverResultFields_0.createdBy,
+  AllocationRuleDriverResultFields_0.modifiedAt,
+  AllocationRuleDriverResultFields_0.modifiedBy,
+  AllocationRuleDriverResultFields_0.environment_ID,
+  AllocationRuleDriverResultFields_0.ID,
+  AllocationRuleDriverResultFields_0.field,
+  AllocationRuleDriverResultFields_0.class_code,
+  AllocationRuleDriverResultFields_0.type_code,
+  AllocationRuleDriverResultFields_0.hanaDataType_code,
+  AllocationRuleDriverResultFields_0.dataLength,
+  AllocationRuleDriverResultFields_0.dataDecimals,
+  AllocationRuleDriverResultFields_0.unitField_ID,
+  AllocationRuleDriverResultFields_0.isLowercase,
+  AllocationRuleDriverResultFields_0.hasMasterData,
+  AllocationRuleDriverResultFields_0.hasHierarchies,
+  AllocationRuleDriverResultFields_0.calculationHierarchy_ID,
+  AllocationRuleDriverResultFields_0.masterDataQuery_ID,
+  AllocationRuleDriverResultFields_0.description,
+  AllocationRuleDriverResultFields_0.documentation
+FROM localized_AllocationRuleDriverResultFields AS AllocationRuleDriverResultFields_0;
+
 CREATE VIEW localized_ModelingService_AllocationEarlyExitChecks AS SELECT
   AllocationEarlyExitChecks_0.createdAt,
   AllocationEarlyExitChecks_0.createdBy,
@@ -5238,12 +5668,6 @@ CREATE VIEW localized_ModelingService_AllocationInputFunctions AS SELECT
   AllocationInputFunctions_0.description,
   AllocationInputFunctions_0.type_code
 FROM localized_AllocationInputFunctions AS AllocationInputFunctions_0;
-
-CREATE VIEW localized_ModelingService_AllocationRuleDriverResultFields AS SELECT
-  AllocationRuleDriverResultFields_0.ID,
-  AllocationRuleDriverResultFields_0.allocation_ID,
-  AllocationRuleDriverResultFields_0.field_ID
-FROM localized_AllocationRuleDriverResultFields AS AllocationRuleDriverResultFields_0;
 
 CREATE VIEW localized_de_EnvironmentTypes AS SELECT
   coalesce(localized_de_1.name, L_0.name) AS name,
@@ -5305,29 +5729,29 @@ CREATE VIEW localized_fr_FunctionTypes AS SELECT
   L_0.code
 FROM (FunctionTypes AS L_0 LEFT JOIN FunctionTypes_texts AS localized_fr_1 ON localized_fr_1.code = L_0.code AND localized_fr_1.locale = 'fr');
 
-CREATE VIEW localized_de_ProcessingTypes AS SELECT
+CREATE VIEW localized_de_FunctionProcessingTypes AS SELECT
   coalesce(localized_de_1.name, L_0.name) AS name,
   coalesce(localized_de_1.descr, L_0.descr) AS descr,
   L_0.code
-FROM (ProcessingTypes AS L_0 LEFT JOIN ProcessingTypes_texts AS localized_de_1 ON localized_de_1.code = L_0.code AND localized_de_1.locale = 'de');
+FROM (FunctionProcessingTypes AS L_0 LEFT JOIN FunctionProcessingTypes_texts AS localized_de_1 ON localized_de_1.code = L_0.code AND localized_de_1.locale = 'de');
 
-CREATE VIEW localized_fr_ProcessingTypes AS SELECT
+CREATE VIEW localized_fr_FunctionProcessingTypes AS SELECT
   coalesce(localized_fr_1.name, L_0.name) AS name,
   coalesce(localized_fr_1.descr, L_0.descr) AS descr,
   L_0.code
-FROM (ProcessingTypes AS L_0 LEFT JOIN ProcessingTypes_texts AS localized_fr_1 ON localized_fr_1.code = L_0.code AND localized_fr_1.locale = 'fr');
+FROM (FunctionProcessingTypes AS L_0 LEFT JOIN FunctionProcessingTypes_texts AS localized_fr_1 ON localized_fr_1.code = L_0.code AND localized_fr_1.locale = 'fr');
 
-CREATE VIEW localized_de_BusinessEventTypes AS SELECT
+CREATE VIEW localized_de_FunctionBusinessEventTypes AS SELECT
   coalesce(localized_de_1.name, L_0.name) AS name,
   coalesce(localized_de_1.descr, L_0.descr) AS descr,
   L_0.code
-FROM (BusinessEventTypes AS L_0 LEFT JOIN BusinessEventTypes_texts AS localized_de_1 ON localized_de_1.code = L_0.code AND localized_de_1.locale = 'de');
+FROM (FunctionBusinessEventTypes AS L_0 LEFT JOIN FunctionBusinessEventTypes_texts AS localized_de_1 ON localized_de_1.code = L_0.code AND localized_de_1.locale = 'de');
 
-CREATE VIEW localized_fr_BusinessEventTypes AS SELECT
+CREATE VIEW localized_fr_FunctionBusinessEventTypes AS SELECT
   coalesce(localized_fr_1.name, L_0.name) AS name,
   coalesce(localized_fr_1.descr, L_0.descr) AS descr,
   L_0.code
-FROM (BusinessEventTypes AS L_0 LEFT JOIN BusinessEventTypes_texts AS localized_fr_1 ON localized_fr_1.code = L_0.code AND localized_fr_1.locale = 'fr');
+FROM (FunctionBusinessEventTypes AS L_0 LEFT JOIN FunctionBusinessEventTypes_texts AS localized_fr_1 ON localized_fr_1.code = L_0.code AND localized_fr_1.locale = 'fr');
 
 CREATE VIEW localized_de_AllocationTypes AS SELECT
   coalesce(localized_de_1.name, L_0.name) AS name,
@@ -5614,7 +6038,7 @@ CREATE VIEW localized_de_Functions AS SELECT
   L.ID,
   L.function,
   L.sequence,
-  L.parentFunction_ID,
+  L.parent_ID,
   L.type_code,
   L.processingType_code,
   L.businessEventType_code,
@@ -5633,7 +6057,7 @@ CREATE VIEW localized_fr_Functions AS SELECT
   L.ID,
   L.function,
   L.sequence,
-  L.parentFunction_ID,
+  L.parent_ID,
   L.type_code,
   L.processingType_code,
   L.businessEventType_code,
@@ -5830,6 +6254,8 @@ CREATE VIEW localized_de_AllocationRules AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.ID,
   L.allocation_ID,
   L.sequence,
@@ -5852,6 +6278,8 @@ CREATE VIEW localized_fr_AllocationRules AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.ID,
   L.allocation_ID,
   L.sequence,
@@ -5874,6 +6302,8 @@ CREATE VIEW localized_de_AllocationRuleSenderViews AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.formula,
   L.group_code,
   L.order_code,
@@ -5887,6 +6317,8 @@ CREATE VIEW localized_fr_AllocationRuleSenderViews AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.formula,
   L.group_code,
   L.order_code,
@@ -5900,6 +6332,8 @@ CREATE VIEW localized_de_AllocationRuleSenderFieldSelections AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.seq,
   L.sign_code,
   L.opt_code,
@@ -5914,6 +6348,8 @@ CREATE VIEW localized_fr_AllocationRuleSenderFieldSelections AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.seq,
   L.sign_code,
   L.opt_code,
@@ -5928,6 +6364,8 @@ CREATE VIEW localized_de_AllocationRuleReceiverViews AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.formula,
   L.group_code,
   L.order_code,
@@ -5941,6 +6379,8 @@ CREATE VIEW localized_fr_AllocationRuleReceiverViews AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.formula,
   L.group_code,
   L.order_code,
@@ -5954,6 +6394,8 @@ CREATE VIEW localized_de_AllocationRuleReceiverFieldSelections AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.seq,
   L.sign_code,
   L.opt_code,
@@ -5968,6 +6410,8 @@ CREATE VIEW localized_fr_AllocationRuleReceiverFieldSelections AS SELECT
   L.createdBy,
   L.modifiedAt,
   L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
   L.seq,
   L.sign_code,
   L.opt_code,
@@ -6163,6 +6607,206 @@ CREATE VIEW localized_fr_FieldHierarchyStructures AS SELECT
   L.parentValue_ID
 FROM FieldHierarchyStructures AS L;
 
+CREATE VIEW localized_de_AllocationOffsets AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID,
+  L.offsetField_ID
+FROM AllocationOffsets AS L;
+
+CREATE VIEW localized_fr_AllocationOffsets AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID,
+  L.offsetField_ID
+FROM AllocationOffsets AS L;
+
+CREATE VIEW localized_de_AllocationDebitCredits AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID,
+  L.debitSign,
+  L.creditSign,
+  L.sequence
+FROM AllocationDebitCredits AS L;
+
+CREATE VIEW localized_fr_AllocationDebitCredits AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID,
+  L.debitSign,
+  L.creditSign,
+  L.sequence
+FROM AllocationDebitCredits AS L;
+
+CREATE VIEW localized_de_AllocationChecks AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.check_ID
+FROM AllocationChecks AS L;
+
+CREATE VIEW localized_fr_AllocationChecks AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.check_ID
+FROM AllocationChecks AS L;
+
+CREATE VIEW localized_de_AllocationSelectionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationSelectionFields AS L;
+
+CREATE VIEW localized_fr_AllocationSelectionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationSelectionFields AS L;
+
+CREATE VIEW localized_de_AllocationActionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationActionFields AS L;
+
+CREATE VIEW localized_fr_AllocationActionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationActionFields AS L;
+
+CREATE VIEW localized_de_AllocationReceiverSelectionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationReceiverSelectionFields AS L;
+
+CREATE VIEW localized_fr_AllocationReceiverSelectionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationReceiverSelectionFields AS L;
+
+CREATE VIEW localized_de_AllocationReceiverActionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationReceiverActionFields AS L;
+
+CREATE VIEW localized_fr_AllocationReceiverActionFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.allocation_ID,
+  L.field_ID
+FROM AllocationReceiverActionFields AS L;
+
+CREATE VIEW localized_de_AllocationRuleSenderValueFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.rule_ID,
+  L.field_ID
+FROM AllocationRuleSenderValueFields AS L;
+
+CREATE VIEW localized_fr_AllocationRuleSenderValueFields AS SELECT
+  L.createdAt,
+  L.createdBy,
+  L.modifiedAt,
+  L.modifiedBy,
+  L.environment_ID,
+  L.function_ID,
+  L.ID,
+  L.rule_ID,
+  L.field_ID
+FROM AllocationRuleSenderValueFields AS L;
+
 CREATE VIEW localized_de_ModelTableFields AS SELECT
   L.createdAt,
   L.createdBy,
@@ -6357,102 +7001,6 @@ CREATE VIEW localized_fr_Connections AS SELECT
   L.description
 FROM Connections AS L;
 
-CREATE VIEW localized_de_AllocationOffsets AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.allocation_ID,
-  L.field_ID,
-  L.offsetField_ID
-FROM AllocationOffsets AS L;
-
-CREATE VIEW localized_fr_AllocationOffsets AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.allocation_ID,
-  L.field_ID,
-  L.offsetField_ID
-FROM AllocationOffsets AS L;
-
-CREATE VIEW localized_de_AllocationDebitCredits AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.allocation_ID,
-  L.field_ID,
-  L.debitSign,
-  L.creditSign,
-  L.sequence
-FROM AllocationDebitCredits AS L;
-
-CREATE VIEW localized_fr_AllocationDebitCredits AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.allocation_ID,
-  L.field_ID,
-  L.debitSign,
-  L.creditSign,
-  L.sequence
-FROM AllocationDebitCredits AS L;
-
-CREATE VIEW localized_de_AllocationSelectionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationSelectionFields AS L;
-
-CREATE VIEW localized_fr_AllocationSelectionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationSelectionFields AS L;
-
-CREATE VIEW localized_de_AllocationActionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationActionFields AS L;
-
-CREATE VIEW localized_fr_AllocationActionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationActionFields AS L;
-
-CREATE VIEW localized_de_AllocationReceiverSelectionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationReceiverSelectionFields AS L;
-
-CREATE VIEW localized_fr_AllocationReceiverSelectionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationReceiverSelectionFields AS L;
-
-CREATE VIEW localized_de_AllocationReceiverActionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationReceiverActionFields AS L;
-
-CREATE VIEW localized_fr_AllocationReceiverActionFields AS SELECT
-  L.ID,
-  L.allocation_ID,
-  L.field_ID
-FROM AllocationReceiverActionFields AS L;
-
 CREATE VIEW localized_de_CheckFields AS SELECT
   L.createdAt,
   L.createdBy,
@@ -6472,46 +7020,6 @@ CREATE VIEW localized_fr_CheckFields AS SELECT
   L.check_ID,
   L.field_ID
 FROM CheckFields AS L;
-
-CREATE VIEW localized_de_AllocationChecks AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.allocation_ID,
-  L.check_ID
-FROM AllocationChecks AS L;
-
-CREATE VIEW localized_fr_AllocationChecks AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.allocation_ID,
-  L.check_ID
-FROM AllocationChecks AS L;
-
-CREATE VIEW localized_de_AllocationRuleSenderValueFields AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.rule_ID,
-  L.field_ID
-FROM AllocationRuleSenderValueFields AS L;
-
-CREATE VIEW localized_fr_AllocationRuleSenderValueFields AS SELECT
-  L.createdAt,
-  L.createdBy,
-  L.modifiedAt,
-  L.modifiedBy,
-  L.ID,
-  L.rule_ID,
-  L.field_ID
-FROM AllocationRuleSenderValueFields AS L;
 
 CREATE VIEW localized_de_EnvironmentFolders AS SELECT
   Environments_0.createdAt,
@@ -6598,7 +7106,7 @@ CREATE VIEW localized_de_MasterDataQueries AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -6618,7 +7126,7 @@ CREATE VIEW localized_fr_MasterDataQueries AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -6629,7 +7137,7 @@ CREATE VIEW localized_fr_MasterDataQueries AS SELECT
 FROM localized_fr_Functions AS Functions_0
 WHERE Functions_0.type_code = 'MT';
 
-CREATE VIEW localized_de_ParentFunctions AS SELECT
+CREATE VIEW localized_de_FunctionParents AS SELECT
   Functions_0.createdAt,
   Functions_0.createdBy,
   Functions_0.modifiedAt,
@@ -6638,7 +7146,7 @@ CREATE VIEW localized_de_ParentFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -6649,7 +7157,7 @@ CREATE VIEW localized_de_ParentFunctions AS SELECT
 FROM localized_de_Functions AS Functions_0
 WHERE Functions_0.type_code = 'CU' OR Functions_0.type_code = 'DS';
 
-CREATE VIEW localized_fr_ParentFunctions AS SELECT
+CREATE VIEW localized_fr_FunctionParents AS SELECT
   Functions_0.createdAt,
   Functions_0.createdBy,
   Functions_0.modifiedAt,
@@ -6658,7 +7166,7 @@ CREATE VIEW localized_fr_ParentFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -6678,7 +7186,7 @@ CREATE VIEW localized_de_ResultModelTables AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -6698,7 +7206,7 @@ CREATE VIEW localized_fr_ResultModelTables AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -6709,7 +7217,7 @@ CREATE VIEW localized_fr_ResultModelTables AS SELECT
 FROM localized_fr_Functions AS Functions_0
 WHERE Functions_0.type_code = 'MT';
 
-CREATE VIEW localized_de_ParentCalculationUnits AS SELECT
+CREATE VIEW localized_de_FunctionParentCalculationUnits AS SELECT
   Functions_0.createdAt,
   Functions_0.createdBy,
   Functions_0.modifiedAt,
@@ -6718,7 +7226,7 @@ CREATE VIEW localized_de_ParentCalculationUnits AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -6729,7 +7237,7 @@ CREATE VIEW localized_de_ParentCalculationUnits AS SELECT
 FROM localized_de_Functions AS Functions_0
 WHERE Functions_0.type_code = 'CU';
 
-CREATE VIEW localized_fr_ParentCalculationUnits AS SELECT
+CREATE VIEW localized_fr_FunctionParentCalculationUnits AS SELECT
   Functions_0.createdAt,
   Functions_0.createdBy,
   Functions_0.modifiedAt,
@@ -6738,7 +7246,7 @@ CREATE VIEW localized_fr_ParentCalculationUnits AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -6750,20 +7258,20 @@ FROM localized_fr_Functions AS Functions_0
 WHERE Functions_0.type_code = 'CU';
 
 CREATE VIEW localized_de_AllocationInputFunctions AS SELECT
-  Functions_0.ID,
-  Functions_0.function,
-  Functions_0.description,
-  Functions_0.type_code
-FROM localized_de_Functions AS Functions_0
-WHERE Functions_0.type_code IN ('MT', 'AL');
+  F_0.ID,
+  F_0.function,
+  F_0.description,
+  F_0.type_code
+FROM localized_de_Functions AS F_0
+WHERE F_0.type_code IN ('MT', 'AL');
 
 CREATE VIEW localized_fr_AllocationInputFunctions AS SELECT
-  Functions_0.ID,
-  Functions_0.function,
-  Functions_0.description,
-  Functions_0.type_code
-FROM localized_fr_Functions AS Functions_0
-WHERE Functions_0.type_code IN ('MT', 'AL');
+  F_0.ID,
+  F_0.function,
+  F_0.description,
+  F_0.type_code
+FROM localized_fr_Functions AS F_0
+WHERE F_0.type_code IN ('MT', 'AL');
 
 CREATE VIEW localized_de_AllocationResultFunctions AS SELECT
   Functions_0.createdAt,
@@ -6774,7 +7282,7 @@ CREATE VIEW localized_de_AllocationResultFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -6794,7 +7302,7 @@ CREATE VIEW localized_fr_AllocationResultFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -6975,59 +7483,113 @@ CREATE VIEW localized_fr_AllocationEarlyExitChecks AS SELECT
   Checks_0.description
 FROM localized_fr_Checks AS Checks_0;
 
+CREATE VIEW localized_de_AllocationRuleDriverResultFields AS SELECT
+  F_0.createdAt,
+  F_0.createdBy,
+  F_0.modifiedAt,
+  F_0.modifiedBy,
+  F_0.environment_ID,
+  F_0.ID,
+  F_0.field,
+  F_0.class_code,
+  F_0.type_code,
+  F_0.hanaDataType_code,
+  F_0.dataLength,
+  F_0.dataDecimals,
+  F_0.unitField_ID,
+  F_0.isLowercase,
+  F_0.hasMasterData,
+  F_0.hasHierarchies,
+  F_0.calculationHierarchy_ID,
+  F_0.masterDataQuery_ID,
+  F_0.description,
+  F_0.documentation
+FROM localized_de_Fields AS F_0
+WHERE F_0.class_code = '' AND F_0.type_code = 'KYF' AND F_0.ID IN (SELECT
+    L_1.field_ID AS ID
+  FROM (localized_de_AllocationActionFields AS L_1 LEFT JOIN localized_de_Allocations AS allocation_2 ON L_1.allocation_ID = allocation_2.ID)
+  WHERE F_0.environment_ID = allocation_2.environment_ID);
+
+CREATE VIEW localized_fr_AllocationRuleDriverResultFields AS SELECT
+  F_0.createdAt,
+  F_0.createdBy,
+  F_0.modifiedAt,
+  F_0.modifiedBy,
+  F_0.environment_ID,
+  F_0.ID,
+  F_0.field,
+  F_0.class_code,
+  F_0.type_code,
+  F_0.hanaDataType_code,
+  F_0.dataLength,
+  F_0.dataDecimals,
+  F_0.unitField_ID,
+  F_0.isLowercase,
+  F_0.hasMasterData,
+  F_0.hasHierarchies,
+  F_0.calculationHierarchy_ID,
+  F_0.masterDataQuery_ID,
+  F_0.description,
+  F_0.documentation
+FROM localized_fr_Fields AS F_0
+WHERE F_0.class_code = '' AND F_0.type_code = 'KYF' AND F_0.ID IN (SELECT
+    L_1.field_ID AS ID
+  FROM (localized_fr_AllocationActionFields AS L_1 LEFT JOIN localized_fr_Allocations AS allocation_2 ON L_1.allocation_ID = allocation_2.ID)
+  WHERE F_0.environment_ID = allocation_2.environment_ID);
+
 CREATE VIEW localized_de_AllocationCycleIterationFields AS SELECT
-  Fields_0.createdAt,
-  Fields_0.createdBy,
-  Fields_0.modifiedAt,
-  Fields_0.modifiedBy,
-  Fields_0.environment_ID,
-  Fields_0.ID,
-  Fields_0.field,
-  Fields_0.class_code,
-  Fields_0.type_code,
-  Fields_0.hanaDataType_code,
-  Fields_0.dataLength,
-  Fields_0.dataDecimals,
-  Fields_0.unitField_ID,
-  Fields_0.isLowercase,
-  Fields_0.hasMasterData,
-  Fields_0.hasHierarchies,
-  Fields_0.calculationHierarchy_ID,
-  Fields_0.masterDataQuery_ID,
-  Fields_0.description,
-  Fields_0.documentation
-FROM localized_de_Fields AS Fields_0
-WHERE Fields_0.class_code = '' AND Fields_0.type_code = 'KYF' AND Fields_0.ID IN (SELECT
-    field_2.ID
-  FROM ((localized_de_AllocationActionFields AS AllocationActionFields_1 LEFT JOIN localized_de_Fields AS field_2 ON AllocationActionFields_1.field_ID = field_2.ID) LEFT JOIN localized_de_Allocations AS allocation_3 ON AllocationActionFields_1.allocation_ID = allocation_3.ID)
-  WHERE field_2.environment_ID = allocation_3.environment_ID);
+  F_0.createdAt,
+  F_0.createdBy,
+  F_0.modifiedAt,
+  F_0.modifiedBy,
+  F_0.environment_ID,
+  F_0.ID,
+  F_0.field,
+  F_0.class_code,
+  F_0.type_code,
+  F_0.hanaDataType_code,
+  F_0.dataLength,
+  F_0.dataDecimals,
+  F_0.unitField_ID,
+  F_0.isLowercase,
+  F_0.hasMasterData,
+  F_0.hasHierarchies,
+  F_0.calculationHierarchy_ID,
+  F_0.masterDataQuery_ID,
+  F_0.description,
+  F_0.documentation
+FROM localized_de_Fields AS F_0
+WHERE F_0.class_code = '' AND F_0.type_code = 'KYF' AND F_0.ID IN (SELECT
+    L_1.field_ID AS ID
+  FROM (localized_de_AllocationActionFields AS L_1 LEFT JOIN localized_de_Allocations AS allocation_2 ON L_1.allocation_ID = allocation_2.ID)
+  WHERE F_0.environment_ID = allocation_2.environment_ID);
 
 CREATE VIEW localized_fr_AllocationCycleIterationFields AS SELECT
-  Fields_0.createdAt,
-  Fields_0.createdBy,
-  Fields_0.modifiedAt,
-  Fields_0.modifiedBy,
-  Fields_0.environment_ID,
-  Fields_0.ID,
-  Fields_0.field,
-  Fields_0.class_code,
-  Fields_0.type_code,
-  Fields_0.hanaDataType_code,
-  Fields_0.dataLength,
-  Fields_0.dataDecimals,
-  Fields_0.unitField_ID,
-  Fields_0.isLowercase,
-  Fields_0.hasMasterData,
-  Fields_0.hasHierarchies,
-  Fields_0.calculationHierarchy_ID,
-  Fields_0.masterDataQuery_ID,
-  Fields_0.description,
-  Fields_0.documentation
-FROM localized_fr_Fields AS Fields_0
-WHERE Fields_0.class_code = '' AND Fields_0.type_code = 'KYF' AND Fields_0.ID IN (SELECT
-    field_2.ID
-  FROM ((localized_fr_AllocationActionFields AS AllocationActionFields_1 LEFT JOIN localized_fr_Fields AS field_2 ON AllocationActionFields_1.field_ID = field_2.ID) LEFT JOIN localized_fr_Allocations AS allocation_3 ON AllocationActionFields_1.allocation_ID = allocation_3.ID)
-  WHERE field_2.environment_ID = allocation_3.environment_ID);
+  F_0.createdAt,
+  F_0.createdBy,
+  F_0.modifiedAt,
+  F_0.modifiedBy,
+  F_0.environment_ID,
+  F_0.ID,
+  F_0.field,
+  F_0.class_code,
+  F_0.type_code,
+  F_0.hanaDataType_code,
+  F_0.dataLength,
+  F_0.dataDecimals,
+  F_0.unitField_ID,
+  F_0.isLowercase,
+  F_0.hasMasterData,
+  F_0.hasHierarchies,
+  F_0.calculationHierarchy_ID,
+  F_0.masterDataQuery_ID,
+  F_0.description,
+  F_0.documentation
+FROM localized_fr_Fields AS F_0
+WHERE F_0.class_code = '' AND F_0.type_code = 'KYF' AND F_0.ID IN (SELECT
+    L_1.field_ID AS ID
+  FROM (localized_fr_AllocationActionFields AS L_1 LEFT JOIN localized_fr_Allocations AS allocation_2 ON L_1.allocation_ID = allocation_2.ID)
+  WHERE F_0.environment_ID = allocation_2.environment_ID);
 
 CREATE VIEW localized_de_EnvironmentFunctions AS SELECT
   Functions_0.createdAt,
@@ -7038,7 +7600,7 @@ CREATE VIEW localized_de_EnvironmentFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -7050,7 +7612,7 @@ FROM localized_de_Functions AS Functions_0
 WHERE Functions_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_fr_EnvironmentFunctions AS SELECT
   Functions_0.createdAt,
@@ -7061,7 +7623,7 @@ CREATE VIEW localized_fr_EnvironmentFunctions AS SELECT
   Functions_0.ID,
   Functions_0.function,
   Functions_0.sequence,
-  Functions_0.parentFunction_ID,
+  Functions_0.parent_ID,
   Functions_0.type_code,
   Functions_0.processingType_code,
   Functions_0.businessEventType_code,
@@ -7073,7 +7635,7 @@ FROM localized_fr_Functions AS Functions_0
 WHERE Functions_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_de_EnvironmentFields AS SELECT
   Fields_0.createdAt,
@@ -7100,7 +7662,7 @@ FROM localized_de_Fields AS Fields_0
 WHERE Fields_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_fr_EnvironmentFields AS SELECT
   Fields_0.createdAt,
@@ -7127,7 +7689,7 @@ FROM localized_fr_Fields AS Fields_0
 WHERE Fields_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_de_EnvironmentChecks AS SELECT
   Checks_0.createdAt,
@@ -7144,7 +7706,7 @@ FROM localized_de_Checks AS Checks_0
 WHERE Checks_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_fr_EnvironmentChecks AS SELECT
   Checks_0.createdAt,
@@ -7161,7 +7723,7 @@ FROM localized_fr_Checks AS Checks_0
 WHERE Checks_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_de_ModelingService_EnvironmentTypes AS SELECT
   EnvironmentTypes_0.name,
@@ -7247,29 +7809,29 @@ CREATE VIEW localized_fr_ModelingService_FunctionTypes AS SELECT
   FunctionTypes_0.code
 FROM localized_fr_FunctionTypes AS FunctionTypes_0;
 
-CREATE VIEW localized_de_ModelingService_ProcessingTypes AS SELECT
-  ProcessingTypes_0.name,
-  ProcessingTypes_0.descr,
-  ProcessingTypes_0.code
-FROM localized_de_ProcessingTypes AS ProcessingTypes_0;
+CREATE VIEW localized_de_ModelingService_FunctionProcessingTypes AS SELECT
+  FunctionProcessingTypes_0.name,
+  FunctionProcessingTypes_0.descr,
+  FunctionProcessingTypes_0.code
+FROM localized_de_FunctionProcessingTypes AS FunctionProcessingTypes_0;
 
-CREATE VIEW localized_fr_ModelingService_ProcessingTypes AS SELECT
-  ProcessingTypes_0.name,
-  ProcessingTypes_0.descr,
-  ProcessingTypes_0.code
-FROM localized_fr_ProcessingTypes AS ProcessingTypes_0;
+CREATE VIEW localized_fr_ModelingService_FunctionProcessingTypes AS SELECT
+  FunctionProcessingTypes_0.name,
+  FunctionProcessingTypes_0.descr,
+  FunctionProcessingTypes_0.code
+FROM localized_fr_FunctionProcessingTypes AS FunctionProcessingTypes_0;
 
-CREATE VIEW localized_de_ModelingService_BusinessEventTypes AS SELECT
-  BusinessEventTypes_0.name,
-  BusinessEventTypes_0.descr,
-  BusinessEventTypes_0.code
-FROM localized_de_BusinessEventTypes AS BusinessEventTypes_0;
+CREATE VIEW localized_de_ModelingService_FunctionBusinessEventTypes AS SELECT
+  FunctionBusinessEventTypes_0.name,
+  FunctionBusinessEventTypes_0.descr,
+  FunctionBusinessEventTypes_0.code
+FROM localized_de_FunctionBusinessEventTypes AS FunctionBusinessEventTypes_0;
 
-CREATE VIEW localized_fr_ModelingService_BusinessEventTypes AS SELECT
-  BusinessEventTypes_0.name,
-  BusinessEventTypes_0.descr,
-  BusinessEventTypes_0.code
-FROM localized_fr_BusinessEventTypes AS BusinessEventTypes_0;
+CREATE VIEW localized_fr_ModelingService_FunctionBusinessEventTypes AS SELECT
+  FunctionBusinessEventTypes_0.name,
+  FunctionBusinessEventTypes_0.descr,
+  FunctionBusinessEventTypes_0.code
+FROM localized_fr_FunctionBusinessEventTypes AS FunctionBusinessEventTypes_0;
 
 CREATE VIEW localized_de_ModelingService_AllocationTypes AS SELECT
   AllocationTypes_0.name,
@@ -7465,7 +8027,7 @@ FROM localized_de_Partitions AS Partitions_0
 WHERE Partitions_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_fr_EnvironmentPartitions AS SELECT
   Partitions_0.createdAt,
@@ -7481,21 +8043,7 @@ FROM localized_fr_Partitions AS Partitions_0
 WHERE Partitions_0.environment_ID IN (SELECT
     ConnectionEnvironments_1.environment
   FROM ConnectionEnvironments AS ConnectionEnvironments_1
-  WHERE ConnectionEnvironments_1.connection = 'SXP');
-
-CREATE VIEW localized_de_AllocationRuleDriverResultFields AS SELECT
-  AllocationActionFields_0.ID,
-  AllocationActionFields_0.allocation_ID,
-  AllocationActionFields_0.field_ID
-FROM (localized_de_AllocationActionFields AS AllocationActionFields_0 LEFT JOIN localized_de_Fields AS field_1 ON AllocationActionFields_0.field_ID = field_1.ID)
-WHERE field_1.class_code = '' AND field_1.type_code = 'KYF';
-
-CREATE VIEW localized_fr_AllocationRuleDriverResultFields AS SELECT
-  AllocationActionFields_0.ID,
-  AllocationActionFields_0.allocation_ID,
-  AllocationActionFields_0.field_ID
-FROM (localized_fr_AllocationActionFields AS AllocationActionFields_0 LEFT JOIN localized_fr_Fields AS field_1 ON AllocationActionFields_0.field_ID = field_1.ID)
-WHERE field_1.class_code = '' AND field_1.type_code = 'KYF';
+  WHERE ConnectionEnvironments_1.connection = '1');
 
 CREATE VIEW localized_de_ModelingService_Functions AS SELECT
   functions_0.createdAt,
@@ -7506,7 +8054,7 @@ CREATE VIEW localized_de_ModelingService_Functions AS SELECT
   functions_0.ID,
   functions_0.function,
   functions_0.sequence,
-  functions_0.parentFunction_ID,
+  functions_0.parent_ID,
   functions_0.type_code,
   functions_0.processingType_code,
   functions_0.businessEventType_code,
@@ -7525,7 +8073,7 @@ CREATE VIEW localized_fr_ModelingService_Functions AS SELECT
   functions_0.ID,
   functions_0.function,
   functions_0.sequence,
-  functions_0.parentFunction_ID,
+  functions_0.parent_ID,
   functions_0.type_code,
   functions_0.processingType_code,
   functions_0.businessEventType_code,
@@ -7534,68 +8082,6 @@ CREATE VIEW localized_fr_ModelingService_Functions AS SELECT
   functions_0.description,
   functions_0.documentation
 FROM localized_fr_Functions AS functions_0;
-
-CREATE VIEW localized_de_ModelingService_Allocations AS SELECT
-  allocations_0.createdAt,
-  allocations_0.createdBy,
-  allocations_0.modifiedAt,
-  allocations_0.modifiedBy,
-  allocations_0.environment_ID,
-  allocations_0.function_ID,
-  allocations_0.ID,
-  allocations_0.type_code,
-  allocations_0.valueAdjustment_code,
-  allocations_0.includeInputData,
-  allocations_0.resultHandling_code,
-  allocations_0.includeInitialResult,
-  allocations_0.cycleFlag,
-  allocations_0.cycleMaximum,
-  allocations_0.cycleIterationField_ID,
-  allocations_0.cycleAggregation_code,
-  allocations_0.termFlag,
-  allocations_0.termIterationField_ID,
-  allocations_0.termYearField_ID,
-  allocations_0.termField_ID,
-  allocations_0.termProcessing_code,
-  allocations_0.termYear,
-  allocations_0.termMinimum,
-  allocations_0.termMaximum,
-  allocations_0.senderFunction_ID,
-  allocations_0.receiverFunction_ID,
-  allocations_0.resultFunction_ID,
-  allocations_0.earlyExitCheck_ID
-FROM localized_de_Allocations AS allocations_0;
-
-CREATE VIEW localized_fr_ModelingService_Allocations AS SELECT
-  allocations_0.createdAt,
-  allocations_0.createdBy,
-  allocations_0.modifiedAt,
-  allocations_0.modifiedBy,
-  allocations_0.environment_ID,
-  allocations_0.function_ID,
-  allocations_0.ID,
-  allocations_0.type_code,
-  allocations_0.valueAdjustment_code,
-  allocations_0.includeInputData,
-  allocations_0.resultHandling_code,
-  allocations_0.includeInitialResult,
-  allocations_0.cycleFlag,
-  allocations_0.cycleMaximum,
-  allocations_0.cycleIterationField_ID,
-  allocations_0.cycleAggregation_code,
-  allocations_0.termFlag,
-  allocations_0.termIterationField_ID,
-  allocations_0.termYearField_ID,
-  allocations_0.termField_ID,
-  allocations_0.termProcessing_code,
-  allocations_0.termYear,
-  allocations_0.termMinimum,
-  allocations_0.termMaximum,
-  allocations_0.senderFunction_ID,
-  allocations_0.receiverFunction_ID,
-  allocations_0.resultFunction_ID,
-  allocations_0.earlyExitCheck_ID
-FROM localized_fr_Allocations AS allocations_0;
 
 CREATE VIEW localized_de_ModelingService_Environments AS SELECT
   environments_0.createdAt,
@@ -7695,6 +8181,68 @@ CREATE VIEW localized_fr_ModelingService_Checks AS SELECT
   checks_0.description
 FROM localized_fr_Checks AS checks_0;
 
+CREATE VIEW localized_de_ModelingService_Allocations AS SELECT
+  allocations_0.createdAt,
+  allocations_0.createdBy,
+  allocations_0.modifiedAt,
+  allocations_0.modifiedBy,
+  allocations_0.environment_ID,
+  allocations_0.function_ID,
+  allocations_0.ID,
+  allocations_0.type_code,
+  allocations_0.valueAdjustment_code,
+  allocations_0.includeInputData,
+  allocations_0.resultHandling_code,
+  allocations_0.includeInitialResult,
+  allocations_0.cycleFlag,
+  allocations_0.cycleMaximum,
+  allocations_0.cycleIterationField_ID,
+  allocations_0.cycleAggregation_code,
+  allocations_0.termFlag,
+  allocations_0.termIterationField_ID,
+  allocations_0.termYearField_ID,
+  allocations_0.termField_ID,
+  allocations_0.termProcessing_code,
+  allocations_0.termYear,
+  allocations_0.termMinimum,
+  allocations_0.termMaximum,
+  allocations_0.senderFunction_ID,
+  allocations_0.receiverFunction_ID,
+  allocations_0.resultFunction_ID,
+  allocations_0.earlyExitCheck_ID
+FROM localized_de_Allocations AS allocations_0;
+
+CREATE VIEW localized_fr_ModelingService_Allocations AS SELECT
+  allocations_0.createdAt,
+  allocations_0.createdBy,
+  allocations_0.modifiedAt,
+  allocations_0.modifiedBy,
+  allocations_0.environment_ID,
+  allocations_0.function_ID,
+  allocations_0.ID,
+  allocations_0.type_code,
+  allocations_0.valueAdjustment_code,
+  allocations_0.includeInputData,
+  allocations_0.resultHandling_code,
+  allocations_0.includeInitialResult,
+  allocations_0.cycleFlag,
+  allocations_0.cycleMaximum,
+  allocations_0.cycleIterationField_ID,
+  allocations_0.cycleAggregation_code,
+  allocations_0.termFlag,
+  allocations_0.termIterationField_ID,
+  allocations_0.termYearField_ID,
+  allocations_0.termField_ID,
+  allocations_0.termProcessing_code,
+  allocations_0.termYear,
+  allocations_0.termMinimum,
+  allocations_0.termMaximum,
+  allocations_0.senderFunction_ID,
+  allocations_0.receiverFunction_ID,
+  allocations_0.resultFunction_ID,
+  allocations_0.earlyExitCheck_ID
+FROM localized_fr_Allocations AS allocations_0;
+
 CREATE VIEW localized_de_ModelingService_ModelTables AS SELECT
   modelTables_0.createdAt,
   modelTables_0.createdBy,
@@ -7782,6 +8330,8 @@ CREATE VIEW localized_de_ModelingService_AllocationRuleSenderViews AS SELECT
   AllocationRuleSenderViews_0.createdBy,
   AllocationRuleSenderViews_0.modifiedAt,
   AllocationRuleSenderViews_0.modifiedBy,
+  AllocationRuleSenderViews_0.environment_ID,
+  AllocationRuleSenderViews_0.function_ID,
   AllocationRuleSenderViews_0.formula,
   AllocationRuleSenderViews_0.group_code,
   AllocationRuleSenderViews_0.order_code,
@@ -7795,6 +8345,8 @@ CREATE VIEW localized_fr_ModelingService_AllocationRuleSenderViews AS SELECT
   AllocationRuleSenderViews_0.createdBy,
   AllocationRuleSenderViews_0.modifiedAt,
   AllocationRuleSenderViews_0.modifiedBy,
+  AllocationRuleSenderViews_0.environment_ID,
+  AllocationRuleSenderViews_0.function_ID,
   AllocationRuleSenderViews_0.formula,
   AllocationRuleSenderViews_0.group_code,
   AllocationRuleSenderViews_0.order_code,
@@ -7808,6 +8360,8 @@ CREATE VIEW localized_de_ModelingService_AllocationRules AS SELECT
   AllocationRules_0.createdBy,
   AllocationRules_0.modifiedAt,
   AllocationRules_0.modifiedBy,
+  AllocationRules_0.environment_ID,
+  AllocationRules_0.function_ID,
   AllocationRules_0.ID,
   AllocationRules_0.allocation_ID,
   AllocationRules_0.sequence,
@@ -7830,6 +8384,8 @@ CREATE VIEW localized_fr_ModelingService_AllocationRules AS SELECT
   AllocationRules_0.createdBy,
   AllocationRules_0.modifiedAt,
   AllocationRules_0.modifiedBy,
+  AllocationRules_0.environment_ID,
+  AllocationRules_0.function_ID,
   AllocationRules_0.ID,
   AllocationRules_0.allocation_ID,
   AllocationRules_0.sequence,
@@ -7944,6 +8500,8 @@ CREATE VIEW localized_de_ModelingService_AllocationRuleSenderFieldSelections AS 
   AllocationRuleSenderFieldSelections_0.createdBy,
   AllocationRuleSenderFieldSelections_0.modifiedAt,
   AllocationRuleSenderFieldSelections_0.modifiedBy,
+  AllocationRuleSenderFieldSelections_0.environment_ID,
+  AllocationRuleSenderFieldSelections_0.function_ID,
   AllocationRuleSenderFieldSelections_0.seq,
   AllocationRuleSenderFieldSelections_0.sign_code,
   AllocationRuleSenderFieldSelections_0.opt_code,
@@ -7958,6 +8516,8 @@ CREATE VIEW localized_fr_ModelingService_AllocationRuleSenderFieldSelections AS 
   AllocationRuleSenderFieldSelections_0.createdBy,
   AllocationRuleSenderFieldSelections_0.modifiedAt,
   AllocationRuleSenderFieldSelections_0.modifiedBy,
+  AllocationRuleSenderFieldSelections_0.environment_ID,
+  AllocationRuleSenderFieldSelections_0.function_ID,
   AllocationRuleSenderFieldSelections_0.seq,
   AllocationRuleSenderFieldSelections_0.sign_code,
   AllocationRuleSenderFieldSelections_0.opt_code,
@@ -8064,48 +8624,96 @@ CREATE VIEW localized_fr_ModelingService_CalculationUnits AS SELECT
 FROM localized_fr_CalculationUnits AS calculationUnits_0;
 
 CREATE VIEW localized_de_ModelingService_AllocationSelectionFields AS SELECT
+  AllocationSelectionFields_0.createdAt,
+  AllocationSelectionFields_0.createdBy,
+  AllocationSelectionFields_0.modifiedAt,
+  AllocationSelectionFields_0.modifiedBy,
+  AllocationSelectionFields_0.environment_ID,
+  AllocationSelectionFields_0.function_ID,
   AllocationSelectionFields_0.ID,
   AllocationSelectionFields_0.allocation_ID,
   AllocationSelectionFields_0.field_ID
 FROM localized_de_AllocationSelectionFields AS AllocationSelectionFields_0;
 
 CREATE VIEW localized_fr_ModelingService_AllocationSelectionFields AS SELECT
+  AllocationSelectionFields_0.createdAt,
+  AllocationSelectionFields_0.createdBy,
+  AllocationSelectionFields_0.modifiedAt,
+  AllocationSelectionFields_0.modifiedBy,
+  AllocationSelectionFields_0.environment_ID,
+  AllocationSelectionFields_0.function_ID,
   AllocationSelectionFields_0.ID,
   AllocationSelectionFields_0.allocation_ID,
   AllocationSelectionFields_0.field_ID
 FROM localized_fr_AllocationSelectionFields AS AllocationSelectionFields_0;
 
 CREATE VIEW localized_de_ModelingService_AllocationActionFields AS SELECT
+  AllocationActionFields_0.createdAt,
+  AllocationActionFields_0.createdBy,
+  AllocationActionFields_0.modifiedAt,
+  AllocationActionFields_0.modifiedBy,
+  AllocationActionFields_0.environment_ID,
+  AllocationActionFields_0.function_ID,
   AllocationActionFields_0.ID,
   AllocationActionFields_0.allocation_ID,
   AllocationActionFields_0.field_ID
 FROM localized_de_AllocationActionFields AS AllocationActionFields_0;
 
 CREATE VIEW localized_fr_ModelingService_AllocationActionFields AS SELECT
+  AllocationActionFields_0.createdAt,
+  AllocationActionFields_0.createdBy,
+  AllocationActionFields_0.modifiedAt,
+  AllocationActionFields_0.modifiedBy,
+  AllocationActionFields_0.environment_ID,
+  AllocationActionFields_0.function_ID,
   AllocationActionFields_0.ID,
   AllocationActionFields_0.allocation_ID,
   AllocationActionFields_0.field_ID
 FROM localized_fr_AllocationActionFields AS AllocationActionFields_0;
 
 CREATE VIEW localized_de_ModelingService_AllocationReceiverSelectionFields AS SELECT
+  AllocationReceiverSelectionFields_0.createdAt,
+  AllocationReceiverSelectionFields_0.createdBy,
+  AllocationReceiverSelectionFields_0.modifiedAt,
+  AllocationReceiverSelectionFields_0.modifiedBy,
+  AllocationReceiverSelectionFields_0.environment_ID,
+  AllocationReceiverSelectionFields_0.function_ID,
   AllocationReceiverSelectionFields_0.ID,
   AllocationReceiverSelectionFields_0.allocation_ID,
   AllocationReceiverSelectionFields_0.field_ID
 FROM localized_de_AllocationReceiverSelectionFields AS AllocationReceiverSelectionFields_0;
 
 CREATE VIEW localized_fr_ModelingService_AllocationReceiverSelectionFields AS SELECT
+  AllocationReceiverSelectionFields_0.createdAt,
+  AllocationReceiverSelectionFields_0.createdBy,
+  AllocationReceiverSelectionFields_0.modifiedAt,
+  AllocationReceiverSelectionFields_0.modifiedBy,
+  AllocationReceiverSelectionFields_0.environment_ID,
+  AllocationReceiverSelectionFields_0.function_ID,
   AllocationReceiverSelectionFields_0.ID,
   AllocationReceiverSelectionFields_0.allocation_ID,
   AllocationReceiverSelectionFields_0.field_ID
 FROM localized_fr_AllocationReceiverSelectionFields AS AllocationReceiverSelectionFields_0;
 
 CREATE VIEW localized_de_ModelingService_AllocationReceiverActionFields AS SELECT
+  AllocationReceiverActionFields_0.createdAt,
+  AllocationReceiverActionFields_0.createdBy,
+  AllocationReceiverActionFields_0.modifiedAt,
+  AllocationReceiverActionFields_0.modifiedBy,
+  AllocationReceiverActionFields_0.environment_ID,
+  AllocationReceiverActionFields_0.function_ID,
   AllocationReceiverActionFields_0.ID,
   AllocationReceiverActionFields_0.allocation_ID,
   AllocationReceiverActionFields_0.field_ID
 FROM localized_de_AllocationReceiverActionFields AS AllocationReceiverActionFields_0;
 
 CREATE VIEW localized_fr_ModelingService_AllocationReceiverActionFields AS SELECT
+  AllocationReceiverActionFields_0.createdAt,
+  AllocationReceiverActionFields_0.createdBy,
+  AllocationReceiverActionFields_0.modifiedAt,
+  AllocationReceiverActionFields_0.modifiedBy,
+  AllocationReceiverActionFields_0.environment_ID,
+  AllocationReceiverActionFields_0.function_ID,
   AllocationReceiverActionFields_0.ID,
   AllocationReceiverActionFields_0.allocation_ID,
   AllocationReceiverActionFields_0.field_ID
@@ -8116,6 +8724,8 @@ CREATE VIEW localized_de_ModelingService_AllocationOffsets AS SELECT
   AllocationOffsets_0.createdBy,
   AllocationOffsets_0.modifiedAt,
   AllocationOffsets_0.modifiedBy,
+  AllocationOffsets_0.environment_ID,
+  AllocationOffsets_0.function_ID,
   AllocationOffsets_0.ID,
   AllocationOffsets_0.allocation_ID,
   AllocationOffsets_0.field_ID,
@@ -8127,6 +8737,8 @@ CREATE VIEW localized_fr_ModelingService_AllocationOffsets AS SELECT
   AllocationOffsets_0.createdBy,
   AllocationOffsets_0.modifiedAt,
   AllocationOffsets_0.modifiedBy,
+  AllocationOffsets_0.environment_ID,
+  AllocationOffsets_0.function_ID,
   AllocationOffsets_0.ID,
   AllocationOffsets_0.allocation_ID,
   AllocationOffsets_0.field_ID,
@@ -8138,6 +8750,8 @@ CREATE VIEW localized_de_ModelingService_AllocationDebitCredits AS SELECT
   AllocationDebitCredits_0.createdBy,
   AllocationDebitCredits_0.modifiedAt,
   AllocationDebitCredits_0.modifiedBy,
+  AllocationDebitCredits_0.environment_ID,
+  AllocationDebitCredits_0.function_ID,
   AllocationDebitCredits_0.ID,
   AllocationDebitCredits_0.allocation_ID,
   AllocationDebitCredits_0.field_ID,
@@ -8151,6 +8765,8 @@ CREATE VIEW localized_fr_ModelingService_AllocationDebitCredits AS SELECT
   AllocationDebitCredits_0.createdBy,
   AllocationDebitCredits_0.modifiedAt,
   AllocationDebitCredits_0.modifiedBy,
+  AllocationDebitCredits_0.environment_ID,
+  AllocationDebitCredits_0.function_ID,
   AllocationDebitCredits_0.ID,
   AllocationDebitCredits_0.allocation_ID,
   AllocationDebitCredits_0.field_ID,
@@ -8164,6 +8780,8 @@ CREATE VIEW localized_de_ModelingService_AllocationChecks AS SELECT
   AllocationChecks_0.createdBy,
   AllocationChecks_0.modifiedAt,
   AllocationChecks_0.modifiedBy,
+  AllocationChecks_0.environment_ID,
+  AllocationChecks_0.function_ID,
   AllocationChecks_0.ID,
   AllocationChecks_0.allocation_ID,
   AllocationChecks_0.check_ID
@@ -8174,10 +8792,36 @@ CREATE VIEW localized_fr_ModelingService_AllocationChecks AS SELECT
   AllocationChecks_0.createdBy,
   AllocationChecks_0.modifiedAt,
   AllocationChecks_0.modifiedBy,
+  AllocationChecks_0.environment_ID,
+  AllocationChecks_0.function_ID,
   AllocationChecks_0.ID,
   AllocationChecks_0.allocation_ID,
   AllocationChecks_0.check_ID
 FROM localized_fr_AllocationChecks AS AllocationChecks_0;
+
+CREATE VIEW localized_de_ModelingService_AllocationRuleSenderValueFields AS SELECT
+  AllocationRuleSenderValueFields_0.createdAt,
+  AllocationRuleSenderValueFields_0.createdBy,
+  AllocationRuleSenderValueFields_0.modifiedAt,
+  AllocationRuleSenderValueFields_0.modifiedBy,
+  AllocationRuleSenderValueFields_0.environment_ID,
+  AllocationRuleSenderValueFields_0.function_ID,
+  AllocationRuleSenderValueFields_0.ID,
+  AllocationRuleSenderValueFields_0.rule_ID,
+  AllocationRuleSenderValueFields_0.field_ID
+FROM localized_de_AllocationRuleSenderValueFields AS AllocationRuleSenderValueFields_0;
+
+CREATE VIEW localized_fr_ModelingService_AllocationRuleSenderValueFields AS SELECT
+  AllocationRuleSenderValueFields_0.createdAt,
+  AllocationRuleSenderValueFields_0.createdBy,
+  AllocationRuleSenderValueFields_0.modifiedAt,
+  AllocationRuleSenderValueFields_0.modifiedBy,
+  AllocationRuleSenderValueFields_0.environment_ID,
+  AllocationRuleSenderValueFields_0.function_ID,
+  AllocationRuleSenderValueFields_0.ID,
+  AllocationRuleSenderValueFields_0.rule_ID,
+  AllocationRuleSenderValueFields_0.field_ID
+FROM localized_fr_AllocationRuleSenderValueFields AS AllocationRuleSenderValueFields_0;
 
 CREATE VIEW localized_de_ModelingService_Partitions AS SELECT
   partitions_0.createdAt,
@@ -8381,26 +9025,6 @@ CREATE VIEW localized_fr_ModelingService_CheckFields AS SELECT
   CheckFields_0.field_ID
 FROM localized_fr_CheckFields AS CheckFields_0;
 
-CREATE VIEW localized_de_ModelingService_AllocationRuleSenderValueFields AS SELECT
-  AllocationRuleSenderValueFields_0.createdAt,
-  AllocationRuleSenderValueFields_0.createdBy,
-  AllocationRuleSenderValueFields_0.modifiedAt,
-  AllocationRuleSenderValueFields_0.modifiedBy,
-  AllocationRuleSenderValueFields_0.ID,
-  AllocationRuleSenderValueFields_0.rule_ID,
-  AllocationRuleSenderValueFields_0.field_ID
-FROM localized_de_AllocationRuleSenderValueFields AS AllocationRuleSenderValueFields_0;
-
-CREATE VIEW localized_fr_ModelingService_AllocationRuleSenderValueFields AS SELECT
-  AllocationRuleSenderValueFields_0.createdAt,
-  AllocationRuleSenderValueFields_0.createdBy,
-  AllocationRuleSenderValueFields_0.modifiedAt,
-  AllocationRuleSenderValueFields_0.modifiedBy,
-  AllocationRuleSenderValueFields_0.ID,
-  AllocationRuleSenderValueFields_0.rule_ID,
-  AllocationRuleSenderValueFields_0.field_ID
-FROM localized_fr_AllocationRuleSenderValueFields AS AllocationRuleSenderValueFields_0;
-
 CREATE VIEW localized_de_ModelingService_MasterDataQueries AS SELECT
   MasterDataQueries_0.createdAt,
   MasterDataQueries_0.createdBy,
@@ -8410,7 +9034,7 @@ CREATE VIEW localized_de_ModelingService_MasterDataQueries AS SELECT
   MasterDataQueries_0.ID,
   MasterDataQueries_0.function,
   MasterDataQueries_0.sequence,
-  MasterDataQueries_0.parentFunction_ID,
+  MasterDataQueries_0.parent_ID,
   MasterDataQueries_0.type_code,
   MasterDataQueries_0.processingType_code,
   MasterDataQueries_0.businessEventType_code,
@@ -8429,7 +9053,7 @@ CREATE VIEW localized_fr_ModelingService_MasterDataQueries AS SELECT
   MasterDataQueries_0.ID,
   MasterDataQueries_0.function,
   MasterDataQueries_0.sequence,
-  MasterDataQueries_0.parentFunction_ID,
+  MasterDataQueries_0.parent_ID,
   MasterDataQueries_0.type_code,
   MasterDataQueries_0.processingType_code,
   MasterDataQueries_0.businessEventType_code,
@@ -8439,43 +9063,43 @@ CREATE VIEW localized_fr_ModelingService_MasterDataQueries AS SELECT
   MasterDataQueries_0.documentation
 FROM localized_fr_MasterDataQueries AS MasterDataQueries_0;
 
-CREATE VIEW localized_de_ModelingService_ParentFunctions AS SELECT
-  ParentFunctions_0.createdAt,
-  ParentFunctions_0.createdBy,
-  ParentFunctions_0.modifiedAt,
-  ParentFunctions_0.modifiedBy,
-  ParentFunctions_0.environment_ID,
-  ParentFunctions_0.ID,
-  ParentFunctions_0.function,
-  ParentFunctions_0.sequence,
-  ParentFunctions_0.parentFunction_ID,
-  ParentFunctions_0.type_code,
-  ParentFunctions_0.processingType_code,
-  ParentFunctions_0.businessEventType_code,
-  ParentFunctions_0.partition_ID,
-  ParentFunctions_0.parentCalculationUnit_ID,
-  ParentFunctions_0.description,
-  ParentFunctions_0.documentation
-FROM localized_de_ParentFunctions AS ParentFunctions_0;
+CREATE VIEW localized_de_ModelingService_FunctionParents AS SELECT
+  FunctionParents_0.createdAt,
+  FunctionParents_0.createdBy,
+  FunctionParents_0.modifiedAt,
+  FunctionParents_0.modifiedBy,
+  FunctionParents_0.environment_ID,
+  FunctionParents_0.ID,
+  FunctionParents_0.function,
+  FunctionParents_0.sequence,
+  FunctionParents_0.parent_ID,
+  FunctionParents_0.type_code,
+  FunctionParents_0.processingType_code,
+  FunctionParents_0.businessEventType_code,
+  FunctionParents_0.partition_ID,
+  FunctionParents_0.parentCalculationUnit_ID,
+  FunctionParents_0.description,
+  FunctionParents_0.documentation
+FROM localized_de_FunctionParents AS FunctionParents_0;
 
-CREATE VIEW localized_fr_ModelingService_ParentFunctions AS SELECT
-  ParentFunctions_0.createdAt,
-  ParentFunctions_0.createdBy,
-  ParentFunctions_0.modifiedAt,
-  ParentFunctions_0.modifiedBy,
-  ParentFunctions_0.environment_ID,
-  ParentFunctions_0.ID,
-  ParentFunctions_0.function,
-  ParentFunctions_0.sequence,
-  ParentFunctions_0.parentFunction_ID,
-  ParentFunctions_0.type_code,
-  ParentFunctions_0.processingType_code,
-  ParentFunctions_0.businessEventType_code,
-  ParentFunctions_0.partition_ID,
-  ParentFunctions_0.parentCalculationUnit_ID,
-  ParentFunctions_0.description,
-  ParentFunctions_0.documentation
-FROM localized_fr_ParentFunctions AS ParentFunctions_0;
+CREATE VIEW localized_fr_ModelingService_FunctionParents AS SELECT
+  FunctionParents_0.createdAt,
+  FunctionParents_0.createdBy,
+  FunctionParents_0.modifiedAt,
+  FunctionParents_0.modifiedBy,
+  FunctionParents_0.environment_ID,
+  FunctionParents_0.ID,
+  FunctionParents_0.function,
+  FunctionParents_0.sequence,
+  FunctionParents_0.parent_ID,
+  FunctionParents_0.type_code,
+  FunctionParents_0.processingType_code,
+  FunctionParents_0.businessEventType_code,
+  FunctionParents_0.partition_ID,
+  FunctionParents_0.parentCalculationUnit_ID,
+  FunctionParents_0.description,
+  FunctionParents_0.documentation
+FROM localized_fr_FunctionParents AS FunctionParents_0;
 
 CREATE VIEW localized_de_ModelingService_AllocationResultFunctions AS SELECT
   AllocationResultFunctions_0.createdAt,
@@ -8486,7 +9110,7 @@ CREATE VIEW localized_de_ModelingService_AllocationResultFunctions AS SELECT
   AllocationResultFunctions_0.ID,
   AllocationResultFunctions_0.function,
   AllocationResultFunctions_0.sequence,
-  AllocationResultFunctions_0.parentFunction_ID,
+  AllocationResultFunctions_0.parent_ID,
   AllocationResultFunctions_0.type_code,
   AllocationResultFunctions_0.processingType_code,
   AllocationResultFunctions_0.businessEventType_code,
@@ -8505,7 +9129,7 @@ CREATE VIEW localized_fr_ModelingService_AllocationResultFunctions AS SELECT
   AllocationResultFunctions_0.ID,
   AllocationResultFunctions_0.function,
   AllocationResultFunctions_0.sequence,
-  AllocationResultFunctions_0.parentFunction_ID,
+  AllocationResultFunctions_0.parent_ID,
   AllocationResultFunctions_0.type_code,
   AllocationResultFunctions_0.processingType_code,
   AllocationResultFunctions_0.businessEventType_code,
@@ -8586,6 +9210,52 @@ CREATE VIEW localized_fr_ModelingService_UnitFields AS SELECT
   UnitFields_0.description,
   UnitFields_0.documentation
 FROM localized_fr_UnitFields AS UnitFields_0;
+
+CREATE VIEW localized_de_ModelingService_AllocationCycleIterationFields AS SELECT
+  AllocationCycleIterationFields_0.createdAt,
+  AllocationCycleIterationFields_0.createdBy,
+  AllocationCycleIterationFields_0.modifiedAt,
+  AllocationCycleIterationFields_0.modifiedBy,
+  AllocationCycleIterationFields_0.environment_ID,
+  AllocationCycleIterationFields_0.ID,
+  AllocationCycleIterationFields_0.field,
+  AllocationCycleIterationFields_0.class_code,
+  AllocationCycleIterationFields_0.type_code,
+  AllocationCycleIterationFields_0.hanaDataType_code,
+  AllocationCycleIterationFields_0.dataLength,
+  AllocationCycleIterationFields_0.dataDecimals,
+  AllocationCycleIterationFields_0.unitField_ID,
+  AllocationCycleIterationFields_0.isLowercase,
+  AllocationCycleIterationFields_0.hasMasterData,
+  AllocationCycleIterationFields_0.hasHierarchies,
+  AllocationCycleIterationFields_0.calculationHierarchy_ID,
+  AllocationCycleIterationFields_0.masterDataQuery_ID,
+  AllocationCycleIterationFields_0.description,
+  AllocationCycleIterationFields_0.documentation
+FROM localized_de_AllocationCycleIterationFields AS AllocationCycleIterationFields_0;
+
+CREATE VIEW localized_fr_ModelingService_AllocationCycleIterationFields AS SELECT
+  AllocationCycleIterationFields_0.createdAt,
+  AllocationCycleIterationFields_0.createdBy,
+  AllocationCycleIterationFields_0.modifiedAt,
+  AllocationCycleIterationFields_0.modifiedBy,
+  AllocationCycleIterationFields_0.environment_ID,
+  AllocationCycleIterationFields_0.ID,
+  AllocationCycleIterationFields_0.field,
+  AllocationCycleIterationFields_0.class_code,
+  AllocationCycleIterationFields_0.type_code,
+  AllocationCycleIterationFields_0.hanaDataType_code,
+  AllocationCycleIterationFields_0.dataLength,
+  AllocationCycleIterationFields_0.dataDecimals,
+  AllocationCycleIterationFields_0.unitField_ID,
+  AllocationCycleIterationFields_0.isLowercase,
+  AllocationCycleIterationFields_0.hasMasterData,
+  AllocationCycleIterationFields_0.hasHierarchies,
+  AllocationCycleIterationFields_0.calculationHierarchy_ID,
+  AllocationCycleIterationFields_0.masterDataQuery_ID,
+  AllocationCycleIterationFields_0.description,
+  AllocationCycleIterationFields_0.documentation
+FROM localized_fr_AllocationCycleIterationFields AS AllocationCycleIterationFields_0;
 
 CREATE VIEW localized_de_ModelingService_AllocationTermIterationFields AS SELECT
   AllocationTermIterationFields_0.createdAt,
@@ -8725,6 +9395,52 @@ CREATE VIEW localized_fr_ModelingService_AllocationTermFields AS SELECT
   AllocationTermFields_0.documentation
 FROM localized_fr_AllocationTermFields AS AllocationTermFields_0;
 
+CREATE VIEW localized_de_ModelingService_AllocationRuleDriverResultFields AS SELECT
+  AllocationRuleDriverResultFields_0.createdAt,
+  AllocationRuleDriverResultFields_0.createdBy,
+  AllocationRuleDriverResultFields_0.modifiedAt,
+  AllocationRuleDriverResultFields_0.modifiedBy,
+  AllocationRuleDriverResultFields_0.environment_ID,
+  AllocationRuleDriverResultFields_0.ID,
+  AllocationRuleDriverResultFields_0.field,
+  AllocationRuleDriverResultFields_0.class_code,
+  AllocationRuleDriverResultFields_0.type_code,
+  AllocationRuleDriverResultFields_0.hanaDataType_code,
+  AllocationRuleDriverResultFields_0.dataLength,
+  AllocationRuleDriverResultFields_0.dataDecimals,
+  AllocationRuleDriverResultFields_0.unitField_ID,
+  AllocationRuleDriverResultFields_0.isLowercase,
+  AllocationRuleDriverResultFields_0.hasMasterData,
+  AllocationRuleDriverResultFields_0.hasHierarchies,
+  AllocationRuleDriverResultFields_0.calculationHierarchy_ID,
+  AllocationRuleDriverResultFields_0.masterDataQuery_ID,
+  AllocationRuleDriverResultFields_0.description,
+  AllocationRuleDriverResultFields_0.documentation
+FROM localized_de_AllocationRuleDriverResultFields AS AllocationRuleDriverResultFields_0;
+
+CREATE VIEW localized_fr_ModelingService_AllocationRuleDriverResultFields AS SELECT
+  AllocationRuleDriverResultFields_0.createdAt,
+  AllocationRuleDriverResultFields_0.createdBy,
+  AllocationRuleDriverResultFields_0.modifiedAt,
+  AllocationRuleDriverResultFields_0.modifiedBy,
+  AllocationRuleDriverResultFields_0.environment_ID,
+  AllocationRuleDriverResultFields_0.ID,
+  AllocationRuleDriverResultFields_0.field,
+  AllocationRuleDriverResultFields_0.class_code,
+  AllocationRuleDriverResultFields_0.type_code,
+  AllocationRuleDriverResultFields_0.hanaDataType_code,
+  AllocationRuleDriverResultFields_0.dataLength,
+  AllocationRuleDriverResultFields_0.dataDecimals,
+  AllocationRuleDriverResultFields_0.unitField_ID,
+  AllocationRuleDriverResultFields_0.isLowercase,
+  AllocationRuleDriverResultFields_0.hasMasterData,
+  AllocationRuleDriverResultFields_0.hasHierarchies,
+  AllocationRuleDriverResultFields_0.calculationHierarchy_ID,
+  AllocationRuleDriverResultFields_0.masterDataQuery_ID,
+  AllocationRuleDriverResultFields_0.description,
+  AllocationRuleDriverResultFields_0.documentation
+FROM localized_fr_AllocationRuleDriverResultFields AS AllocationRuleDriverResultFields_0;
+
 CREATE VIEW localized_de_ModelingService_AllocationEarlyExitChecks AS SELECT
   AllocationEarlyExitChecks_0.createdAt,
   AllocationEarlyExitChecks_0.createdBy,
@@ -8764,15 +9480,3 @@ CREATE VIEW localized_fr_ModelingService_AllocationInputFunctions AS SELECT
   AllocationInputFunctions_0.description,
   AllocationInputFunctions_0.type_code
 FROM localized_fr_AllocationInputFunctions AS AllocationInputFunctions_0;
-
-CREATE VIEW localized_de_ModelingService_AllocationRuleDriverResultFields AS SELECT
-  AllocationRuleDriverResultFields_0.ID,
-  AllocationRuleDriverResultFields_0.allocation_ID,
-  AllocationRuleDriverResultFields_0.field_ID
-FROM localized_de_AllocationRuleDriverResultFields AS AllocationRuleDriverResultFields_0;
-
-CREATE VIEW localized_fr_ModelingService_AllocationRuleDriverResultFields AS SELECT
-  AllocationRuleDriverResultFields_0.ID,
-  AllocationRuleDriverResultFields_0.allocation_ID,
-  AllocationRuleDriverResultFields_0.field_ID
-FROM localized_fr_AllocationRuleDriverResultFields AS AllocationRuleDriverResultFields_0;

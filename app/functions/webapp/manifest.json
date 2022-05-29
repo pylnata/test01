@@ -38,7 +38,11 @@
             "inbounds": {
                 "functions-inbound": {
                     "signature": {
-                        "parameters": {},
+                        "parameters": {
+                            "ID": {
+                                "renameTo": "parent_ID"
+                            }
+                        },
                         "additionalParameters": "allowed"
                     },
                     "semanticObject": "functions",
