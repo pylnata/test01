@@ -23,35 +23,31 @@ using {Functions} from './functions';
 using {Fields} from './fields';
 using {Checks} from './checks';
 
-aspect myCodeList @(
-  cds.autoexpose,
-  cds.persistence.skip : 'if-unused',
-  cds.odata.valuelist,
-// UI.Identification    : [{Value : name}],
-) {
-  name  : String(255)  @title : '{i18n>Name}';
-  descr : String(1000) @title : '{i18n>Description}';
-}
+// aspect myCodeList @(
+//   cds.autoexpose,
+//   cds.persistence.skip : 'if-unused',
+//   cds.odata.valuelist,
+// // UI.Identification    : [{Value : name}],
+// ) {
+//   name  : String(255)  @title : '{i18n>Name}';
+//   descr : String(1000) @title : '{i18n>Description}';
+// }
 
 // @cds.persistence.journal // Enable schema evolution for all environment configuration tables
 aspect environment : {
-  environment : Association to one Environments @title : 'Environment'  @mandatory;
+  environment : Association to one Environments @title : 'Environment' ;
 }
 
 aspect function : environment {
-  function : Association to one Functions @title : 'Function'  @mandatory;
-}
-
-aspect keyFunction : environment {
-  key function : Association to one Functions @mandatory;
+  function : Association to one Functions @title : 'Function';
 }
 
 aspect field : environment {
-  field : Association to one Fields @mandatory;
+  field : Association to one Fields;
 }
 
 aspect check : environment {
-  check : Association to one Checks @mandatory;
+  check : Association to one Checks;
 }
 
 aspect formula {

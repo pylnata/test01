@@ -82,7 +82,7 @@
           "format": "cloudevents"
         }
       },
-      "xxxdb": {
+      "db": {
         "kind": "hana-cloud"
       }
     },

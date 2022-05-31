@@ -70,6 +70,10 @@ annotate service.Functions with @(
                 $Type : 'UI.DataField',
                 Value : documentation,
             },
+            {
+                $Type : 'UI.DataField',
+                Value : environment_ID,
+            },
         ],
     },
     UI.Facets : [
@@ -87,7 +91,7 @@ annotate service.Functions with @(
         parent_ID,]
 );
 annotate service.Functions with {
-    environment @Common.Text : description
+    environment @Common.Text : environment.description
 };
 annotate service.Functions with {
     environment @(Common.ValueList : {

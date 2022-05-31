@@ -18,7 +18,7 @@ type Partition : String @title : 'Partition'  @assert.format : '[A-Z,0-9,_]{1,20
 type Conversion : String @title : 'Conversion'  @assert.format : '[A-Z,0-9,_]{1,10}' @Common.IsUpperCase;
 type Description : String @title : 'Description'  @mandatory  @assert.notNull; //  @Core.Immutable woud bring it up in creation popup as well
 type Documentation : LargeString @title : 'Documentation';
-type Sequence : Integer @title : 'Sequence'  @mandatory  @assert.notNull;
+type Sequence : Integer @title : 'Sequence';
 type Rule : String @title : 'Rule'  @assert.format : '[A-Z,0-9,_]{1,5}' @Common.IsUpperCase;
 type ParentRule : Rule @title : 'Parent Rule';
 type IncludeInputData : Boolean @title : 'Include original Input Data';

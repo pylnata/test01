@@ -23,7 +23,6 @@ using {
 } from './commonTypes';
 using {
     function,
-    keyFunction,
     field,
     formulaOrder,
     selection,

@@ -1,10 +1,10 @@
-ID;ENVIRONMENT_ID;FIELD_ID;VALUE;ISNODE;DESCRIPTION
-1;1;1;;ROOT;true;All Accounts
-2;1;1;;AC1;false;Account 1
-3;1;1;;AC2;false;Account 2
-4;1;1;;AC3;false;Account 3
-5;1;1;;AC4;false;Account 4
-6;1;1;;AC5;false;Account 5
-7;1;2;;PC1;false;Profit 1
-8;1;2;;PC2;false;Profit 2
-9;1;2;;PC3;false;Profit 3
+ID;ENVIRONMENT_ID;FIELD_ID;VALUE;DESCRIPTION;ISNODE
+1;1;1;ROOT;All Accounts;true
+2;1;1;AC1;Account 1;false
+3;1;1;AC2;Account 2;false
+4;1;1;AC3;Account 3;false
+5;1;1;AC4;Account 4;false
+6;1;1;AC5;Account 5;false
+7;1;2;PC1;Profit 1;false
+8;1;2;PC2;Profit 2;false
+9;1;2;PC3;Profit 3;false
