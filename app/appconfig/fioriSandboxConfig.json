@@ -1,67 +1,66 @@
 {
-    "services": {
-      "LaunchPage": {
-        "adapter": {
-          "config": {
-            "catalogs": [],
-            "groups": [
-              {
-                "id": "Apps",
-                "title": "Apps",
-                "isPreset": true,
-                "isVisible": true,
-                "isGroupLocked": false,
-                "tiles": [
-                  {
-                    "id": "Environments",
-                    "tileType": "sap.ushell.ui.tile.StaticTile",
-                    "properties": {
-                      "title": "Environments",
-                      "info": "Fiori Elements",
-                      "targetURL": "#Environments-manage?HasActiveEntity=false&ID=&IsActiveEntity=true&code=NODE"                      
-                    }
-                  },
-                  {
-                    "id": "Functions",
-                    "tileType": "sap.ushell.ui.tile.StaticTile",
-                    "properties": {
-                      "title": "Functions",
-                      "info": "Fiori Elements",
-                      "targetURL": "#Functions-manage"                      
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      },
-      "NavTargetResolution": {
+  "services": {
+    "LaunchPage": {
+      "adapter": {
         "config": {
-          "enableClientSideTargetResolution": true
-        }
-      },
-      "ClientSideTargetResolution": {
-        "adapter": {
-          "config": {
-            "inbounds": {
-              "Admin": {
-                "semanticObject": "Environments",
-                "action": "manage",
-                "title": "Environments",
-                "signature": {
-                  "parameters": {
-                    "ID": {
-                      "renameTo": "parent_ID"
-                    }
-                  },
-                  "additionalParameters": "ignored"
+          "catalogs": [],
+          "groups": [
+            {
+              "id": "Apps",
+              "title": "Apps",
+              "isPreset": true,
+              "isVisible": true,
+              "isGroupLocked": false,
+              "tiles": [
+                {
+                  "id": "Environments",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Environments",
+                    "info": "Fiori Elements",
+                    "targetURL": "#Environments-manage?HasActiveEntity=false&ID=&IsActiveEntity=true&code=NODE"
+                  }
                 },
-                "resolutionResult": {
-                  "applicationType": "SAPUI5",
-                  "additionalInformation": "SAPUI5.Component=environments",
-                  "url": "./environments/webapp"
+                {
+                  "id": "Functions",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Functions",
+                    "info": "Fiori Elements",
+                    "targetURL": "#Functions-manage"
+                  }
                 }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "NavTargetResolution": {
+      "config": {
+        "enableClientSideTargetResolution": true
+      }
+    },
+    "ClientSideTargetResolution": {
+      "adapter": {
+        "config": {
+          "inbounds": {
+            "Admin": {
+              "semanticObject": "Environments",
+              "action": "manage",
+              "title": "Environments",
+              "signature": {
+                "parameters": {
+                  "ID": {
+                    "renameTo": "parent_ID"
+                  }
+                },
+                "additionalParameters": "ignored"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=environments",
+                "url": "./environments/webapp"
               }
             }
           }
@@ -69,3 +68,4 @@
       }
     }
   }
+}
