@@ -1,0 +1,184 @@
+{
+    "_version": "1.12.0",
+    "sap.app": {
+        "id": "modeltables",
+        "type": "application",
+        "i18n": "i18n/i18n.properties",
+        "applicationVersion": {
+            "version": "0.0.1"
+        },
+        "title": "{{appTitle}}",
+        "description": "{{appDescription}}",
+        "resources": "resources.json",
+        "sourceTemplate": {
+            "id": "@sap-ux/fiori-elements-writer:lrop",
+            "version": "0.1.9"
+        },
+        "dataSources": {
+            "mainService": {
+                "uri": "/service/modeling/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [
+                        "annotation"
+                    ],
+                    "localUri": "localService/metadata.xml",
+                    "odataVersion": "4.0"
+                }
+            },
+            "annotation": {
+                "type": "ODataAnnotation",
+                "uri": "annotations/annotation.xml",
+                "settings": {
+                    "localUri": "annotations/annotation.xml"
+                }
+            }
+        },
+        "crossNavigation": {
+            "inbounds": {
+                "modeltables-inbound": {
+                    "signature": {
+                        "parameters": {},
+                        "additionalParameters": "allowed"
+                    },
+                    "semanticObject": "Modeltable",
+                    "action": "manage",
+                    "title": "{{flpTitle}}",
+                    "subTitle": "{{flpSubtitle}}",
+                    "icon": ""
+                }
+            }
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "icons": {
+            "icon": "",
+            "favIcon": "",
+            "phone": "",
+            "phone@2": "",
+            "tablet": "",
+            "tablet@2": ""
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "flexEnabled": true,
+        "dependencies": {
+            "minUI5Version": "1.101.0",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.ushell": {},
+                "sap.fe.templates": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "modeltables.i18n.i18n"
+                }
+            },
+            "": {
+                "dataSource": "mainService",
+                "preload": true,
+                "settings": {
+                    "synchronizationMode": "None",
+                    "operationMode": "Server",
+                    "autoExpandSelect": true,
+                    "earlyRequests": true,
+                    "groupId": "$direct"
+                }
+            },
+            "@i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "uri": "i18n/i18n.properties"
+            }
+        },
+        "resources": {
+            "css": []
+        },
+        "routing": {
+            "config": {},
+            "routes": [
+                {
+                    "pattern": ":?query:",
+                    "name": "ModelTablesList",
+                    "target": "ModelTablesList"
+                },
+                {
+                    "pattern": "ModelTables({key}):?query:",
+                    "name": "ModelTablesObjectPage",
+                    "target": "ModelTablesObjectPage"
+                },
+                {
+                    "pattern": "ModelTables({key})/fields({key2}):?query:",
+                    "name": "ModelTableFieldsObjectPage",
+                    "target": "ModelTableFieldsObjectPage"
+                }
+            ],
+            "targets": {
+                "ModelTablesList": {
+                    "type": "Component",
+                    "id": "ModelTablesList",
+                    "name": "sap.fe.templates.ListReport",
+                    "options": {
+                        "settings": {
+                            "entitySet": "ModelTables",
+                            "variantManagement": "Page",
+                            "navigation": {
+                                "ModelTables": {
+                                    "detail": {
+                                        "route": "ModelTablesObjectPage"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "ModelTablesObjectPage": {
+                    "type": "Component",
+                    "id": "ModelTablesObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "entitySet": "ModelTables",
+                            "navigation": {
+                                "fields": {
+                                    "detail": {
+                                        "route": "ModelTableFieldsObjectPage"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "ModelTableFieldsObjectPage": {
+                    "type": "Component",
+                    "id": "ModelTableFieldsObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "entitySet": "ModelTableFields"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "sap.fiori": {
+        "registrationIds": [],
+        "archeType": "transactional"
+    }
+}

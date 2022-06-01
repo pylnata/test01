@@ -13,4 +13,5 @@ using {function} from './commonAspects';
 
 entity CalculationUnits : managed, function {
     key ID : GUID @Common.Text : function.description  @Common.TextArrangement : #TextOnly;
+    dummy: String;
 }

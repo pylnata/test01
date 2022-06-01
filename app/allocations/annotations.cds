@@ -1132,3 +1132,9 @@ annotate service.Allocations with {
         Common.ValueListWithFixedValues : false
     )
 };
+annotate service.Allocations with @(
+    UI.SelectionFields : [
+        environment_ID,
+        function_ID,
+    ]
+);

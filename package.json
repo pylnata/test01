@@ -22,7 +22,9 @@
     "start": "cds run",
     "watch-environments": "cds watch --open environments/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4",
     "watch-allocations": "cds watch --open allocations/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4",
-    "watch-functions": "cds watch --open functions/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4"
+    "watch-functions": "cds watch --open functions/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4",
+    "watch-modeltables": "cds watch --open modeltables/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4",
+    "watch-calculationunits": "cds watch --open calculationunits/webapp/index.html?sap-ui-xx-viewCache=false#fe-lrop-v4"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
@@ -117,6 +119,8 @@
     "app/environments",
     "app/allocations",
     "app/environments",
-    "app/functions"
+    "app/functions",
+    "app/modeltables",
+    "app/calculationunits"
   ]
 }

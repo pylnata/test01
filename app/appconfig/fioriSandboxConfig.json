@@ -18,8 +18,7 @@
                   "properties": {
                     "title": "Environments",
                     "info": "Fiori Elements",
-                    "targetURL": "#Environments-manage",
-                    "x": "?HasActiveEntity=false&parent_ID=&IsActiveEntity=true&code=NODE"
+                    "targetURL": "#Environments-manage"
                   }
                 },
                 {
@@ -29,6 +28,33 @@
                     "title": "Functions",
                     "info": "Fiori Elements",
                     "targetURL": "#Functions-manage"
+                  }
+                },
+                {
+                  "id": "Modeltables",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Model Tables",
+                    "info": "Fiori Elements",
+                    "targetURL": "#Modeltable-manage"
+                  }
+                },
+                {
+                  "id": "Allocations",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Allocations",
+                    "info": "Fiori Elements",
+                    "targetURL": "#Allocations-manage"
+                  }
+                },
+                {
+                  "id": "CalculationUnits",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Calculation Units",
+                    "info": "Fiori Elements",
+                    "targetURL": "#Calculationunits-manage"
                   }
                 }
               ]
@@ -80,6 +106,54 @@
                 "applicationType": "SAPUI5",
                 "additionalInformation": "SAPUI5.Component=functions",
                 "url": "functions/webapp/"
+              }
+            },
+            "ModeltableManage": {
+              "semanticObject": "Modeltable",
+              "action": "manage",
+              "title": "Model Tables",
+              "signature": {
+                "parameters": {
+                  "environment_ID": {}
+                },
+                "additionalParameters": "ignored"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=modeltables",
+                "url": "modeltables/webapp/"
+              }
+            },
+            "AllocationsManage": {
+              "semanticObject": "Allocations",
+              "action": "manage",
+              "title": "Allocations",
+              "signature": {
+                "parameters": {
+                  "environment_ID": {}
+                },
+                "additionalParameters": "ignored"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=allocations",
+                "url": "allocations/webapp/"
+              }
+            },
+            "CalculationunitsManage": {
+              "semanticObject": "Calculationunits",
+              "action": "manage",
+              "title": "Calculation Units",
+              "signature": {
+                "parameters": {
+                  "environment_ID": {}
+                },
+                "additionalParameters": "ignored"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=calculationunits",
+                "url": "calculationunits/webapp/"
               }
             }
           }
