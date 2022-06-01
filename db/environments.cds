@@ -39,24 +39,27 @@ using {Functions} from './functions';
     {Value : version}
 ]
 entity Environments : managed {
-    key ID                  : GUID                                  @Common.Text : description  @Common.TextArrangement : #TextOnly;
-        environment         : Environment                           @mandatory;
-        version             : Version;
-        description         : Description;
-        parent              : Association to one EnvironmentFolders @title :       'Parent';
-        type                : Association to one EnvironmentTypes   @title       : 'Type';
-        fields              : Association to many Fields
-                                  on fields.environment = $self;
-        checks              : Association to many Checks
-                                  on checks.environment = $self;
-        currencyConversions : Association to many CurrencyConversions
-                                  on currencyConversions.environment = $self;
-        unitConversions     : Association to many UnitConversions
-                                  on unitConversions.environment = $self;
-        partitions          : Association to many Partitions
-                                  on partitions.environment = $self;
-        functions           : Association to many Functions
-                                  on functions.environment = $self;
+    key ID                     : GUID                                  @Common.Text : description  @Common.TextArrangement : #TextOnly;
+        environment            : Environment                           @mandatory;
+        version                : Version;
+        description            : Description;
+        parent                 : Association to one EnvironmentFolders @title       : 'Parent';
+        type                   : Association to one EnvironmentTypes   @title       : 'Type';
+        fields                 : Association to many Fields
+                                     on fields.environment = $self;
+        checks                 : Association to many Checks
+                                     on checks.environment = $self;
+        currencyConversions    : Association to many CurrencyConversions
+                                     on currencyConversions.environment = $self;
+        unitConversions        : Association to many UnitConversions
+                                     on unitConversions.environment = $self;
+        partitions             : Association to many Partitions
+                                     on partitions.environment = $self;
+        functions              : Association to many Functions
+                                     on functions.environment = $self;
+        virtual semanticaction : String;
+        virtual target         : String;
+        virtual url            : String;
 }
 
 @cds.autoexpose
