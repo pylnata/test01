@@ -95,7 +95,8 @@ annotate service.Environments with @(
 );
 
 annotate service.Environments with {
-    type @Common.Text : type.name
+    @Common.Text : type.name
+    type;
 };
 
 annotate service.Environments with @(UI.SelectionFields : [parent_ID, ]);
