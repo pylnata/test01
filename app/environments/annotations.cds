@@ -4,6 +4,10 @@ using from '../../db/environments';
 annotate service.Environments with @(UI.LineItem : [
     {
         $Type : 'UI.DataField',
+        Value : icon,
+    },
+    {
+        $Type : 'UI.DataField',
         Value : environment,
     },
     {

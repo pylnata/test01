@@ -7,6 +7,7 @@ module.exports = function () {
       each.semanticaction = "manage";
       each.target = "parent_ID";
       each.url = `#Environments-manage?ID=${each.ID}`;
+      each.icon = "sap-icon://folder-blank";
     } else {
       each.semanticaction = "manage";
       each.target = "ID";
@@ -14,6 +15,7 @@ module.exports = function () {
       // each.url = "";
       // Link to detail page
       each.url = `#Environments-manage?/Environments(ID='${each.ID}',IsActiveEntity=true)`;
+      each.icon = "sap-icon://tree";
     }
   });
 };

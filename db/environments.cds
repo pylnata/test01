@@ -60,6 +60,8 @@ entity Environments : managed {
         virtual semanticaction : String;
         virtual target         : String;
         virtual url            : String;
+        @UI.IsImageURL
+        virtual icon           : String;
 }
 
 @cds.autoexpose
