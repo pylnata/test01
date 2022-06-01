@@ -4,6 +4,10 @@ using from '../../db/environments';
 annotate service.Environments with @(UI.LineItem : [
     {
         $Type : 'UI.DataField',
+        Value : icon,
+    },
+    {
+        $Type : 'UI.DataField',
         Value : environment,
     },
     {
@@ -12,10 +16,59 @@ annotate service.Environments with @(UI.LineItem : [
     },
     {
         $Type          : 'UI.DataFieldWithIntentBasedNavigation',
+        SemanticObject : 'Functions',
+        Action         : 'manage',
+        Value          : functionLinkDescription,
+        Mapping        : [{
+            $Type                  : 'Common.SemanticObjectMappingType',
+            LocalProperty          : ID,
+            SemanticObjectProperty : 'environment_ID',
+        }, ],
+    },
+    {
+        $Type          : 'UI.DataFieldWithIntentBasedNavigation',
         SemanticObject : 'Environments',
         Action         : 'manage',
         Value          : description,
+        Mapping        : [{
+            $Type                  : 'Common.SemanticObjectMappingType',
+            LocalProperty          : ID,
+            SemanticObjectProperty : 'parent_ID',
+        }, ],
     },
+    /*
+    {
+        $Type          : 'UI.DataFieldWithIntentBasedNavigation',
+        SemanticObject : 'Environments',
+        Action         : semanticaction,
+        Value          : description,
+        Mapping        : [{
+            $Type                  : 'Common.SemanticObjectMappingType',
+            LocalProperty          : ID,
+            SemanticObjectProperty : target,
+        }, ],
+    },
+    */
+    {
+        $Type : 'UI.DataField',
+        Value : semanticaction,
+    },
+    {
+        $Type : 'UI.DataField',
+        Value : target,
+    },
+    {
+        $Type : 'UI.DataField',
+        Value : parent_ID,
+    },
+    {
+        $Type : 'UI.DataFieldWithUrl',
+        Url   : url,
+        Value : modifiedAt,
+
+    },
+    /*
+    */
     {
         $Type : 'UI.DataField',
         Value : type_code,
@@ -35,8 +88,8 @@ annotate service.Environments with @(
                 Value : version,
             },
             {
-                $Type          : 'UI.DataField',
-                Value          : description,
+                $Type : 'UI.DataField',
+                Value : description,
             },
             {
                 $Type : 'UI.DataField',
@@ -57,44 +110,47 @@ annotate service.Environments with @(
 );
 
 annotate service.Environments with {
-    type @Common.Text : type.name
+    @Common.Text : type.name
+    type;
 };
-annotate service.Environments with @(
-    UI.SelectionFields : [
-        parent_ID,
-    ]
-);
+
+annotate service.Environments with @(UI.SelectionFields : [parent_ID, ]);
+
 annotate service.Environments with {
     parent @Common.Text : {
-            $value : parent.description,
-            ![@UI.TextArrangement] : #TextOnly,
-        }
+        $value                 : parent.description,
+        ![@UI.TextArrangement] : #TextOnly,
+    }
 };
+
 annotate service.Environments with {
-    parent @(Common.ValueList : {
-            $Type : 'Common.ValueListType',
+    parent @(
+        Common.ValueList                : {
+            $Type          : 'Common.ValueListType',
             CollectionPath : 'EnvironmentFolders',
-            Parameters : [
+            Parameters     : [
                 {
-                    $Type : 'Common.ValueListParameterInOut',
+                    $Type             : 'Common.ValueListParameterInOut',
                     LocalDataProperty : parent_ID,
                     ValueListProperty : 'ID',
                 },
                 {
-                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'environment',
                 },
                 {
-                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'description',
                 },
             ],
         },
         Common.ValueListWithFixedValues : false
-)};
+    )
+};
+
 annotate service.EnvironmentFolders with {
     ID @Common.Text : {
-            $value : description,
-            ![@UI.TextArrangement] : #TextOnly,
-        }
+        $value                 : description,
+        ![@UI.TextArrangement] : #TextOnly,
+    }
 };

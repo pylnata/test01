@@ -83,7 +83,13 @@
         }
       },
       "db": {
-        "kind": "hana-cloud"
+        "kind": "sqlite",
+        "credentials": {
+          "database": ":memory:"
+        },
+        "[test-hana]": {
+          "kind": "hana-cloud"
+        }
       }
     },
     "cdsc": {
