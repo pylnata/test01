@@ -41,7 +41,12 @@ using {Functions} from './functions';
 entity Environments : managed {
     key ID                     : GUID                                  @Common.Text : description  @Common.TextArrangement : #TextOnly;
         environment            : Environment                           @mandatory;
+        @Common.FieldControl :                                                        version_fc
+        @UI.Hidden           :                                                        version_hidden
         version                : Version;
+        @UI.Hidden
+        virtual version_fc     : Integer;
+        virtual version_hidden : Boolean;
         description            : Description;
         parent                 : Association to one EnvironmentFolders @title       : 'Parent';
         type                   : Association to one EnvironmentTypes   @title       : 'Type';
