@@ -140,14 +140,10 @@ annotate service.Allocations with @(
             {
                 $Type : 'UI.DataField',
                 Value : environment_ID,
-                Label : 'environment_ID',
-            },
-            {
+            },{
                 $Type : 'UI.DataField',
                 Value : function_ID,
-                Label : 'function_ID',
-            },
-        ],
+            },],
     }
 );
 

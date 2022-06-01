@@ -164,15 +164,6 @@
                                         "route": "AllocationReceiverViewsObjectPage"
                                     }
                                 }
-                            },
-                            "controlConfiguration": {
-                                "senderViews/@com.sap.vocabularies.UI.v1.LineItem#View": {
-                                    "tableSettings": {
-                                        "creationMode": {
-                                            "name": "Inline"
-                                        }
-                                    }
-                                }
                             }
                         }
                     }
