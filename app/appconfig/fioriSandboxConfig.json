@@ -53,7 +53,10 @@
                 "parameters": {
                   "ID": {
                     "renameTo": "parent_ID"
-                  }
+                  },
+                  "parent_ID": {},
+                  "environment": {},
+                  "version": {}
                 },
                 "additionalParameters": "ignored"
               },
