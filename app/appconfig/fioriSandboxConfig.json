@@ -45,7 +45,7 @@
       "adapter": {
         "config": {
           "inbounds": {
-            "Admin": {
+            "EnvironmentsManage": {
               "semanticObject": "Environments",
               "action": "manage",
               "title": "Environments",
@@ -64,6 +64,22 @@
                 "applicationType": "SAPUI5",
                 "additionalInformation": "SAPUI5.Component=environments",
                 "url": "environments/webapp/"
+              }
+            },
+            "FunctionsManage": {
+              "semanticObject": "Functions",
+              "action": "manage",
+              "title": "Functions",
+              "signature": {
+                "parameters": {
+                  "environment_ID": {}
+                },
+                "additionalParameters": "ignored"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=functions",
+                "url": "functions/webapp/"
               }
             }
           }
