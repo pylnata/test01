@@ -18,7 +18,8 @@
                   "properties": {
                     "title": "Environments",
                     "info": "Fiori Elements",
-                    "targetURL": "#Environments-manage?HasActiveEntity=false&ID=&IsActiveEntity=true&code=NODE"
+                    "targetURL": "#Environments-manage",
+                    "x": "?HasActiveEntity=false&parent_ID=&IsActiveEntity=true&code=NODE"
                   }
                 },
                 {
@@ -51,12 +52,11 @@
               "title": "Environments",
               "signature": {
                 "parameters": {
-                  "ID": {
-                    "renameTo": "parent_ID"
-                  },
-                  "parent_ID": {},
-                  "environment": {},
-                  "version": {}
+                  "parent_ID": {
+                    "defaultValue": {
+                      "value": ""
+                    }
+                  }
                 },
                 "additionalParameters": "ignored"
               },

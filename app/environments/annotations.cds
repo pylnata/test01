@@ -14,14 +14,29 @@ annotate service.Environments with @(UI.LineItem : [
         $Type : 'UI.DataField',
         Value : version,
     },
-    /*
     {
-        $Type              : 'UI.DataFieldWithIntentBasedNavigation',
-        SemanticObject     : 'Environments',
-        Action             : 'manage',
-        Value              : description,
-        ![@Core.ContentID] : 'DescriptionWithIntentBasedNav',
+        $Type          : 'UI.DataFieldWithIntentBasedNavigation',
+        SemanticObject : 'Functions',
+        Action         : 'manage',
+        Value          : functionLinkDescription,
+        Mapping        : [{
+            $Type                  : 'Common.SemanticObjectMappingType',
+            LocalProperty          : ID,
+            SemanticObjectProperty : 'environment_ID',
+        }, ],
     },
+    {
+        $Type          : 'UI.DataFieldWithIntentBasedNavigation',
+        SemanticObject : 'Environments',
+        Action         : 'manage',
+        Value          : description,
+        Mapping        : [{
+            $Type                  : 'Common.SemanticObjectMappingType',
+            LocalProperty          : ID,
+            SemanticObjectProperty : 'parent_ID',
+        }, ],
+    },
+    /*
     {
         $Type          : 'UI.DataFieldWithIntentBasedNavigation',
         SemanticObject : 'Environments',
@@ -49,7 +64,7 @@ annotate service.Environments with @(UI.LineItem : [
     {
         $Type : 'UI.DataFieldWithUrl',
         Url   : url,
-        Value : description,
+        Value : modifiedAt,
 
     },
     /*

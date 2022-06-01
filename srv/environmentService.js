@@ -2,7 +2,6 @@ const cds = require("@sap/cds");
 
 module.exports = function () {
   this.after("READ", "Environments", (each) => {
-    console.log("after READ Environments");
     if (each.type?.code === "NODE") {
       each.semanticaction = "manage";
       each.target = "parent_ID";
@@ -21,6 +20,7 @@ module.exports = function () {
       // each.version_fc = 7; // Mandatory
       each.version_fc = 3; // Optional
       each.version_hidden = false;
+      each.functionLinkDescription = "goto Functions";
     }
   });
 };
