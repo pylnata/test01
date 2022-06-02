@@ -1,3 +1,6 @@
-get http://localhost:4004/service/modeling/Environments?$expand=*,Functions($expand=*)
+GET http://localhost:4004/service/modeling/Environments?$expand=*,Functions($expand=*)
 ###
-get http://localhost:4004/service/modeling/Functions
+GET  http://localhost:4004/service/modeling/Functions
+###
+GET http://localhost:4004/v2/service/modeling/Functions
+  ?$top=5
