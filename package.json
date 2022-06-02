@@ -84,14 +84,6 @@
           "kind": "enterprise-messaging",
           "format": "cloudevents"
         }
-      },
-      "[development]": {
-        "xdb": {
-          "kind": "sqlite",
-          "credentials": {
-            "database": ":memory:"
-          }
-        }
       }
     },
     "cdsc": {

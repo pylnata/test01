@@ -67,10 +67,10 @@ entity Allocations : managed, function {
         senderFunction          : Association to one AllocationInputFunctions       @title       : 'Sender Input';
         senderViews             : Composition of many AllocationSenderViews
                                       on senderViews.allocation = $self             @title       : 'Sender View';
-        receiverFunction        : Composition of one AllocationInputFunctions       @title       : 'Receiver Input';
+        receiverFunction        : Association to one AllocationInputFunctions       @title       : 'Receiver Input';
         receiverViews           : Composition of many AllocationReceiverViews
                                       on receiverViews.allocation = $self           @title       : 'Receiver View';
-        resultFunction          : Composition of one AllocationResultFunctions      @title       : 'Result Model Table';
+        resultFunction          : Association to one AllocationResultFunctions      @title       : 'Result Model Table';
         earlyExitCheck          : Association to one AllocationEarlyExitChecks      @title       : 'Early Exit Check';
         selectionFields         : Composition of many AllocationSelectionFields
                                       on selectionFields.allocation = $self;
@@ -90,6 +90,7 @@ entity Allocations : managed, function {
                                       on checks.allocation = $self;
 }
 
+@cds.autoexpose
 @cds.odata.valuelist
 entity AllocationInputFunctions         as projection on Functions as F {
     ID,
