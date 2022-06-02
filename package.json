@@ -85,13 +85,12 @@
           "format": "cloudevents"
         }
       },
-      "db": {
-        "kind": "sqlite",
-        "credentials": {
-          "database": ":memory:"
-        },
-        "[test-hana]": {
-          "kind": "hana-cloud"
+      "[development]": {
+        "xdb": {
+          "kind": "sqlite",
+          "credentials": {
+            "database": ":memory:"
+          }
         }
       }
     },
