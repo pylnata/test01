@@ -29,6 +29,12 @@ module.exports = function () {
         each.semanticObject = "Allocation";
         each.url = `#Allocations-manage&/Allocations(ID=689c7441-310e-4f46-8514-5cdee31cb6ee,IsActiveEntity=true)`;
         break;
+      case "MT":
+        each.url = `#Modeltable-manage&/ModelTables(ID='3',IsActiveEntity=true)`;
+        break;
+      case "CU":
+        each.url = `#Calculationunits-manage&/CalculationUnits(ID='1',IsActiveEntity=true)`;
+        break;
 
       default:
         break;
