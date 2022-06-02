@@ -46,7 +46,7 @@ using {
 } from './commonEntities';
 
 entity Allocations : managed, function {
-    key ID                      : UUID                                              @Common.Text : function.description  @Common.TextArrangement : #TextOnly;
+    key ID                      : GUID                                              @Common.Text : function.description  @Common.TextArrangement : #TextOnly;
         type                    : Association to one AllocationTypes                @title       : 'Type';
         valueAdjustment         : Association to one AllocationValueAdjustments     @title       : 'Value Adjustment';
         includeInputData        : IncludeInputData default false;
@@ -91,19 +91,20 @@ entity Allocations : managed, function {
 }
 
 @cds.odata.valuelist
-entity AllocationInputFunctions         as projection on Functions as F{
+entity AllocationInputFunctions         as projection on Functions as F {
     ID,
     function,
     description,
     type
-} where (type.code in (
-    'MT', 'AL')
-    // and F.environment =          in (
-    //         select field.ID from AllocationActionFields as L
-    //         where
-    //             F.environment.ID = L.allocation.environment.ID
-    //     )
-);
+} where(
+    type.code in (
+        'MT', 'AL')
+                   // and F.environment =          in (
+                   //         select field.ID from AllocationActionFields as L
+                   //         where
+                   //             F.environment.ID = L.allocation.environment.ID
+                   //     )
+        );
 
 entity AllocationSenderViews : managed, function, formulaOrder {
     key ID         : GUID;
