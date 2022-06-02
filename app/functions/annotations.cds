@@ -2,43 +2,49 @@ using ModelingService as service from '../../srv/modelingService';
 using from '../../db/functions';
 
 
+annotate service.Functions with @(UI.LineItem : [
+    /*
+    {
+        $Type : 'UI.DataField',
+        Value : function,
+    },
+        */
 
-annotate service.Functions with @(
-    UI.LineItem : [
-        {
-            $Type : 'UI.DataField',
-            Value : function,
-        },
-        {
-            $Type : 'UI.DataField',
-            Value : sequence,
-        },
-        {
-            $Type : 'UI.DataField',
-            Label : 'type_code',
-            Value : type_code,
-        },
-        {
-            $Type : 'UI.DataField',
-            Label : 'processingType_code',
-            Value : processingType_code,
-        },
-        {
-            $Type : 'UI.DataField',
-            Label : 'businessEventType_code',
-            Value : businessEventType_code,
-        },
-        {
-            $Type : 'UI.DataFieldForAction',
-            Action : 'ModelingService.activate',
-            Label : 'Activate',
-        },
-    ]
-);
+    {
+        $Type : 'UI.DataFieldWithUrl',
+        Value : function,
+        Url   : url,
+    },
+    {
+        $Type : 'UI.DataField',
+        Value : sequence,
+    },
+    {
+        $Type : 'UI.DataField',
+        Label : 'type_code',
+        Value : type_code,
+    },
+    {
+        $Type : 'UI.DataField',
+        Label : 'processingType_code',
+        Value : processingType_code,
+    },
+    {
+        $Type : 'UI.DataField',
+        Label : 'businessEventType_code',
+        Value : businessEventType_code,
+    },
+    {
+        $Type  : 'UI.DataFieldForAction',
+        Action : 'ModelingService.activate',
+        Label  : 'Activate',
+    },
+]);
+
 annotate service.Functions with @(
     UI.FieldGroup #GeneratedGroup1 : {
         $Type : 'UI.FieldGroupType',
-        Data : [
+        Data  : [
             {
                 $Type : 'UI.DataField',
                 Value : function,
@@ -76,72 +82,77 @@ annotate service.Functions with @(
             },
         ],
     },
-    UI.Facets : [
-        {
-            $Type : 'UI.ReferenceFacet',
-            ID : 'GeneratedFacet1',
-            Label : 'General Information',
-            Target : '@UI.FieldGroup#GeneratedGroup1',
-        },
-    ]
+    UI.Facets                      : [{
+        $Type  : 'UI.ReferenceFacet',
+        ID     : 'GeneratedFacet1',
+        Label  : 'General Information',
+        Target : '@UI.FieldGroup#GeneratedGroup1',
+    }, ]
 );
-annotate service.Functions with @(
-    UI.SelectionFields : [
-        environment_ID,
-        parent_ID,]
-);
+
+annotate service.Functions with @(UI.SelectionFields : [
+    environment_ID,
+    parent_ID,
+]);
+
 annotate service.Functions with {
     environment @Common.Text : environment.description
 };
+
 annotate service.Functions with {
-    environment @(Common.ValueList : {
-            $Type : 'Common.ValueListType',
+    environment @(
+        Common.ValueList                : {
+            $Type          : 'Common.ValueListType',
             CollectionPath : 'Environments',
-            Parameters : [
+            Parameters     : [
                 {
-                    $Type : 'Common.ValueListParameterInOut',
+                    $Type             : 'Common.ValueListParameterInOut',
                     LocalDataProperty : environment_ID,
                     ValueListProperty : 'ID',
                 },
                 {
-                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'environment',
                 },
                 {
-                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'version',
                 },
                 {
-                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'description',
                 },
             ],
         },
         Common.ValueListWithFixedValues : false
-)};
+    )
+};
 
 annotate service.Functions with {
     parent @Common.Text : parent.description
 };
+
 annotate service.Functions with {
-    parent @(Common.ValueList : {
-            $Type : 'Common.ValueListType',
+    parent @(
+        Common.ValueList                : {
+            $Type          : 'Common.ValueListType',
             CollectionPath : 'FunctionParents',
-            Parameters : [
+            Parameters     : [
                 {
-                    $Type : 'Common.ValueListParameterInOut',
+                    $Type             : 'Common.ValueListParameterInOut',
                     LocalDataProperty : parent_ID,
                     ValueListProperty : 'ID',
                 },
                 {
-                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'function',
                 },
                 {
-                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'description',
                 },
             ],
         },
         Common.ValueListWithFixedValues : true
-)};
+    )
+};

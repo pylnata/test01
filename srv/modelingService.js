@@ -23,4 +23,15 @@ module.exports = function () {
   //     console.log(req.query.SELECT.where);
   //   }
   // });
+  this.after("READ", "Functions", (each) => {
+    switch (each.type_code) {
+      case "AL":
+        each.semanticObject = "Allocation";
+        each.url = `#Allocations-manage&/Allocations(ID=689c7441-310e-4f46-8514-5cdee31cb6ee,IsActiveEntity=true)`;
+        break;
+
+      default:
+        break;
+    }
+  });
 };
