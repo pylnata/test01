@@ -15,6 +15,10 @@ type Function : String @title : 'Function'  @assert.format : '[A-Z,0-9,_]{1,5}' 
 type Field : String @title : 'Field'  @assert.format : '[A-Z,0-9,_]{1,30}' @Common.IsUpperCase;
 type Connection: String @title : 'Connection' @assert.format : '[A-Z,0-9,_]{1,30}' @Common.IsUpperCase;
 type Partition : String @title : 'Partition'  @assert.format : '[A-Z,0-9,_]{1,20}' @Common.IsUpperCase;
+type Process : String @title : 'Process'  @assert.format : '[A-Z,0-9,_]{1,7}' @Common.IsUpperCase;
+type Activity : String @title : 'Activity'  @assert.format : '[A-Z,0-9,_]{1,7}' @Common.IsUpperCase;
+type Report : String @title : 'Report'  @assert.format : '[A-Z,0-9,_]{1,20}' @Common.IsUpperCase;
+type Element : String @title : 'Report'  @assert.format : '[A-Z,0-9,_]{1,7}' @Common.IsUpperCase;
 type Conversion : String @title : 'Conversion'  @assert.format : '[A-Z,0-9,_]{1,10}' @Common.IsUpperCase;
 type Description : String @title : 'Description'  @mandatory  @assert.notNull; //  @Core.Immutable woud bring it up in creation popup as well
 type Documentation : LargeString @title : 'Documentation';
