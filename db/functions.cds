@@ -42,22 +42,23 @@ using {ModelTables} from './modelTables';
 @cds.odata.valuelist
 @UI.Identification : [{Value : function}]
 entity Functions : managed, environment {
-    key ID                     : GUID                                              @Common.Text : description  @Common.TextArrangement : #TextOnly;
-        function               : Function;
-        sequence               : Sequence default 10;
-        parent                 : Association to one FunctionParents                @title       : 'Parent';
-        type                   : Association to one FunctionTypes                  @title       : 'Type';
-        processingType         : Association to one FunctionProcessingTypes        @title       : 'Processing Type';
-        businessEventType      : Association to one FunctionBusinessEventTypes     @title       : 'Business Event Type';
-        partition              : Association to one Partitions                     @title       : 'Partition';
-        parentCalculationUnit  : Association to one FunctionParentCalculationUnits @title       : 'Parent Calculation Unit';
-        description            : Description;
-        documentation          : Documentation;
-        virtual semanticObject : String;
-        virtual url            : String;
-// Allocation            : Association to one Allocations;
-// Description           : Association to one Descriptions;
-// ModelTable            : Association to one ModelTables;
+    key ID                    : GUID                                              @Common.Text : description  @Common.TextArrangement : #TextOnly;
+        function              : Function;
+        sequence              : Sequence default 10;
+        parent                : Association to one FunctionParents                @title       : 'Parent';
+        type                  : Association to one FunctionTypes                  @title       : 'Type';
+        processingType        : Association to one FunctionProcessingTypes        @title       : 'Processing Type';
+        businessEventType     : Association to one FunctionBusinessEventTypes     @title       : 'Business Event Type';
+        partition             : Association to one Partitions                     @title       : 'Partition';
+        parentCalculationUnit : Association to one FunctionParentCalculationUnits @title       : 'Parent Calculation Unit';
+        description           : Description;
+        documentation         : Documentation;
+        allocation            : Association to one Allocations;
+        calculationUnit       : Association to one CalculationUnits;
+        //  Description           : Association to one Descriptions;
+        modelTable            : Association to one ModelTables;
+        virtual url           : String;
+        virtual isUrlHidden   : Boolean;
 }
 
 aspect FunctionChecks : managed, function {
