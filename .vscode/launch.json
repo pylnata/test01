@@ -12,14 +12,14 @@
       "skipFiles": ["<node_internals>/**"]
     },
     {
-      "command": "cds run --profile hybrid --with-mocks --in-memory",
+      "command": "cds run --profile hybrid",
       "name": "cds run hana",
       "request": "launch",
       "type": "node-terminal",
       "skipFiles": ["<node_internals>/**"]
     },
     {
-      "command": "cds watch --profile hybrid --with-mocks --in-memory",
+      "command": "cds watch --profile hybrid",
       "name": "cds watch hana",
       "request": "launch",
       "type": "node-terminal",

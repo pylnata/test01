@@ -53,7 +53,7 @@ entity Allocations : managed, function {
         resultHandling          : Association to one ResultHandlings                @title       : 'Result Handling';
         includeInitialResult    : IncludeInitialResult default false;
         cycleFlag               : CycleFlag default false;
-        cycleMaximum            : CycleMaximum default 0;
+        cycleMaximum            : CycleMaximum default '';
         cycleIterationField     : Association to one AllocationCycleIterationFields @title       : 'Cycle Iteration Field';
         cycleAggregation        : Association to one AllocationCycleAggregations    @title       : 'Cycle Aggregation';
         termFlag                : TermFlag default false;

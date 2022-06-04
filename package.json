@@ -87,13 +87,7 @@
       }
     },
     "cdsc": {
-      "docs": true,
-      "variableReplacements": {
-        "$session": {
-          "environment_ID": "1",
-          "function_ID": "4"
-        }
-      }
+      "docs": true
     },
     "hana": {
       "journal": {
