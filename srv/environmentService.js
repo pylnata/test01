@@ -1,38 +1,38 @@
 const cds = require("@sap/cds");
+const textbundle = require("@sap/textbundle");
 
 module.exports = function () {
   this.after("READ", "Environments", (req) => {
     enrichEnvironments(req);
   });
   this.before(["PATCH", "SAVE"], "Environments", (req) => {
-    checkParentId(req);
+    const textBundle = new textbundle.TextBundle("i18n/environmentService", req.user.locale);
+    checkParentId(req.data, textBundle, req);
   });
 };
 
-function enrichEnvironments(req) {
-  if (req.type?.code === "NODE") {
-    req.url = `#Environments-manage?parent_ID=${req.ID}`;
-    req.icon = "sap-icon://folder-blank";
-    req.gotoSubfolders = "Child Entries";
-    req.version_hidden = true;
-    req.gotoFunctions = false;
+function enrichEnvironments(data) {
+  if (data.type?.code === "NODE") {
+    data.url = `#Environments-manage?parent_ID=${data.ID}`;
+    data.icon = "sap-icon://folder-blank";
+    data.gotoSubfolders = "Child Entries";
+    data.version_hidden = true;
+    data.gotoFunctions = false;
   } else {
-    req.url = `#Functions-manage?environment_ID=${req.ID}`;
-    req.icon = "sap-icon://tree";
-    req.version_hidden = false;
-    req.gotoFunctions = true;
+    data.url = `#Functions-manage?environment_ID=${data.ID}`;
+    data.icon = "sap-icon://tree";
+    data.version_hidden = false;
+    data.gotoFunctions = true;
   }
 }
 
-function checkParentId(req) {
-  const data = req.data;
+function checkParentId(data, textBundle, req) {
   if (data.ID === data.parent_ID) {
     const LOG = cds.log("PAPM");
-    const error = "Environment {0} cannot be its own parent {1}";
-    LOG.error(error);
-    req.error(500, error, "parent_ID", [data.ID, data.parent_ID]);
+    const text = textBundle.getText("ENVID_OWN_PARENT");
+    LOG.error(text);
+    req.error(500, text, "parent_ID", [data.ID, data.parent_ID]);
     // throw new Error("Some error happened", "parent_ID", [data.ID, data.parent_ID]);
-    // req.error(418,error,"parent_ID",[data.ID, data.parent_ID] );
     // req.reject(418, error, [data.ID, data.parent_ID], "parent_ID");
     // throw new Error("Some error happened", { cause: error });
   }
