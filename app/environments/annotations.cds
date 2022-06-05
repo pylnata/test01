@@ -2,9 +2,10 @@ using EnvironmentService as service from '../../srv/environmentService';
 using from '../../db/environments';
 
 annotate service.Environments with @(UI.LineItem : [
+
     {
         $Type : 'UI.DataField',
-        Value : icon,
+        Value : description,
     },
     {
         $Type : 'UI.DataField',
@@ -15,64 +16,55 @@ annotate service.Environments with @(UI.LineItem : [
         Value : version,
     },
     {
-        $Type          : 'UI.DataFieldWithIntentBasedNavigation',
-        SemanticObject : 'Functions',
-        Action         : 'manage',
-        Value          : functionLinkDescription,
-        Mapping        : [{
-            $Type                  : 'Common.SemanticObjectMappingType',
-            LocalProperty          : ID,
-            SemanticObjectProperty : 'environment_ID',
-        }, ],
+        $Type : 'UI.DataField',
+        Value : type_code,
     },
     {
         $Type          : 'UI.DataFieldWithIntentBasedNavigation',
         SemanticObject : 'Environments',
         Action         : 'manage',
-        Value          : description,
+        Value          : gotoSubfolders,
         Mapping        : [{
             $Type                  : 'Common.SemanticObjectMappingType',
             LocalProperty          : ID,
             SemanticObjectProperty : 'parent_ID',
         }, ],
     },
-    /*
     {
-        $Type          : 'UI.DataFieldWithIntentBasedNavigation',
-        SemanticObject : 'Environments',
-        Action         : semanticaction,
-        Value          : description,
-        Mapping        : [{
+        $Type             : 'UI.DataFieldWithUrl',
+        IconUrl           : icon,
+        Url               : url,
+        Value             : url,
+        Label             : 'URL',
+        ![@UI.Importance] : #High,
+    },
+    {
+        $Type               : 'UI.DataFieldForIntentBasedNavigation',
+        Label               : 'Model',
+        SemanticObject      : 'Functions', //Target entity
+        Action              : 'manage', //Specifies the app of the target entity
+        IconUrl             : 'sap-icon://tree', //Icons only supported for inline actions / intend based navigation
+        NavigationAvailable : gotoFunctions,
+        Inline              : true,
+        Mapping             : [{
             $Type                  : 'Common.SemanticObjectMappingType',
             LocalProperty          : ID,
-            SemanticObjectProperty : target,
+            SemanticObjectProperty : 'environment_ID',
         }, ],
+        ![@UI.Importance]   : #High,
     },
-    */
-    {
-        $Type : 'UI.DataField',
-        Value : semanticaction,
-    },
-    {
-        $Type : 'UI.DataField',
-        Value : target,
-    },
-    {
-        $Type : 'UI.DataField',
-        Value : parent_ID,
-    },
-    {
-        $Type : 'UI.DataFieldWithUrl',
-        Url   : url,
-        Value : modifiedAt,
+// {
+//     $Type          : 'UI.DataFieldForIntentBasedNavigation',
+//     SemanticObject : 'Functions',
+//     Action         : 'manage',
+//     Label          : 'Go to Functions',
+//     Mapping        : [{
+//         $Type                  : 'Common.SemanticObjectMappingType',
+//         LocalProperty          : ID,
+//         SemanticObjectProperty : 'environment_ID',
+//     }, ],
+// },
 
-    },
-    /*
-    */
-    {
-        $Type : 'UI.DataField',
-        Value : type_code,
-    },
 ]);
 
 annotate service.Environments with @(
@@ -110,7 +102,10 @@ annotate service.Environments with @(
 );
 
 annotate service.Environments with {
-    @Common.Text : type.name
+    @Common.Text : {
+        $value                 : type.name,
+        ![@UI.TextArrangement] : #TextOnly,
+    }
     type;
 };
 
@@ -121,6 +116,34 @@ annotate service.Environments with {
         $value                 : parent.description,
         ![@UI.TextArrangement] : #TextOnly,
     }
+};
+
+annotate service.Environments with {
+    type @(
+        Common.ValueList                : {
+            $Type          : 'Common.ValueListType',
+            CollectionPath : 'EnvironmentTypes',
+            Parameters     : [{
+                $Type             : 'Common.ValueListParameterInOut',
+                LocalDataProperty : type_code,
+                ValueListProperty : 'code',
+            }, ],
+        },
+        Common.ValueListWithFixedValues : true
+    )
+};
+
+annotate service.EnvironmentTypes with {
+    code @Common.Text : {
+        $value                 : name,
+        ![@UI.TextArrangement] : #TextOnly,
+    }
+};
+annotate service.Environments with {
+    parent_ID @Common.Text : {
+            $value : parent.description,
+            ![@UI.TextArrangement] : #TextOnly,
+        }
 };
 
 annotate service.Environments with {
@@ -147,10 +170,29 @@ annotate service.Environments with {
         Common.ValueListWithFixedValues : false
     )
 };
-
-annotate service.EnvironmentFolders with {
-    ID @Common.Text : {
-        $value                 : description,
-        ![@UI.TextArrangement] : #TextOnly,
-    }
-};
+annotate service.Environments with {
+    parent_ID @(Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'EnvironmentFolders',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : parent_ID,
+                    ValueListProperty : 'ID',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'environment',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'version',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'description',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true
+)};
