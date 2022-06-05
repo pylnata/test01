@@ -74,10 +74,6 @@ annotate service.Functions with @(
             },
             {
                 $Type : 'UI.DataField',
-                Value : documentation,
-            },
-            {
-                $Type : 'UI.DataField',
                 Value : environment_ID,
             },
         ],

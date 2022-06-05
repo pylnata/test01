@@ -160,7 +160,22 @@
                     "options": {
                         "settings": {
                             "editableHeaderContent": false,
-                            "entitySet": "Functions"
+                            "entitySet": "Functions",
+                            "content": {
+                                "body": {
+                                    "sections": {
+                                        "RtfDocumentation": {
+                                            "template": "functions.ext.fragment.RtfDocumentation",
+                                            "position": {
+                                                "placement": "After",
+                                                "anchor": "GeneratedFacet1"
+                                            },
+                                            "title": "Documentation",
+                                            "type": "XMLFragment"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
