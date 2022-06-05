@@ -1,8 +1,7 @@
 using {
     Environments as environments,
                     Environment,
-                    Description,
-                    Parent
+                    Description
 } from '../db/environments';
 
 @path : 'service/environment'

@@ -156,3 +156,6 @@ annotate service.Functions with {
         Common.ValueListWithFixedValues : true
     )
 };
+annotate service.Functions with {
+    documentation @UI.MultiLineText : true
+};

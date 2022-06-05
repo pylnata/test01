@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Alias="UI" Namespace="com.sap.vocabularies.UI.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Validation.V1.xml" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Alias="Validation" Namespace="Org.OData.Validation.V1"/>
+    </edmx:Reference>
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="EnvironmentService" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <EntityContainer Name="EntityContainer" m:IsDefaultEntityContainer="true">
+                <EntitySet Name="Environments" EntityType="EnvironmentService.Environments"/>
+                <FunctionImport Name="Environments_draftPrepare" EntitySet="Environments" ReturnType="EnvironmentService.Environments" m:HttpMethod="POST" sap:action-for="EnvironmentService.Environments">
+                    <Parameter Name="ID" Type="Edm.String" Nullable="false" Mode="In"/>
+                    <Parameter Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" Mode="In"/>
+                    <Parameter Name="SideEffectsQualifier" Type="Edm.String" Mode="In" Nullable="true"/>
+                </FunctionImport>
+                <FunctionImport Name="Environments_draftActivate" EntitySet="Environments" ReturnType="EnvironmentService.Environments" m:HttpMethod="POST" sap:action-for="EnvironmentService.Environments">
+                    <Parameter Name="ID" Type="Edm.String" Nullable="false" Mode="In"/>
+                    <Parameter Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" Mode="In"/>
+                </FunctionImport>
+                <FunctionImport Name="Environments_draftEdit" EntitySet="Environments" ReturnType="EnvironmentService.Environments" m:HttpMethod="POST" sap:action-for="EnvironmentService.Environments">
+                    <Parameter Name="ID" Type="Edm.String" Nullable="false" Mode="In"/>
+                    <Parameter Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" Mode="In"/>
+                    <Parameter Name="PreserveChanges" Type="Edm.Boolean" Mode="In" Nullable="true"/>
+                </FunctionImport>
+                <EntitySet Name="EnvironmentFolders" EntityType="EnvironmentService.EnvironmentFolders"/>
+                <EntitySet Name="EnvironmentTypes" EntityType="EnvironmentService.EnvironmentTypes"/>
+                <EntitySet Name="DraftAdministrativeData" EntityType="EnvironmentService.DraftAdministrativeData"/>
+                <EntitySet Name="EnvironmentTypes_texts" EntityType="EnvironmentService.EnvironmentTypes_texts"/>
+                <FunctionImport Name="createFolder" m:HttpMethod="POST"/>
+                <AssociationSet Name="Environments_parent" Association="EnvironmentService.Environments_parent">
+                    <End Role="Environments" EntitySet="Environments"/>
+                    <End Role="EnvironmentFolders" EntitySet="EnvironmentFolders"/>
+                </AssociationSet>
+                <AssociationSet Name="Environments_type" Association="EnvironmentService.Environments_type">
+                    <End Role="Environments" EntitySet="Environments"/>
+                    <End Role="EnvironmentTypes" EntitySet="EnvironmentTypes"/>
+                </AssociationSet>
+                <AssociationSet Name="Environments_DraftAdministrativeData" Association="EnvironmentService.Environments_DraftAdministrativeData">
+                    <End Role="Environments" EntitySet="Environments"/>
+                    <End Role="DraftAdministrativeData" EntitySet="DraftAdministrativeData"/>
+                </AssociationSet>
+                <AssociationSet Name="Environments_SiblingEntity" Association="EnvironmentService.Environments_SiblingEntity">
+                    <End Role="Environments" EntitySet="Environments"/>
+                    <End Role="Environments1" EntitySet="Environments"/>
+                </AssociationSet>
+                <AssociationSet Name="EnvironmentFolders_parent" Association="EnvironmentService.EnvironmentFolders_parent">
+                    <End Role="EnvironmentFolders" EntitySet="EnvironmentFolders"/>
+                    <End Role="EnvironmentFolders1" EntitySet="EnvironmentFolders"/>
+                </AssociationSet>
+                <AssociationSet Name="EnvironmentFolders_type" Association="EnvironmentService.EnvironmentFolders_type">
+                    <End Role="EnvironmentFolders" EntitySet="EnvironmentFolders"/>
+                    <End Role="EnvironmentTypes" EntitySet="EnvironmentTypes"/>
+                </AssociationSet>
+                <AssociationSet Name="EnvironmentTypes_texts_1" Association="EnvironmentService.EnvironmentTypes_texts_1">
+                    <End Role="EnvironmentTypes" EntitySet="EnvironmentTypes"/>
+                    <End Role="EnvironmentTypes_texts" EntitySet="EnvironmentTypes_texts"/>
+                </AssociationSet>
+                <AssociationSet Name="EnvironmentTypes_localized" Association="EnvironmentService.EnvironmentTypes_localized">
+                    <End Role="EnvironmentTypes" EntitySet="EnvironmentTypes"/>
+                    <End Role="EnvironmentTypes_texts" EntitySet="EnvironmentTypes_texts"/>
+                </AssociationSet>
+            </EntityContainer>
+            <EntityType Name="Environments">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="ID" Type="Edm.String" Nullable="false"/>
+                <Property Name="environment" Type="Edm.String"/>
+                <Property Name="version" Type="Edm.String"/>
+                <Property Name="description" Type="Edm.String"/>
+                <NavigationProperty Name="parent" Relationship="EnvironmentService.Environments_parent" FromRole="Environments" ToRole="EnvironmentFolders"/>
+                <Property Name="parent_ID" Type="Edm.String"/>
+                <NavigationProperty Name="type" Relationship="EnvironmentService.Environments_type" FromRole="Environments" ToRole="EnvironmentTypes"/>
+                <Property Name="type_code" Type="Edm.String"/>
+                <Property Name="url" Type="Edm.String"/>
+                <Property Name="icon" Type="Edm.String"/>
+                <Property Name="gotoSubfolders" Type="Edm.String"/>
+                <Property Name="nullValue" Type="Edm.String"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Relationship="EnvironmentService.Environments_DraftAdministrativeData" FromRole="Environments" ToRole="DraftAdministrativeData"/>
+                <Property Name="DraftAdministrativeData_DraftUUID" Type="Edm.Guid"/>
+                <NavigationProperty Name="SiblingEntity" Relationship="EnvironmentService.Environments_SiblingEntity" FromRole="Environments" ToRole="Environments1"/>
+            </EntityType>
+            <EntityType Name="EnvironmentFolders">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="ID" Type="Edm.String" Nullable="false"/>
+                <Property Name="environment" Type="Edm.String"/>
+                <Property Name="version" Type="Edm.String"/>
+                <Property Name="description" Type="Edm.String"/>
+                <NavigationProperty Name="parent" Relationship="EnvironmentService.EnvironmentFolders_parent" FromRole="EnvironmentFolders" ToRole="EnvironmentFolders1"/>
+                <Property Name="parent_ID" Type="Edm.String"/>
+                <NavigationProperty Name="type" Relationship="EnvironmentService.EnvironmentFolders_type" FromRole="EnvironmentFolders" ToRole="EnvironmentTypes"/>
+                <Property Name="type_code" Type="Edm.String"/>
+                <Property Name="url" Type="Edm.String"/>
+                <Property Name="icon" Type="Edm.String"/>
+                <Property Name="gotoSubfolders" Type="Edm.String"/>
+                <Property Name="nullValue" Type="Edm.String"/>
+            </EntityType>
+            <EntityType Name="EnvironmentTypes">
+                <Key>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" Nullable="false"/>
+                <NavigationProperty Name="texts" Relationship="EnvironmentService.EnvironmentTypes_texts_1" FromRole="EnvironmentTypes" ToRole="EnvironmentTypes_texts"/>
+                <NavigationProperty Name="localized" Relationship="EnvironmentService.EnvironmentTypes_localized" FromRole="EnvironmentTypes" ToRole="EnvironmentTypes_texts"/>
+            </EntityType>
+            <EntityType Name="DraftAdministrativeData">
+                <Key>
+                    <PropertyRef Name="DraftUUID"/>
+                </Key>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="CreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="CreatedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsCreatedByMe" Type="Edm.Boolean"/>
+                <Property Name="LastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="InProcessByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsProcessedByMe" Type="Edm.Boolean"/>
+            </EntityType>
+            <EntityType Name="EnvironmentTypes_texts">
+                <Key>
+                    <PropertyRef Name="locale"/>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="locale" Type="Edm.String" MaxLength="14" Nullable="false"/>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" Nullable="false"/>
+            </EntityType>
+            <Association Name="Environments_parent">
+                <End Role="Environments" Type="EnvironmentService.Environments" Multiplicity="*"/>
+                <End Role="EnvironmentFolders" Type="EnvironmentService.EnvironmentFolders" Multiplicity="0..1"/>
+                <ReferentialConstraint>
+                    <Principal Role="EnvironmentFolders">
+                        <PropertyRef Name="ID"/>
+                    </Principal>
+                    <Dependent Role="Environments">
+                        <PropertyRef Name="parent_ID"/>
+                    </Dependent>
+                </ReferentialConstraint>
+            </Association>
+            <Association Name="Environments_type">
+                <End Role="Environments" Type="EnvironmentService.Environments" Multiplicity="*"/>
+                <End Role="EnvironmentTypes" Type="EnvironmentService.EnvironmentTypes" Multiplicity="0..1"/>
+                <ReferentialConstraint>
+                    <Principal Role="EnvironmentTypes">
+                        <PropertyRef Name="code"/>
+                    </Principal>
+                    <Dependent Role="Environments">
+                        <PropertyRef Name="type_code"/>
+                    </Dependent>
+                </ReferentialConstraint>
+            </Association>
+            <Association Name="Environments_DraftAdministrativeData">
+                <End Role="Environments" Type="EnvironmentService.Environments" Multiplicity="*"/>
+                <End Role="DraftAdministrativeData" Type="EnvironmentService.DraftAdministrativeData" Multiplicity="0..1"/>
+                <ReferentialConstraint>
+                    <Principal Role="DraftAdministrativeData">
+                        <PropertyRef Name="DraftUUID"/>
+                    </Principal>
+                    <Dependent Role="Environments">
+                        <PropertyRef Name="DraftAdministrativeData_DraftUUID"/>
+                    </Dependent>
+                </ReferentialConstraint>
+            </Association>
+            <Association Name="Environments_SiblingEntity">
+                <End Role="Environments" Type="EnvironmentService.Environments" Multiplicity="*"/>
+                <End Role="Environments1" Type="EnvironmentService.Environments" Multiplicity="0..1"/>
+            </Association>
+            <Association Name="EnvironmentFolders_parent">
+                <End Role="EnvironmentFolders" Type="EnvironmentService.EnvironmentFolders" Multiplicity="*"/>
+                <End Role="EnvironmentFolders1" Type="EnvironmentService.EnvironmentFolders" Multiplicity="0..1"/>
+                <ReferentialConstraint>
+                    <Principal Role="EnvironmentFolders1">
+                        <PropertyRef Name="ID"/>
+                    </Principal>
+                    <Dependent Role="EnvironmentFolders">
+                        <PropertyRef Name="parent_ID"/>
+                    </Dependent>
+                </ReferentialConstraint>
+            </Association>
+            <Association Name="EnvironmentFolders_type">
+                <End Role="EnvironmentFolders" Type="EnvironmentService.EnvironmentFolders" Multiplicity="*"/>
+                <End Role="EnvironmentTypes" Type="EnvironmentService.EnvironmentTypes" Multiplicity="0..1"/>
+                <ReferentialConstraint>
+                    <Principal Role="EnvironmentTypes">
+                        <PropertyRef Name="code"/>
+                    </Principal>
+                    <Dependent Role="EnvironmentFolders">
+                        <PropertyRef Name="type_code"/>
+                    </Dependent>
+                </ReferentialConstraint>
+            </Association>
+            <Association Name="EnvironmentTypes_texts_1">
+                <End Role="EnvironmentTypes" Type="EnvironmentService.EnvironmentTypes" Multiplicity="1">
+                    <OnDelete Action="Cascade"/>
+                </End>
+                <End Role="EnvironmentTypes_texts" Type="EnvironmentService.EnvironmentTypes_texts" Multiplicity="*"/>
+            </Association>
+            <Association Name="EnvironmentTypes_localized">
+                <End Role="EnvironmentTypes" Type="EnvironmentService.EnvironmentTypes" Multiplicity="*"/>
+                <End Role="EnvironmentTypes_texts" Type="EnvironmentService.EnvironmentTypes_texts" Multiplicity="0..1"/>
+            </Association>
+            <Annotations Target="EnvironmentService.Environments" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.LineItem">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="description"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="environment"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="version"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="type_code"/>
+                        </Record>
+                        <Record Type="UI.DataFieldWithIntentBasedNavigation">
+                            <PropertyValue Property="SemanticObject" String="Environments"/>
+                            <PropertyValue Property="Action" String="manage"/>
+                            <PropertyValue Property="Value" Path="gotoSubfolders"/>
+                            <PropertyValue Property="Mapping">
+                                <Collection>
+                                    <Record Type="Common.SemanticObjectMappingType">
+                                        <PropertyValue Property="LocalProperty" PropertyPath="ID"/>
+                                        <PropertyValue Property="SemanticObjectProperty" String="parent_ID"/>
+                                    </Record>
+                                </Collection>
+                            </PropertyValue>
+                        </Record>
+                        <Record Type="UI.DataFieldWithUrl">
+                            <PropertyValue Property="IconUrl" Path="icon"/>
+                            <PropertyValue Property="Url" Path="url"/>
+                            <PropertyValue Property="Value" Path="url"/>
+                            <PropertyValue Property="Label" String="URL"/>
+                            <Annotation Term="UI.Importance" EnumMember="UI.ImportanceType/High"/>
+                        </Record>
+                        <Record Type="UI.DataFieldForIntentBasedNavigation">
+                            <PropertyValue Property="Label" String="Model"/>
+                            <PropertyValue Property="SemanticObject" String="Functions"/>
+                            <PropertyValue Property="Action" String="manage"/>
+                            <PropertyValue Property="IconUrl" String="sap-icon://tree"/>
+                            <PropertyValue Property="NavigationAvailable" Path="gotoFunctions"/>
+                            <PropertyValue Property="Inline" Bool="true"/>
+                            <PropertyValue Property="Mapping">
+                                <Collection>
+                                    <Record Type="Common.SemanticObjectMappingType">
+                                        <PropertyValue Property="LocalProperty" PropertyPath="ID"/>
+                                        <PropertyValue Property="SemanticObjectProperty" String="environment_ID"/>
+                                    </Record>
+                                </Collection>
+                            </PropertyValue>
+                            <Annotation Term="UI.Importance" EnumMember="UI.ImportanceType/High"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.FieldGroup" Qualifier="GeneratedGroup1">
+                    <Record Type="UI.FieldGroupType">
+                        <PropertyValue Property="Data">
+                            <Collection>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="environment"/>
+                                </Record>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="version"/>
+                                </Record>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="description"/>
+                                </Record>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="type_code"/>
+                                </Record>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="parent_ID"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="UI.Facets">
+                    <Collection>
+                        <Record Type="UI.ReferenceFacet">
+                            <PropertyValue Property="ID" String="GeneratedFacet1"/>
+                            <PropertyValue Property="Label" String="General Information"/>
+                            <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#GeneratedGroup1"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.SelectionFields">
+                    <Collection>
+                        <PropertyPath>parent_ID</PropertyPath>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.Identification">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="environment"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="version"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EntityContainer/Environments" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.DraftRoot">
+                    <Record Type="Common.DraftRootType">
+                        <PropertyValue Property="ActivationAction" String="EnvironmentService.EntityContainer/Environments_draftActivate"/>
+                        <PropertyValue Property="EditAction" String="EnvironmentService.EntityContainer/Environments_draftEdit"/>
+                        <PropertyValue Property="PreparationAction" String="EnvironmentService.EntityContainer/Environments_draftPrepare"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/createdAt" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                <Annotation Term="Core.Immutable" Bool="true"/>
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Common.Label" String="Created On"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/createdBy" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                <Annotation Term="Core.Immutable" Bool="true"/>
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Core.Description" String="User's unique ID"/>
+                <Annotation Term="Common.Label" String="Created By"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/modifiedAt" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Common.Label" String="Changed On"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/modifiedBy" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Core.Description" String="User's unique ID"/>
+                <Annotation Term="Common.Label" String="Changed By"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/ID" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Text" Path="description">
+                    <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+                </Annotation>
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/environment" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.IsUpperCase" Bool="true"/>
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+                <Annotation Term="Common.Label" String="Environment"/>
+                <Annotation Term="Validation.Pattern" String="[A-Z,0-9,_]{3}"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/version" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Hidden">
+                    <If>
+                        <Eq>
+                            <Path>type_code</Path>
+                            <String>NODE</String>
+                        </Eq>
+                        <Bool>true</Bool>
+                        <Bool>false</Bool>
+                    </If>
+                </Annotation>
+                <Annotation Term="Common.IsUpperCase" Bool="true"/>
+                <Annotation Term="Common.Label" String="Version"/>
+                <Annotation Term="Validation.Pattern" String="(^$|[A-Z,0-9,_]{4})"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/description" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Description"/>
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/parent" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Parent"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/parent_ID" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Text" Path="parent/description">
+                    <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+                </Annotation>
+                <Annotation Term="Common.ValueList">
+                    <Record Type="Common.ValueListType">
+                        <PropertyValue Property="CollectionPath" String="EnvironmentFolders"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="parent_ID"/>
+                                    <PropertyValue Property="ValueListProperty" String="ID"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="environment"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="description"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Common.ValueListWithFixedValues" Bool="false"/>
+                <Annotation Term="Common.Label" String="Parent"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/type" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Type"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/type_code" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Text" Path="type/name">
+                    <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+                </Annotation>
+                <Annotation Term="Common.ValueList">
+                    <Record Type="Common.ValueListType">
+                        <PropertyValue Property="CollectionPath" String="EnvironmentTypes"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="type_code"/>
+                                    <PropertyValue Property="ValueListProperty" String="code"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Common.ValueListWithFixedValues" Bool="true"/>
+                <Annotation Term="Common.Label" String="Type"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/url" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/icon" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/gotoSubfolders" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Common.Label" String="Go to"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/nullValue" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/IsActiveEntity" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/HasActiveEntity" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/HasDraftEntity" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/DraftAdministrativeData" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.Environments/DraftAdministrativeData_DraftUUID" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EntityContainer/createFolder" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Create Folder"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Identification">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="environment"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="version"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/createdAt" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                <Annotation Term="Core.Immutable" Bool="true"/>
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Common.Label" String="Created On"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/createdBy" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                <Annotation Term="Core.Immutable" Bool="true"/>
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Core.Description" String="User's unique ID"/>
+                <Annotation Term="Common.Label" String="Created By"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/modifiedAt" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Common.Label" String="Changed On"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/modifiedBy" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Core.Description" String="User's unique ID"/>
+                <Annotation Term="Common.Label" String="Changed By"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/ID" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Text" Path="description">
+                    <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+                </Annotation>
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/environment" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.IsUpperCase" Bool="true"/>
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+                <Annotation Term="Common.Label" String="Environment"/>
+                <Annotation Term="Validation.Pattern" String="[A-Z,0-9,_]{3}"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/version" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Hidden">
+                    <If>
+                        <Eq>
+                            <Path>type_code</Path>
+                            <String>NODE</String>
+                        </Eq>
+                        <Bool>true</Bool>
+                        <Bool>false</Bool>
+                    </If>
+                </Annotation>
+                <Annotation Term="Common.IsUpperCase" Bool="true"/>
+                <Annotation Term="Common.Label" String="Version"/>
+                <Annotation Term="Validation.Pattern" String="(^$|[A-Z,0-9,_]{4})"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/description" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Description"/>
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/parent" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Parent"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/parent_ID" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Parent"/>
+                <Annotation Term="Common.ValueList">
+                    <Record Type="Common.ValueListType">
+                        <PropertyValue Property="Label" String="Parent"/>
+                        <PropertyValue Property="CollectionPath" String="EnvironmentFolders"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="parent_ID"/>
+                                    <PropertyValue Property="ValueListProperty" String="ID"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="environment"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/type" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Type"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/type_code" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Type"/>
+                <Annotation Term="Common.ValueList">
+                    <Record Type="Common.ValueListType">
+                        <PropertyValue Property="Label" String="Type"/>
+                        <PropertyValue Property="CollectionPath" String="EnvironmentTypes"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="type_code"/>
+                                    <PropertyValue Property="ValueListProperty" String="code"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="name"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/url" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/icon" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/gotoSubfolders" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Common.Label" String="Go to"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentFolders/nullValue" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentTypes" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Identification">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="name"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentTypes/name" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Name"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentTypes/descr" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Description"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentTypes/code" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Text" Path="name">
+                    <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+                </Annotation>
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+                <Annotation Term="Common.Label" String="Type"/>
+                <Annotation Term="Validation.AllowedValues">
+                    <Collection>
+                        <Record Type="Validation.AllowedValue">
+                            <Annotation Term="Core.SymbolicName" String="Folder"/>
+                            <PropertyValue Property="Value" String="NODE"/>
+                        </Record>
+                        <Record Type="Validation.AllowedValue">
+                            <Annotation Term="Core.SymbolicName" String="Environment"/>
+                            <PropertyValue Property="Value" String="ENV_VER"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="EnvironmentService.DraftAdministrativeData" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Draft Administrative Data"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.DraftAdministrativeData/DraftUUID" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+                <Annotation Term="Common.Label" String="Draft (Technical ID)"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.DraftAdministrativeData/CreationDateTime" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Draft Created On"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.DraftAdministrativeData/CreatedByUser" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Draft Created By"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.DraftAdministrativeData/DraftIsCreatedByMe" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+                <Annotation Term="Common.Label" String="Draft Created By Me"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.DraftAdministrativeData/LastChangeDateTime" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Draft Last Changed On"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.DraftAdministrativeData/LastChangedByUser" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Draft Last Changed By"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.DraftAdministrativeData/InProcessByUser" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Draft In Process By"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.DraftAdministrativeData/DraftIsProcessedByMe" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+                <Annotation Term="Common.Label" String="Draft In Process By Me"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentTypes_texts/name" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Name"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentTypes_texts/descr" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.Label" String="Description"/>
+            </Annotations>
+            <Annotations Target="EnvironmentService.EnvironmentTypes_texts/code" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+                <Annotation Term="Common.Label" String="Type"/>
+                <Annotation Term="Validation.AllowedValues">
+                    <Collection>
+                        <Record Type="Validation.AllowedValue">
+                            <Annotation Term="Core.SymbolicName" String="Folder"/>
+                            <PropertyValue Property="Value" String="NODE"/>
+                        </Record>
+                        <Record Type="Validation.AllowedValue">
+                            <Annotation Term="Core.SymbolicName" String="Environment"/>
+                            <PropertyValue Property="Value" String="ENV_VER"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+            </Annotations>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

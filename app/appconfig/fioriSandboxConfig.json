@@ -22,6 +22,15 @@
                   }
                 },
                 {
+                  "id": "EnvironmentsV2",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Environments",
+                    "info": "V2",
+                    "targetURL": "#EnvironmentsV2-manage"
+                  }
+                },
+                {
                   "id": "Functions",
                   "tileType": "sap.ushell.ui.tile.StaticTile",
                   "properties": {
@@ -99,6 +108,26 @@
                 "applicationType": "SAPUI5",
                 "additionalInformation": "SAPUI5.Component=environments",
                 "url": "environments/webapp/"
+              }
+            },
+            "EnvironmentsV2Manage": {
+              "semanticObject": "EnvironmentsV2",
+              "action": "manage",
+              "title": "Environments",
+              "signature": {
+                "parameters": {
+                  "parent_ID": {
+                    "defaultValue": {
+                      "value": ""
+                    }
+                  }
+                },
+                "additionalParameters": "ignored"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=environmentsv2",
+                "url": "environmentsV2/webapp/"
               }
             },
             "FunctionsManage": {

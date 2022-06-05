@@ -68,7 +68,6 @@ entity Environments : managed {
         virtual url            : String;
         virtual icon           : String;
         virtual gotoSubfolders : String                                @title       : 'Go to';
-        virtual nullValue      : String;
 }
 
 @cds.autoexpose

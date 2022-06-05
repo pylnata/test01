@@ -44,7 +44,14 @@ annotate service.Environments with @(UI.LineItem : [
         SemanticObject      : 'Functions', //Target entity
         Action              : 'manage', //Specifies the app of the target entity
         IconUrl             : 'sap-icon://tree', //Icons only supported for inline actions / intend based navigation
-        NavigationAvailable : gotoFunctions,
+        NavigationAvailable : {$edmJson : {$If : [
+            {$Eq : [
+                {$Path : 'type_code'},
+                'NODE'
+            ]},
+            false,
+            true
+        ]}},
         Inline              : true,
         Mapping             : [{
             $Type                  : 'Common.SemanticObjectMappingType',
@@ -139,11 +146,12 @@ annotate service.EnvironmentTypes with {
         ![@UI.TextArrangement] : #TextOnly,
     }
 };
+
 annotate service.Environments with {
     parent_ID @Common.Text : {
-            $value : parent.description,
-            ![@UI.TextArrangement] : #TextOnly,
-        }
+        $value                 : parent.description,
+        ![@UI.TextArrangement] : #TextOnly,
+    }
 };
 
 annotate service.Environments with {
@@ -170,29 +178,32 @@ annotate service.Environments with {
         Common.ValueListWithFixedValues : false
     )
 };
+
 annotate service.Environments with {
-    parent_ID @(Common.ValueList : {
-            $Type : 'Common.ValueListType',
+    parent_ID @(
+        Common.ValueList                : {
+            $Type          : 'Common.ValueListType',
             CollectionPath : 'EnvironmentFolders',
-            Parameters : [
+            Parameters     : [
                 {
-                    $Type : 'Common.ValueListParameterInOut',
+                    $Type             : 'Common.ValueListParameterInOut',
                     LocalDataProperty : parent_ID,
                     ValueListProperty : 'ID',
                 },
                 {
-                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'environment',
                 },
                 {
-                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'version',
                 },
                 {
-                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty : 'description',
                 },
             ],
         },
         Common.ValueListWithFixedValues : true
-)};
+    )
+};
