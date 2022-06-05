@@ -40,29 +40,35 @@ using {Functions} from './functions';
     {Value : version}
 ]
 entity Environments : managed {
-    key ID                       : GUID                                @Common.Text : description  @Common.TextArrangement : #TextOnly;
-        environment              : Environment                         @mandatory;
-        version                  : Version                             @UI.Hidden   : version_isHidden;
-        description              : Description;
-        parent                   : Association to one EnvironmentFolders @title                        : 'Parent';
-        type                     : Association to one EnvironmentTypes @title       : 'Type';
-        fields                   : Association to many Fields
-                                       on fields.environment = $self;
-        checks                   : Association to many Checks
-                                       on checks.environment = $self;
-        currencyConversions      : Association to many CurrencyConversions
-                                       on currencyConversions.environment = $self;
-        unitConversions          : Association to many UnitConversions
-                                       on unitConversions.environment = $self;
-        partitions               : Association to many Partitions
-                                       on partitions.environment = $self;
-        functions                : Association to many Functions
-                                       on functions.environment = $self;
-        virtual version_isHidden : Boolean;
-        virtual url              : String;
-        virtual icon             : String;
-        virtual gotoFunctions    : Boolean                             @title       : 'Model';
-        virtual gotoSubfolders   : String                              @title       : 'Go to';
+    key ID                     : GUID                                  @Common.Text : description  @Common.TextArrangement : #TextOnly;
+        environment            : Environment                           @mandatory;
+        version                : Version                               @UI.Hidden   : {$edmJson : {$If : [
+            {$Eq : [
+                {$Path : 'type_code'},
+                'NODE'
+            ]},
+            true,
+            false
+        ]}};
+        description            : Description;
+        parent                 : Association to one EnvironmentFolders @title       : 'Parent';
+        type                   : Association to one EnvironmentTypes   @title       : 'Type';
+        fields                 : Association to many Fields
+                                     on fields.environment = $self;
+        checks                 : Association to many Checks
+                                     on checks.environment = $self;
+        currencyConversions    : Association to many CurrencyConversions
+                                     on currencyConversions.environment = $self;
+        unitConversions        : Association to many UnitConversions
+                                     on unitConversions.environment = $self;
+        partitions             : Association to many Partitions
+                                     on partitions.environment = $self;
+        functions              : Association to many Functions
+                                     on functions.environment = $self;
+        virtual url            : String;
+        virtual icon           : String;
+        virtual gotoSubfolders : String                                @title       : 'Go to';
+        virtual nullValue      : String;
 }
 
 @cds.autoexpose

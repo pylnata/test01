@@ -3,3 +3,4 @@ ID;ENVIRONMENT;VERSION;DESCRIPTION;TYPE_CODE;PARENT_ID
 2;SXC;0013;Sustainability;ENV_VER;3
 3;SAP;;My Root Folder;NODE;
 4;SAC;;My second root Folder;NODE;
+5;SAX;;My Subfolder;NODE;3
