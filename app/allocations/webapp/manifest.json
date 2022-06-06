@@ -164,23 +164,6 @@
                                         "route": "AllocationReceiverViewsObjectPage"
                                     }
                                 }
-                            },
-                            "controlConfiguration": {
-                                "receiverViews/@com.sap.vocabularies.UI.v1.LineItem#View": {
-                                    "columns": {
-                                        "Selections": {
-                                            "header": "Selections",
-                                            "position": {
-                                                "anchor": "DataField::order_code",
-                                                "placement": "After"
-                                            },
-                                            "template": "allocations.ext.fragment.Selections",
-                                            "width": "150",
-                                            "horizontalAlign": "Begin",
-                                            "availability": "Default"
-                                        }
-                                    }
-                                }
                             }
                         }
                     }
