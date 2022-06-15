@@ -12,7 +12,7 @@ module.exports = function () {
     enrichEnvironments(each, req);
   });
   this.before(["PATCH", "SAVE"], "Environments", (req) => {
-    const textBundle = new textbundle.TextBundle("i18n/environmentService", req.user.locale);
+    const textBundle = new textbundle.TextBundle("i18n/messages", req.user.locale);
     checkParentId(req.data, textBundle, req);
     checkVersion(req.data, textBundle, req);
   });
@@ -40,9 +40,9 @@ function checkParentId(results, textBundle, req) {
   records.forEach((data) => {
     if (data.ID === data.parent_ID) {
       const LOG = cds.log("PAPM");
-      const text = textBundle.getText("ENVID_OWN_PARENT");
+      const text = textBundle.getText("ENVID_OWN_PARENT", [data.ID, data.parent_ID]);
       LOG.error(text);
-      req.error(500, text, "parent_ID", [data.ID, data.parent_ID]);
+      req.error(500, "ENVID_OWN_PARENT", "parent_ID", [data.ID, data.parent_ID]);
       // throw new Error("Some error happened", "parent_ID", [data.ID, data.parent_ID]);
       // req.reject(418, error, [data.ID, data.parent_ID], "parent_ID");
       // throw new Error("Some error happened", { cause: error });
@@ -71,7 +71,7 @@ function checkVersion(results, textBundle, req) {
 
 async function createFolder(req) {
   const d = cds.model.definitions;
-  
-  const data = {type_code: d.EnvironmentType.enum.Folder.val};
+
+  const data = { type_code: d.EnvironmentType.enum.Folder.val };
   await cds.emit("NEW", "Environments", data);
 }
