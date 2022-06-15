@@ -90,8 +90,16 @@
             }
         },
         "resources": {
-            "css": []
-        },
+            "css": [],
+            "js": [
+              {
+                "uri": "libs/react.js"
+              },
+              {
+                "uri": "libs/react-dom.js"
+              }
+          ]
+          },
         "routing": {
             "routes": [
                 {

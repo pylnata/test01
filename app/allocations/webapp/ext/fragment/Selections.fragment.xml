@@ -1,3 +1,10 @@
 <core:FragmentDefinition xmlns:core="sap.ui.core" xmlns="sap.m">
-	<Button core:require="{ handler: 'allocations/ext/fragment/Selections'}" text="Sample Text" press="handler.onPress" />
+	<VBox core:require="{ handler: 'allocations/ext/fragment/Selections'}">
+		<items>
+			<Input id="selectionValue" value="{Selections}" />
+			<Button text="Set value (TableSelectDialog)" press="handler.onPress1" />
+			<Button text="Set value (ReactTree)" press="handler.onPress2" />
+		</items>
+	</VBox>
+
 </core:FragmentDefinition>
